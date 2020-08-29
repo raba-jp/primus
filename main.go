@@ -5,6 +5,11 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	Version  = "unset"
+	Revision = "unset"
+)
+
 func main() {
 	logger, _ := zap.NewDevelopment()
 	zap.ReplaceGlobals(logger)
