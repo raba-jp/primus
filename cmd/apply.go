@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -28,8 +29,10 @@ to quickly create a Cobra application.`,
 		exec := exec.New()
 
 		predeclared := starlark.StringDict{
-			"execute": starlark.NewBuiltin("execute", functions.Execute(context.Background(), exec)),
-			"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
+			"execute":      starlark.NewBuiltin("execute", functions.Execute(context.Background(), exec)),
+			"symlink":      starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
+			"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(context.Background(), http.DefaultClient, fs)),
+			"package":      starlark.NewBuiltin("package", functions.Package(context.Background(), exec)),
 		}
 
 		wd, _ := os.Getwd()
