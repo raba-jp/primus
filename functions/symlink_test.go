@@ -15,7 +15,7 @@ import (
 func TestSymlink(t *testing.T) {
 	wd, _ := os.Getwd()
 	defer func() {
-		os.Chdir(wd)
+		_ = os.Chdir(wd)
 	}()
 	fs := afero.NewOsFs()
 
@@ -25,7 +25,7 @@ func TestSymlink(t *testing.T) {
 	}
 
 	defer func() {
-		fs.RemoveAll(workDir)
+		_ = fs.RemoveAll(workDir)
 	}()
 
 	tests := []struct {
@@ -55,7 +55,7 @@ func TestSymlink(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.data, func(t *testing.T) {
-			afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
+			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 
 			predeclared := starlark.StringDict{
 				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
@@ -86,7 +86,7 @@ func TestSymlink(t *testing.T) {
 func TestSymlink_AlreadyExistsFile(t *testing.T) {
 	wd, _ := os.Getwd()
 	defer func() {
-		os.Chdir(wd)
+		_ = os.Chdir(wd)
 	}()
 	fs := afero.NewOsFs()
 
@@ -96,7 +96,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 	}
 
 	defer func() {
-		fs.RemoveAll(workDir)
+		_ = fs.RemoveAll(workDir)
 	}()
 
 	tests := []struct {
@@ -117,8 +117,8 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.data, func(t *testing.T) {
-			afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
-			afero.WriteFile(fs, tt.dest, []byte("test file"), 0777)
+			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
+			_ = afero.WriteFile(fs, tt.dest, []byte("test file"), 0777)
 
 			predeclared := starlark.StringDict{
 				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
@@ -144,7 +144,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 	wd, _ := os.Getwd()
 	defer func() {
-		os.Chdir(wd)
+		_ = os.Chdir(wd)
 	}()
 	fs := afero.NewOsFs()
 
@@ -154,7 +154,7 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 	}
 
 	defer func() {
-		fs.RemoveAll(workDir)
+		_ = fs.RemoveAll(workDir)
 	}()
 
 	tests := []struct {
@@ -175,11 +175,11 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.data, func(t *testing.T) {
-			afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
+			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 			another := filepath.Join(workDir, "another.txt")
-			afero.WriteFile(fs, another, []byte("another test file"), 0777)
+			_ = afero.WriteFile(fs, another, []byte("another test file"), 0777)
 			l, _ := fs.(afero.Linker)
-			l.SymlinkIfPossible(another, tt.dest)
+			_ = l.SymlinkIfPossible(another, tt.dest)
 
 			predeclared := starlark.StringDict{
 				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
