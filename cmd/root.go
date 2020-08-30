@@ -1,57 +1,49 @@
 package cmd
 
 import (
-	"fmt"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
-
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
-var cfgFile string
+func NewPrimusCommand() *cobra.Command {
+	return NewPrimusCommandWithArgs(os.Stdin, os.Stdout, os.Stderr)
+}
 
-// rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "starlark_iac",
-	Short: "configuration management tool",
-	Long:  "configuration management tool",
+func NewPrimusCommandWithArgs(in io.Reader, out, errout io.Writer) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "primus",
+		Short: "provisioning tool for local machine",
+	}
+
+	cmd.AddCommand(
+		NewApplyCommand(),
+		NewVersionCommand(in, out, errout),
+	)
+	AddLoggingFlag(cmd)
+
+	return cmd
 }
 
 func Execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+	cmd := NewPrimusCommand()
+	if err := cmd.Execute(); err != nil {
+		zap.L().Error("Failed to execute", zap.Error(err))
 		os.Exit(1)
 	}
 }
 
-func init() {
-	cobra.OnInitialize(initConfig)
+func AddLoggingFlag(cmd *cobra.Command) {
+	var debugEnabled bool
+	cmd.PersistentFlags().BoolVar(&debugEnabled, "debug", false, "Debug level output")
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.starlark_iac.yaml)")
-
-	rootCmd.Flags().BoolP("loglevel", "l", false, "Log Level")
-}
-
-func initConfig() {
-	if cfgFile != "" {
-		viper.SetConfigFile(cfgFile)
-	} else {
-		home, err := homedir.Dir()
-		if err != nil {
-			zap.L().Error("Failed to get home directory", zap.Error(err))
-			os.Exit(1)
+	cobra.OnInitialize(func() {
+		if !debugEnabled {
+			enableLogger()
+		} else {
+			enableDebugLogger()
 		}
-
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".starlark_iac")
-	}
-
-	viper.AutomaticEnv()
-
-	if err := viper.ReadInConfig(); err == nil {
-		zap.L().Info("Using config file", zap.String("path", viper.ConfigFileUsed()))
-	}
+	})
 }
