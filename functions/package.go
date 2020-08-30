@@ -31,7 +31,7 @@ func Package(ctx context.Context, execCmd exec.Interface) StarlarkFn {
 func parsePackageFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (name string, err error) {
 	err = starlark.UnpackArgs(b.Name(), args, kargs, "name", &name)
 	if err != nil {
-		return "", xerrors.Errorf("Failed to parse package function args", err)
+		return "", xerrors.Errorf("Failed to parse package function args: %w", err)
 	}
 
 	return
