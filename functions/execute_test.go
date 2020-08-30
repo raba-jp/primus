@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/raba-jp/starlark_iac/functions"
+	"github.com/raba-jp/primus/functions"
 	"go.starlark.net/starlark"
 	"k8s.io/utils/exec"
 	fakeexec "k8s.io/utils/exec/testing"

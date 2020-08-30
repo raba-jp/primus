@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/raba-jp/starlark_iac/functions"
+	"github.com/raba-jp/primus/functions"
 	"github.com/spf13/afero"
 	"go.starlark.net/starlark"
 )
