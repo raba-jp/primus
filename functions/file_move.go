@@ -3,22 +3,23 @@ package functions
 import (
 	"context"
 
-	"github.com/spf13/afero"
+	"github.com/raba-jp/primus/executor"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func FileMove(ctx context.Context, fs afero.Fs) StarlarkFn {
+func FileMove(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 		src, dest, err := parseFileMoveFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
 
-		if err := fs.Rename(src, dest); err != nil {
-			return starlark.False, xerrors.Errorf("Failed to move %s to %s file: %w", src, dest, err)
+		ret, err := exc.FileMove(ctx, &executor.FileMoveParams{Src: src, Dest: dest})
+		if err != nil {
+			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
-		return starlark.True, nil
+		return toStarlarkBool(ret), nil
 	}
 }
 

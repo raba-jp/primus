@@ -1,77 +1,39 @@
 package functions_test
 
 import (
-	"bytes"
 	"context"
-	"io/ioutil"
-	"net/http"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/golang/mock/gomock"
+	mock_executor "github.com/raba-jp/primus/executor/mock"
 	"github.com/raba-jp/primus/functions"
-	"github.com/spf13/afero"
 	"go.starlark.net/starlark"
 )
 
 func TestHttpRequest(t *testing.T) {
-	fs := afero.NewMemMapFs()
-
-	tests := []struct {
-		data     string
-		url      string
-		path     string
-		contents string
-		httpMock func(req *http.Request) *http.Response
-	}{
-		{
-			data:     `http_request(url="https://example.com/", path="/sym/test.txt")`,
-			url:      "https://example.com/",
-			path:     "/sym/test.txt",
-			contents: "test file",
-			httpMock: func(req *http.Request) *http.Response {
-				buf := bytes.NewBufferString("test file")
-				body := ioutil.NopCloser(buf)
-				return &http.Response{
-					Body: body,
-				}
-			},
-		},
+	tests := []string{
+		`http_request(url="https://example.com/", path="/sym/test.txt")`,
+		`http_request("https://example.com/", "/sym/test.txt")`,
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.data, func(t *testing.T) {
+		t.Run(tt, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			m := mock_executor.NewMockExecutor(ctrl)
+			m.EXPECT().HttpRequest(gomock.Any(), gomock.Any()).Return("")
+
 			predeclared := starlark.StringDict{
-				"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(context.Background(), MockHttpClient(tt.httpMock), fs)),
+				"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(context.Background(), m)),
 			}
 			thread := &starlark.Thread{
 				Name: "testing",
 			}
-			_, err := starlark.ExecFile(thread, "test.star", tt.data, predeclared)
+			_, err := starlark.ExecFile(thread, "test.star", tt, predeclared)
 			if err != nil {
 				t.Fatalf("%v", err)
-			}
-			data, err := afero.ReadFile(fs, tt.path)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.contents, string(data)); diff != "" {
-				t.Fatalf(diff)
 			}
 		})
-	}
-}
-
-type MockRoundTripper struct {
-	http.RoundTripper
-	Fn func(req *http.Request) *http.Response
-}
-
-func (m *MockRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	return m.Fn(req), nil
-}
-
-func MockHttpClient(fn func(req *http.Request) *http.Response) *http.Client {
-	return &http.Client{
-		Transport: &MockRoundTripper{Fn: fn},
 	}
 }

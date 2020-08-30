@@ -19,7 +19,7 @@ func NewPrimusCommandWithArgs(in io.Reader, out, errout io.Writer) *cobra.Comman
 	}
 
 	cmd.AddCommand(
-		NewApplyCommand(),
+		NewApplyCommand(in, out, errout),
 		NewVersionCommand(in, out, errout),
 	)
 	AddLoggingFlag(cmd)

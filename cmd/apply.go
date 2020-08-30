@@ -1,32 +1,40 @@
 package cmd
 
 import (
-	"context"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
+	"github.com/raba-jp/primus/exec"
+	"github.com/raba-jp/primus/executor"
 	"github.com/raba-jp/primus/functions"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"go.starlark.net/starlark"
 	"go.uber.org/zap"
-	"k8s.io/utils/exec"
 )
 
-func NewApplyCommand() *cobra.Command {
+func NewApplyCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "apply",
 		Short: "Apply changes",
 		Run: func(cmd *cobra.Command, args []string) {
+			ctx := cmd.Context()
+
 			fs := afero.NewOsFs()
 			exec := exec.New()
+			client := http.DefaultClient
+
+			exc := executor.NewExecutorWithArgs(in, out, errout, exec, fs, client)
 
 			predeclared := starlark.StringDict{
-				"execute":      starlark.NewBuiltin("execute", functions.Execute(context.Background(), exec)),
-				"symlink":      starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), fs)),
-				"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(context.Background(), http.DefaultClient, fs)),
-				"package":      starlark.NewBuiltin("package", functions.Package(context.Background(), exec)),
+				"execute":      starlark.NewBuiltin("execute", functions.Command(ctx, exc)),
+				"symlink":      starlark.NewBuiltin("symlink", functions.Symlink(ctx, exc)),
+				"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(ctx, exc)),
+				"package":      starlark.NewBuiltin("package", functions.Package(ctx, exc)),
+				"file_copy":    starlark.NewBuiltin("file_copy", functions.FileCopy(ctx, exc)),
+				"file_move":    starlark.NewBuiltin("file_move", functions.FileMove(ctx, exc)),
 			}
 
 			wd, _ := os.Getwd()

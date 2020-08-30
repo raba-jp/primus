@@ -2,31 +2,24 @@ package functions
 
 import (
 	"context"
-	"net/http"
 
-	"github.com/spf13/afero"
+	"github.com/raba-jp/primus/executor"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func HttpRequest(ctx context.Context, client *http.Client, fs afero.Fs) StarlarkFn {
+func HttpRequest(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 		url, path, err := parseHttpRequestFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
 
-		res, err := client.Get(url)
+		ret, err := exc.HttpRequest(ctx, &executor.HttpRequestParams{URL: url, Path: path})
 		if err != nil {
-			return starlark.False, xerrors.Errorf("Failed to http request: %w", err)
+			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
-		defer res.Body.Close()
-
-		if err := afero.WriteReader(fs, path, res.Body); err != nil {
-			return starlark.False, xerrors.Errorf("Failed to write response body: %w", err)
-		}
-
-		return starlark.True, nil
+		return toStarlarkBool(ret), nil
 	}
 }
 
