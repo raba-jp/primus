@@ -79,19 +79,19 @@ func (mr *MockExecutorMockRecorder) FileMove(arg0, arg1 interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FileMove", reflect.TypeOf((*MockExecutor)(nil).FileMove), arg0, arg1)
 }
 
-// HttpRequest mocks base method
-func (m *MockExecutor) HttpRequest(arg0 context.Context, arg1 *executor.HttpRequestParams) (bool, error) {
+// HTTPRequest mocks base method
+func (m *MockExecutor) HTTPRequest(arg0 context.Context, arg1 *executor.HTTPRequestParams) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HttpRequest", arg0, arg1)
+	ret := m.ctrl.Call(m, "HTTPRequest", arg0, arg1)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// HttpRequest indicates an expected call of HttpRequest
-func (mr *MockExecutorMockRecorder) HttpRequest(arg0, arg1 interface{}) *gomock.Call {
+// HTTPRequest indicates an expected call of HTTPRequest
+func (mr *MockExecutorMockRecorder) HTTPRequest(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HttpRequest", reflect.TypeOf((*MockExecutor)(nil).HttpRequest), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HTTPRequest", reflect.TypeOf((*MockExecutor)(nil).HTTPRequest), arg0, arg1)
 }
 
 // Package mocks base method

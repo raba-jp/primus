@@ -40,7 +40,7 @@ func TestHttpRequest(t *testing.T) {
 			defer Reset()
 
 			exc := NewTestExecutor()
-			ret, err := exc.HttpRequest(context.Background(), &executor.HttpRequestParams{
+			ret, err := exc.HTTPRequest(context.Background(), &executor.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})

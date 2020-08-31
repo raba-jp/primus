@@ -10,7 +10,7 @@ import (
 	"go.starlark.net/starlark"
 )
 
-func TestExecute(t *testing.T) {
+func TestCommand(t *testing.T) {
 	tests := []struct {
 		data     string
 		wantCmd  string
@@ -18,37 +18,37 @@ func TestExecute(t *testing.T) {
 		hasErr   bool
 	}{
 		{
-			data:     `execute(name="echo", args=["hello", "world"])`,
+			data:     `command(name="echo", args=["hello", "world"])`,
 			wantCmd:  "echo",
 			wantArgs: []string{"hello", "world"},
 			hasErr:   false,
 		},
 		{
-			data:     `execute(name="echo", args=[1])`,
+			data:     `command(name="echo", args=[1])`,
 			wantCmd:  "echo",
 			wantArgs: []string{"1"},
 			hasErr:   false,
 		},
 		{
-			data:     `execute(name="echo", args=[False, True])`,
+			data:     `command(name="echo", args=[False, True])`,
 			wantCmd:  "echo",
 			wantArgs: []string{"false", "true"},
 			hasErr:   false,
 		},
 		{
-			data:     `execute(name="echo", args=[1.111])`,
+			data:     `command(name="echo", args=[1.111])`,
 			wantCmd:  "",
 			wantArgs: nil,
 			hasErr:   true,
 		},
 		{
-			data:     `execute("echo", ["hello", "world"])`,
+			data:     `command("echo", ["hello", "world"])`,
 			wantCmd:  "echo",
 			wantArgs: []string{"hello", "world"},
 			hasErr:   false,
 		},
 		{
-			data:     `execute("echo")`,
+			data:     `command("echo")`,
 			wantCmd:  "echo",
 			wantArgs: []string{},
 			hasErr:   false,
@@ -61,10 +61,12 @@ func TestExecute(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_executor.NewMockExecutor(ctrl)
-			m.EXPECT().Command(gomock.Any(), gomock.Any()).Return("hello world")
+			if !tt.hasErr {
+				m.EXPECT().Command(gomock.Any(), gomock.Any()).Return(true, nil)
+			}
 
 			predeclared := starlark.StringDict{
-				"execute": starlark.NewBuiltin("execute", functions.Command(context.Background(), m)),
+				"command": starlark.NewBuiltin("command", functions.Command(context.Background(), m)),
 			}
 
 			thread := &starlark.Thread{

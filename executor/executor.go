@@ -16,7 +16,7 @@ type Executor interface {
 	Symlink(ctx context.Context, p *SymlinkParams) (bool, error)
 	FileCopy(ctx context.Context, p *FileCopyParams) (bool, error)
 	FileMove(ctx context.Context, p *FileMoveParams) (bool, error)
-	HttpRequest(ctx context.Context, p *HttpRequestParams) (bool, error)
+	HTTPRequest(ctx context.Context, p *HTTPRequestParams) (bool, error)
 	Package(ctx context.Context, p *PackageParams) (bool, error)
 }
 

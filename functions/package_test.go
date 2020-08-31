@@ -22,7 +22,7 @@ func TestPackage(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_executor.NewMockExecutor(ctrl)
-			m.EXPECT().Package(gomock.Any(), gomock.Any()).Return("hello world")
+			m.EXPECT().Package(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
 				"package": starlark.NewBuiltin("package", functions.Package(context.Background(), m)),

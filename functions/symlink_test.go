@@ -22,7 +22,7 @@ func TestSymlink(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_executor.NewMockExecutor(ctrl)
-			m.EXPECT().Symlink(gomock.Any(), gomock.Any()).Return("")
+			m.EXPECT().Symlink(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
 				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), m)),
