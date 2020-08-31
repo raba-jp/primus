@@ -22,7 +22,7 @@ func TestFileMove(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_executor.NewMockExecutor(ctrl)
-			m.EXPECT().FileMove(gomock.Any(), gomock.Any()).Return("")
+			m.EXPECT().FileMove(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
 				"file_move": starlark.NewBuiltin("file_move", functions.FileMove(context.Background(), m)),

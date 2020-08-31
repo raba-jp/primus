@@ -22,7 +22,7 @@ func TestHttpRequest(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_executor.NewMockExecutor(ctrl)
-			m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any()).Return("")
+			m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
 				"http_request": starlark.NewBuiltin("http_request", functions.HTTPRequest(context.Background(), m)),
