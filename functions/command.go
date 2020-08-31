@@ -1,36 +1,32 @@
 package functions
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 
+	"github.com/raba-jp/primus/executor"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
-	"k8s.io/utils/exec"
 )
 
-// Execute external command
-// Example execute(command string, args []string)
-func Execute(ctx context.Context, execCmd exec.Interface) StarlarkFn {
+// Command execute external command
+// Example command(command string, args []string)
+func Command(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
-		cmdName, cmdArgs, err := parseExecuteFnArgs(b, args, kargs)
+		cmdName, cmdArgs, err := parseCommandFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
-
-		cmd := execCmd.CommandContext(ctx, cmdName, cmdArgs...)
-		buf := new(bytes.Buffer)
-		cmd.SetStdout(buf)
-		cmd.SetStderr(buf)
-		if err := cmd.Run(); err != nil {
-			return starlark.False, err
+		// TODO user + cwd
+		ret, err := exc.Command(ctx, &executor.CommandParams{CmdName: cmdName, CmdArgs: cmdArgs})
+		if err != nil {
+			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
-		return starlark.True, nil
+		return toStarlarkBool(ret), nil
 	}
 }
 
-func parseExecuteFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (string, []string, error) {
+func parseCommandFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (string, []string, error) {
 	var cmdName string
 	cmdArgs := &starlark.List{}
 	err := starlark.UnpackArgs(b.Name(), args, kargs, "name", &cmdName, "args?", &cmdArgs)

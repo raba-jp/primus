@@ -2,33 +2,24 @@ package functions
 
 import (
 	"context"
-	"io"
-	"os"
 
-	"github.com/spf13/afero"
+	"github.com/raba-jp/primus/executor"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func FileCopy(ctx context.Context, fs afero.Fs) StarlarkFn {
+func FileCopy(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 		src, dest, err := parseFileCopyFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
 
-		srcFile, err := fs.Open(src)
+		ret, err := exc.FileCopy(ctx, &executor.FileCopyParams{Src: src, Dest: dest})
 		if err != nil {
-			return starlark.False, xerrors.Errorf("Failed to open src file: %w", err)
+			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
-		destFile, err := fs.OpenFile(dest, os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			return starlark.False, xerrors.Errorf("Failed to open dest file: %w", err)
-		}
-		if _, err := io.Copy(destFile, srcFile); err != nil {
-			return starlark.False, xerrors.Errorf("Failed to copy src to dest: %w", err)
-		}
-		return starlark.True, nil
+		return toStarlarkBool(ret), nil
 	}
 }
 
