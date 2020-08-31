@@ -3,9 +3,10 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Go 1.15 build
+    name: lint
     steps:
       - uses: actions/checkout@master
       - uses: golangci/golangci-lint-action@v1
         with:
           version: v1.30
+          only-new-issues: true

@@ -3,7 +3,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Go 1.15 build
+    name: test
     steps:
       - uses: actions/checkout@master
       - name: Setup Go
