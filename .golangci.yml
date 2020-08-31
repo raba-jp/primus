@@ -1,0 +1,23 @@
+run:
+  tests: false
+  skip-dirs:
+    - exec
+linters:
+  disable:
+    - funlen
+    - dupl
+    - gofumpt
+    - nlreturn
+    - wsl
+    - lll
+    - gochecknoglobals
+    - godot
+  disable-all: false
+  presets:
+    - bugs
+    - complexity
+    - format
+    - performance
+    - style
+    - unused
+  fast: false

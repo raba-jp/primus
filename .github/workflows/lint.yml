@@ -1,0 +1,11 @@
+name: lint
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Go 1.15 build
+    steps:
+      - uses: actions/checkout@master
+      - uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.29

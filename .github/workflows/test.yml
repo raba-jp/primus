@@ -1,0 +1,19 @@
+name: test
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Go 1.15 build
+    steps:
+      - uses: actions/checkout@master
+      - name: Setup Go
+        uses: actions/setup-go@v1
+        with:
+          version: 1.15
+      - name: Run go mod download
+        run: go mod download
+      - name: Run tests
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
