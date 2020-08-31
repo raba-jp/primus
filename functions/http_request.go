@@ -8,14 +8,14 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func HttpRequest(ctx context.Context, exc executor.Executor) StarlarkFn {
+func HTTPRequest(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
-		url, path, err := parseHttpRequestFnArgs(b, args, kargs)
+		url, path, err := parseHTTPRequestFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
 
-		ret, err := exc.HttpRequest(ctx, &executor.HttpRequestParams{URL: url, Path: path})
+		ret, err := exc.HTTPRequest(ctx, &executor.HTTPRequestParams{URL: url, Path: path})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
@@ -23,7 +23,7 @@ func HttpRequest(ctx context.Context, exc executor.Executor) StarlarkFn {
 	}
 }
 
-func parseHttpRequestFnArgs(
+func parseHTTPRequestFnArgs(
 	b *starlark.Builtin,
 	args starlark.Tuple,
 	kargs []starlark.Tuple,

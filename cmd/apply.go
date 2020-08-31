@@ -31,7 +31,7 @@ func NewApplyCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Comma
 			predeclared := starlark.StringDict{
 				"execute":      starlark.NewBuiltin("execute", functions.Command(ctx, exc)),
 				"symlink":      starlark.NewBuiltin("symlink", functions.Symlink(ctx, exc)),
-				"http_request": starlark.NewBuiltin("http_request", functions.HttpRequest(ctx, exc)),
+				"http_request": starlark.NewBuiltin("http_request", functions.HTTPRequest(ctx, exc)),
 				"package":      starlark.NewBuiltin("package", functions.Package(ctx, exc)),
 				"file_copy":    starlark.NewBuiltin("file_copy", functions.FileCopy(ctx, exc)),
 				"file_move":    starlark.NewBuiltin("file_move", functions.FileMove(ctx, exc)),
