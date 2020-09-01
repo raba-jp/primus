@@ -1,13 +1,11 @@
-package cmd
+package cli
 
 import (
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/raba-jp/primus/exec"
-	"github.com/raba-jp/primus/executor"
+	"github.com/raba-jp/primus/executor/plan"
 	"github.com/raba-jp/primus/functions"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -15,18 +13,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func NewApplyCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
+func NewPlanCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
 	return &cobra.Command{
-		Use:   "apply",
-		Short: "Apply changes",
+		Use:   "plan",
+		Short: "Show provisioning plan",
 		Run: func(cmd *cobra.Command, args []string) {
 			ctx := cmd.Context()
 
-			fs := afero.NewOsFs()
-			exec := exec.New()
-			client := http.DefaultClient
-
-			exc := executor.NewExecutorWithArgs(in, out, errout, exec, fs, client)
+			exc := plan.NewPlanExecutorWithArgs(out, errout)
 
 			predeclared := starlark.StringDict{
 				"execute":      starlark.NewBuiltin("execute", functions.Command(ctx, exc)),
@@ -39,6 +33,7 @@ func NewApplyCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Comma
 
 			wd, _ := os.Getwd()
 			dummy := filepath.Join(wd, "example.star")
+			fs := afero.NewOsFs()
 			data, _ := afero.ReadFile(fs, dummy)
 			thread := &starlark.Thread{
 				Name: "apply",

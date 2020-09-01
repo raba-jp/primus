@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"io"
@@ -19,6 +19,7 @@ func NewPrimusCommandWithArgs(in io.Reader, out, errout io.Writer) *cobra.Comman
 	}
 
 	cmd.AddCommand(
+		NewPlanCommand(in, out, errout),
 		NewApplyCommand(in, out, errout),
 		NewVersionCommand(in, out, errout),
 	)

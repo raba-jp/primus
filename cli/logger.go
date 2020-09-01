@@ -1,4 +1,4 @@
-package cmd
+package cli
 
 import (
 	"go.uber.org/zap"
