@@ -1,4 +1,4 @@
-package executor_test
+package apply_test
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/raba-jp/primus/exec"
 	"github.com/raba-jp/primus/executor"
+	"github.com/raba-jp/primus/executor/apply"
 	"github.com/spf13/afero"
 )
 
@@ -40,7 +41,7 @@ func NewTestExecutor() executor.Executor {
 		}
 	})
 
-	return executor.NewExecutorWithArgs(in, out, errout, execIF, fs, client)
+	return apply.NewApplyExecutorWithArgs(in, out, errout, execIF, fs, client)
 }
 
 func Reset() {

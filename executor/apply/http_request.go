@@ -1,20 +1,16 @@
-package executor
+package apply
 
 import (
 	"context"
 	"net/http"
 	"time"
 
+	"github.com/raba-jp/primus/executor"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
 
-type HTTPRequestParams struct {
-	URL  string
-	Path string
-}
-
-func (e *executor) HTTPRequest(ctx context.Context, p *HTTPRequestParams) (bool, error) {
+func (e *applyExecutor) HTTPRequest(ctx context.Context, p *executor.HTTPRequestParams) (bool, error) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
 

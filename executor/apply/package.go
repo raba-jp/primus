@@ -1,16 +1,13 @@
-package executor
+package apply
 
 import (
 	"context"
 
+	"github.com/raba-jp/primus/executor"
 	"golang.org/x/xerrors"
 )
 
-type PackageParams struct {
-	Name string
-}
-
-func (e *executor) Package(ctx context.Context, p *PackageParams) (bool, error) {
+func (e *applyExecutor) Package(ctx context.Context, p *executor.PackageParams) (bool, error) {
 	cmd := e.Exec.CommandContext(ctx, "pacman", "-S", "--noconfirm", p.Name)
 	cmd.SetStdout(e.Out)
 	cmd.SetStderr(e.Errout)

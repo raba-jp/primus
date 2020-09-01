@@ -1,20 +1,15 @@
-package executor
+package apply
 
 import (
 	"context"
 
+	"github.com/raba-jp/primus/executor"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
-type SymlinkParams struct {
-	Src  string
-	Dest string
-	User string
-}
-
-func (e *executor) Symlink(ctx context.Context, p *SymlinkParams) (bool, error) {
+func (e *applyExecutor) Symlink(ctx context.Context, p *executor.SymlinkParams) (bool, error) {
 	if ext := e.fileExists(p.Dest); ext {
 		return false, xerrors.New("File already exists")
 	}
@@ -30,7 +25,7 @@ func (e *executor) Symlink(ctx context.Context, p *SymlinkParams) (bool, error) 
 	return true, nil
 }
 
-func (e *executor) fileExists(path string) bool {
+func (e *applyExecutor) fileExists(path string) bool {
 	_, err := e.Fs.Stat(path)
 	if err == nil {
 		zap.L().Info("Already exists file")

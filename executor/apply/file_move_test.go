@@ -1,4 +1,4 @@
-package executor_test
+package apply_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-func TestFileCopy(t *testing.T) {
+func TestFileMove(t *testing.T) {
 	tests := []struct {
 		src      string
 		dest     string
@@ -28,7 +28,7 @@ func TestFileCopy(t *testing.T) {
 		_ = afero.WriteFile(fs, tt.src, []byte(tt.contents), 0777)
 
 		exc := NewTestExecutor()
-		ret, err := exc.FileCopy(context.Background(), &executor.FileCopyParams{
+		ret, err := exc.FileMove(context.Background(), &executor.FileMoveParams{
 			Src:  tt.src,
 			Dest: tt.dest,
 		})
@@ -45,6 +45,9 @@ func TestFileCopy(t *testing.T) {
 		}
 		if diff := cmp.Diff(tt.contents, string(data)); diff != "" {
 			t.Fatalf("%s", diff)
+		}
+		if _, err := fs.Stat(tt.src); err == nil {
+			t.Fatal("src file exists")
 		}
 	}
 }

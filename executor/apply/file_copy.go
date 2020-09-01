@@ -1,20 +1,15 @@
-package executor
+package apply
 
 import (
 	"context"
 	"io"
 	"os"
 
+	"github.com/raba-jp/primus/executor"
 	"golang.org/x/xerrors"
 )
 
-type FileCopyParams struct {
-	Src        string
-	Dest       string
-	Permission os.FileMode
-}
-
-func (e *executor) FileCopy(ctx context.Context, p *FileCopyParams) (bool, error) {
+func (e *applyExecutor) FileCopy(ctx context.Context, p *executor.FileCopyParams) (bool, error) {
 	srcFile, err := e.Fs.Open(p.Src)
 	if err != nil {
 		return false, xerrors.Errorf("Failed to open src file: %w", err)

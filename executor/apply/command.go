@@ -1,4 +1,4 @@
-package executor
+package apply
 
 import (
 	"context"
@@ -6,17 +6,11 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/raba-jp/primus/executor"
 	"golang.org/x/xerrors"
 )
 
-type CommandParams struct {
-	CmdName string
-	CmdArgs []string
-	Cwd     string
-	User    string
-}
-
-func (e *executor) Command(ctx context.Context, p *CommandParams) (bool, error) {
+func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) (bool, error) {
 	cmd := e.Exec.CommandContext(ctx, p.CmdName, p.CmdArgs...)
 	cmd.SetStdout(e.Out)
 	cmd.SetStderr(e.Errout)
@@ -51,7 +45,7 @@ func getUser(name string) (*user.User, error) {
 	return u, nil
 }
 
-func getUid(u *user.User) (uint32, error) {
+func getUID(u *user.User) (uint32, error) {
 	uid, err := strconv.ParseUint(u.Uid, 10, 32)
 	if err != nil {
 		return 0, xerrors.Errorf("%w", err)
@@ -59,7 +53,7 @@ func getUid(u *user.User) (uint32, error) {
 	return uint32(uid), nil
 }
 
-func getGid(u *user.User) (uint32, error) {
+func getGID(u *user.User) (uint32, error) {
 	gid, err := strconv.ParseUint(u.Gid, 10, 32)
 	if err != nil {
 		return 0, xerrors.Errorf("%w", err)
@@ -72,11 +66,11 @@ func newSysProcAttr(name string) (*syscall.SysProcAttr, error) {
 	if err != nil {
 		return nil, err
 	}
-	uid, err := getUid(u)
+	uid, err := getUID(u)
 	if err != nil {
 		return nil, err
 	}
-	gid, err := getGid(u)
+	gid, err := getGID(u)
 	if err != nil {
 		return nil, err
 	}
