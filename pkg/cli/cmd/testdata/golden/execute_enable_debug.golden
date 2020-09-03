@@ -1,0 +1,16 @@
+provisioning tool for local machine
+
+Usage:
+  primus [command]
+
+Available Commands:
+  apply       Apply changes
+  help        Help about any command
+  plan        Show provisioning plan
+  version     Print the version information
+
+Flags:
+      --debug   Debug level output
+  -h, --help    help for primus
+
+Use "primus [command] --help" for more information about a command.

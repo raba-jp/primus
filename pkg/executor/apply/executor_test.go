@@ -41,7 +41,7 @@ func NewTestExecutor() executor.Executor {
 		}
 	})
 
-	return apply.NewApplyExecutorWithArgs(in, out, errout, execIF, fs, client)
+	return apply.NewApplyExecutorWithArgs(execIF, fs, client)
 }
 
 func Reset() {

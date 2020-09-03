@@ -1,7 +1,7 @@
 package main
 
-import "github.com/raba-jp/primus/pkg/cli"
+import "github.com/raba-jp/primus/pkg/cli/cmd"
 
 func main() {
-	cli.Execute()
+	cmd.Execute()
 }

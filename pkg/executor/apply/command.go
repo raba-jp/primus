@@ -7,13 +7,15 @@ import (
 	"syscall"
 
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/internal/writer"
 	"golang.org/x/xerrors"
 )
 
 func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) (bool, error) {
 	cmd := e.Exec.CommandContext(ctx, p.CmdName, p.CmdArgs...)
-	cmd.SetStdout(e.Out)
-	cmd.SetStderr(e.Errout)
+	nop := writer.NopWriter{}
+	cmd.SetStdout(&nop)
+	cmd.SetStderr(&nop)
 	if p.Cwd != "" {
 		cmd.SetDir(p.Cwd)
 	}
