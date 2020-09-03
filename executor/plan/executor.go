@@ -7,13 +7,11 @@ import (
 )
 
 type planExecutor struct {
-	Out    io.Writer
-	Errout io.Writer
+	Out io.Writer
 }
 
-func NewPlanExecutorWithArgs(out io.Writer, errout io.Writer) executor.Executor {
+func NewPlanExecutorWithArgs(out io.Writer) executor.Executor {
 	return &planExecutor{
-		Out:    out,
-		Errout: errout,
+		Out: out,
 	}
 }

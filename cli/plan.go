@@ -1,47 +1,50 @@
 package cli
 
 import (
+	"bytes"
 	"io"
-	"os"
 	"path/filepath"
 
 	"github.com/raba-jp/primus/executor/plan"
-	"github.com/raba-jp/primus/functions"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"go.starlark.net/starlark"
 	"go.uber.org/zap"
+	"golang.org/x/xerrors"
 )
 
 func NewPlanCommand(in io.Reader, out io.Writer, errout io.Writer) *cobra.Command {
 	return &cobra.Command{
 		Use:   "plan",
 		Short: "Show provisioning plan",
-		Run: func(cmd *cobra.Command, args []string) {
+		Args: func(cmd *cobra.Command, args []string) error {
+			if len(args) < 1 {
+				return xerrors.New("requires a entrypoint filepath")
+			}
+			if len(args) > 1 {
+				return xerrors.New("requires only one filepath")
+			}
+			return nil
+		},
+		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			exc := plan.NewPlanExecutorWithArgs(out, errout)
+			buf := new(bytes.Buffer)
+			exc := plan.NewPlanExecutorWithArgs(buf)
 
-			predeclared := starlark.StringDict{
-				"execute":      starlark.NewBuiltin("execute", functions.Command(ctx, exc)),
-				"symlink":      starlark.NewBuiltin("symlink", functions.Symlink(ctx, exc)),
-				"http_request": starlark.NewBuiltin("http_request", functions.HTTPRequest(ctx, exc)),
-				"package":      starlark.NewBuiltin("package", functions.Package(ctx, exc)),
-				"file_copy":    starlark.NewBuiltin("file_copy", functions.FileCopy(ctx, exc)),
-				"file_move":    starlark.NewBuiltin("file_move", functions.FileMove(ctx, exc)),
-			}
-
-			wd, _ := os.Getwd()
-			dummy := filepath.Join(wd, "example.star")
-			fs := afero.NewOsFs()
-			data, _ := afero.ReadFile(fs, dummy)
-			thread := &starlark.Thread{
-				Name: "apply",
-			}
-			_, err := starlark.ExecFile(thread, dummy, data, predeclared)
+			path, err := filepath.Abs(args[0])
 			if err != nil {
-				zap.L().Error("Failed to exec", zap.Error(err))
+				return xerrors.Errorf("Failed to get absolute path: %w", err)
 			}
+			zap.L().Info("entrypoint", zap.String("filepath", path))
+
+			if err := ExecStarlarkFile(ctx, exc, path); err != nil {
+				zap.L().Error("Failed to exec", zap.Error(err))
+				return xerrors.Errorf(": %w", err)
+			}
+
+			if _, err := io.Copy(out, buf); err != nil {
+				return xerrors.Errorf(": %w", err)
+			}
+			return nil
 		},
 	}
 }
