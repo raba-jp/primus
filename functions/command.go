@@ -10,15 +10,14 @@ import (
 )
 
 // Command execute external command
-// Example command(command string, args []string)
+// Example command(command string, args []string, user string, cwd string)
 func Command(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
-		cmdName, cmdArgs, err := parseCommandFnArgs(b, args, kargs)
+		params, err := parseCommandFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
 		}
-		// TODO user + cwd
-		ret, err := exc.Command(ctx, &executor.CommandParams{CmdName: cmdName, CmdArgs: cmdArgs})
+		ret, err := exc.Command(ctx, params)
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
 		}
@@ -26,12 +25,14 @@ func Command(ctx context.Context, exc executor.Executor) StarlarkFn {
 	}
 }
 
-func parseCommandFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (string, []string, error) {
+func parseCommandFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (*executor.CommandParams, error) {
 	var cmdName string
 	cmdArgs := &starlark.List{}
-	err := starlark.UnpackArgs(b.Name(), args, kargs, "name", &cmdName, "args?", &cmdArgs)
+	var user string
+	var cwd string
+	err := starlark.UnpackArgs(b.Name(), args, kargs, "name", &cmdName, "args?", &cmdArgs, "user?", &user, "cwd?", &cwd)
 	if err != nil {
-		return "", nil, xerrors.Errorf("Failed to parse execute function args: %w", err)
+		return nil, xerrors.Errorf("Failed to parse execute function args: %w", err)
 	}
 
 	iter := cmdArgs.Iterate()
@@ -46,7 +47,7 @@ func parseCommandFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starla
 		case "bool":
 			eq, err := starlark.Equal(val, starlark.True)
 			if err != nil {
-				return "", nil, xerrors.Errorf("Faield to parse bool execute function arguments: %s:  (cause: %w)", cmdArgs.String(), err)
+				return nil, xerrors.Errorf("Faield to parse bool execute function arguments: %s:  (cause: %w)", cmdArgs.String(), err)
 			}
 			if eq {
 				cmdArgsStr[index] = "true"
@@ -56,20 +57,25 @@ func parseCommandFnArgs(b *starlark.Builtin, args starlark.Tuple, kargs []starla
 		case "string":
 			str, ok := starlark.AsString(val)
 			if !ok {
-				return "", nil, xerrors.Errorf("Faield to parse string execute function arguments: %s:  (cause: %w)", cmdArgs.String(), err)
+				return nil, xerrors.Errorf("Faield to parse string execute function arguments: %s:  (cause: %w)", cmdArgs.String(), err)
 			}
 			cmdArgsStr[index] = str
 		case "int":
 			i32, err := starlark.AsInt32(val)
 			if err != nil {
-				return "", nil, xerrors.Errorf("Failed parse int32 execute function arguments: %s: cause(%w)", cmdArgs.String(), err)
+				return nil, xerrors.Errorf("Failed parse int32 execute function arguments: %s: cause(%w)", cmdArgs.String(), err)
 			}
 			cmdArgsStr[index] = fmt.Sprintf("%d", i32)
 		case "float":
-			return "", nil, xerrors.New("starlark interpreter does not support floating point")
+			return nil, xerrors.New("starlark interpreter does not support floating point")
 		}
 
 		index++
 	}
-	return cmdName, cmdArgsStr, nil
+	return &executor.CommandParams{
+		CmdName: cmdName,
+		CmdArgs: cmdArgsStr,
+		User:    user,
+		Cwd:     cwd,
+	}, nil
 }
