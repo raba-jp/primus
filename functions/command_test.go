@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/raba-jp/primus/executor"
 	mock_executor "github.com/raba-jp/primus/executor/mock"
 	"github.com/raba-jp/primus/functions"
 	"go.starlark.net/starlark"
@@ -12,46 +13,44 @@ import (
 
 func TestCommand(t *testing.T) {
 	tests := []struct {
-		data     string
-		wantCmd  string
-		wantArgs []string
-		hasErr   bool
+		data   string
+		want   *executor.CommandParams
+		hasErr bool
 	}{
 		{
-			data:     `command(name="echo", args=["hello", "world"])`,
-			wantCmd:  "echo",
-			wantArgs: []string{"hello", "world"},
-			hasErr:   false,
+			data:   `command(name="echo", args=["hello", "world"])`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{"hello", "world"}},
+			hasErr: false,
 		},
 		{
-			data:     `command(name="echo", args=[1])`,
-			wantCmd:  "echo",
-			wantArgs: []string{"1"},
-			hasErr:   false,
+			data:   `command(name="echo", args=[1])`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{"1"}},
+			hasErr: false,
 		},
 		{
-			data:     `command(name="echo", args=[False, True])`,
-			wantCmd:  "echo",
-			wantArgs: []string{"false", "true"},
-			hasErr:   false,
+			data:   `command(name="echo", args=[False, True])`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{"false", "true"}},
+			hasErr: false,
 		},
 		{
-			data:     `command(name="echo", args=[1.111])`,
-			wantCmd:  "",
-			wantArgs: nil,
-			hasErr:   true,
+			data:   `command(name="echo", args=[1.111])`,
+			want:   nil,
+			hasErr: true,
 		},
 		{
-			data:     `command("echo", ["hello", "world"])`,
-			wantCmd:  "echo",
-			wantArgs: []string{"hello", "world"},
-			hasErr:   false,
+			data:   `command("echo", ["hello", "world"])`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{"hello", "world"}},
+			hasErr: false,
 		},
 		{
-			data:     `command("echo")`,
-			wantCmd:  "echo",
-			wantArgs: []string{},
-			hasErr:   false,
+			data:   `command("echo")`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{}},
+			hasErr: false,
+		},
+		{
+			data:   `command("echo", [], user="testuser", cwd="/home/testuser")`,
+			want:   &executor.CommandParams{CmdName: "echo", CmdArgs: []string{}, User: "testuser", Cwd: "/home/testuser"},
+			hasErr: false,
 		},
 	}
 
