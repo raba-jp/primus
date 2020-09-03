@@ -4,12 +4,41 @@ package executor
 
 import (
 	"context"
-	"io"
-	"net/http"
-
-	"github.com/raba-jp/primus/exec"
-	"github.com/spf13/afero"
+	"os"
 )
+
+type CommandParams struct {
+	CmdName string
+	CmdArgs []string
+	Cwd     string
+	User    string
+}
+
+type FileCopyParams struct {
+	Src        string
+	Dest       string
+	Permission os.FileMode
+}
+
+type FileMoveParams struct {
+	Src  string
+	Dest string
+}
+
+type HTTPRequestParams struct {
+	URL  string
+	Path string
+}
+
+type PackageParams struct {
+	Name string
+}
+
+type SymlinkParams struct {
+	Src  string
+	Dest string
+	User string
+}
 
 type Executor interface {
 	Command(ctx context.Context, p *CommandParams) (bool, error)
@@ -18,24 +47,4 @@ type Executor interface {
 	FileMove(ctx context.Context, p *FileMoveParams) (bool, error)
 	HTTPRequest(ctx context.Context, p *HTTPRequestParams) (bool, error)
 	Package(ctx context.Context, p *PackageParams) (bool, error)
-}
-
-type executor struct {
-	In     io.Reader
-	Out    io.Writer
-	Errout io.Writer
-	Exec   exec.Interface
-	Fs     afero.Fs
-	Client *http.Client
-}
-
-func NewExecutorWithArgs(in io.Reader, out io.Writer, errout io.Writer, exc exec.Interface, fs afero.Fs, client *http.Client) Executor {
-	return &executor{
-		In:     in,
-		Out:    out,
-		Errout: errout,
-		Exec:   exc,
-		Fs:     fs,
-		Client: client,
-	}
 }

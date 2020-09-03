@@ -1,4 +1,4 @@
-package executor_test
+package apply_test
 
 import (
 	"bytes"
