@@ -22,6 +22,12 @@ func (e *applyExecutor) Symlink(ctx context.Context, p *executor.SymlinkParams) 
 		return false, xerrors.Errorf("Failed to create symbolic link: %w", err)
 	}
 
+	zap.L().Info(
+		"create symbolic link",
+		zap.String("source", p.Src),
+		zap.String("destination", p.Dest),
+	)
+
 	return true, nil
 }
 

@@ -1,19 +1,23 @@
 package apply
 
 import (
+	"bytes"
 	"context"
 	"os/user"
 	"strconv"
 	"syscall"
 
 	"github.com/raba-jp/primus/pkg/executor"
+	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
 func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) (bool, error) {
 	cmd := e.Exec.CommandContext(ctx, p.CmdName, p.CmdArgs...)
-	cmd.SetStdout(e.Out)
-	cmd.SetStderr(e.Errout)
+	buf := new(bytes.Buffer)
+	errbuf := new(bytes.Buffer)
+	cmd.SetStdout(buf)
+	cmd.SetStderr(errbuf)
 	if p.Cwd != "" {
 		cmd.SetDir(p.Cwd)
 	}
@@ -34,6 +38,18 @@ func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) 
 			err,
 		)
 	}
+	zap.L().Debug(
+		"command output",
+		zap.String("stdout", buf.String()),
+		zap.String("stderr", errbuf.String()),
+	)
+	zap.L().Info(
+		"Executed command",
+		zap.String("cmd", p.CmdName),
+		zap.Strings("args", p.CmdArgs),
+		zap.String("user", p.User),
+		zap.String("cwd", p.Cwd),
+	)
 	return true, nil
 }
 

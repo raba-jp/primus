@@ -2,12 +2,12 @@ package plan
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 )
 
 func (e *planExecutor) FileMove(ctx context.Context, p *executor.FileMoveParams) (bool, error) {
-	fmt.Fprintf(e.Out, "%s => %s", p.Src, p.Dest)
+	ui.Printf("mv %s %s\n", p.Src, p.Dest)
 	return true, nil
 }

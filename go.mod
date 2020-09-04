@@ -3,8 +3,10 @@ module github.com/raba-jp/primus
 go 1.15
 
 require (
+	github.com/fatih/color v1.9.0
 	github.com/golang/mock v1.4.3
 	github.com/google/go-cmp v0.5.2
+	github.com/mattn/go-colorable v0.1.7
 	github.com/spf13/afero v1.3.5
 	github.com/spf13/cobra v1.0.0
 	go.starlark.net v0.0.0-20200821142938-949cc6f4b097
