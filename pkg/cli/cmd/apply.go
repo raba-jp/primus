@@ -5,7 +5,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/args"
 	"github.com/raba-jp/primus/pkg/executor/apply"
-	"github.com/raba-jp/primus/pkg/starlarklib"
+	"github.com/raba-jp/primus/pkg/functions"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
@@ -26,7 +26,7 @@ func NewApplyCommand() *cobra.Command {
 			}
 			zap.L().Info("entrypoint", zap.String("filepath", path))
 
-			if err := starlarklib.ExecStarlarkFile(ctx, exc, path); err != nil {
+			if err := functions.ExecStarlarkFile(ctx, exc, path); err != nil {
 				zap.L().Error("Failed to exec", zap.Error(err))
 				return xerrors.Errorf(": %w", err)
 			}
