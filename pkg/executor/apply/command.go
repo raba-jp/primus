@@ -43,6 +43,13 @@ func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) 
 		zap.String("stdout", buf.String()),
 		zap.String("stderr", errbuf.String()),
 	)
+	zap.L().Info(
+		"Executed command",
+		zap.String("cmd", p.CmdName),
+		zap.Strings("args", p.CmdArgs),
+		zap.String("user", p.User),
+		zap.String("cwd", p.Cwd),
+	)
 	return true, nil
 }
 
