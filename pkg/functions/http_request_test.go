@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -25,7 +24,7 @@ func TestHttpRequest(t *testing.T) {
 			m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
-				"http_request": starlark.NewBuiltin("http_request", functions.HTTPRequest(context.Background(), m)),
+				"http_request": starlark.NewBuiltin("http_request", functions.HTTPRequest(m)),
 			}
 			thread := &starlark.Thread{
 				Name: "testing",

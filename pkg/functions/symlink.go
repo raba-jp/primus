@@ -1,17 +1,17 @@
 package functions
 
 import (
-	"context"
-
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/starlarklib"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
 // Symlink create symbolic link
 // Example symlink(src string, dest string)
-func Symlink(ctx context.Context, exc executor.Executor) StarlarkFn {
+func Symlink(exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		ctx := starlarklib.GetCtx(thread)
 		src, dest, err := parseSymlinkFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)

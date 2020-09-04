@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -65,7 +64,7 @@ func TestCommand(t *testing.T) {
 			}
 
 			predeclared := starlark.StringDict{
-				"command": starlark.NewBuiltin("command", functions.Command(context.Background(), m)),
+				"command": starlark.NewBuiltin("command", functions.Command(m)),
 			}
 
 			thread := &starlark.Thread{

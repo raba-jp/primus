@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -84,7 +83,7 @@ func TestFileCopy(t *testing.T) {
 			m.EXPECT().FileCopy(gomock.Any(), tt.matcher).Return(true, nil)
 
 			predeclared := starlark.StringDict{
-				"file_copy": starlark.NewBuiltin("file_copy", functions.FileCopy(context.Background(), m)),
+				"file_copy": starlark.NewBuiltin("file_copy", functions.FileCopy(m)),
 			}
 			thread := &starlark.Thread{
 				Name: "testing",
