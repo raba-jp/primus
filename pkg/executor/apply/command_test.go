@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/executor"
@@ -55,9 +54,6 @@ func TestExecutor_Command(t *testing.T) {
 			}
 			if !ret {
 				t.Fatalf("Failed to exec command: %s %s", tt.cmd, tt.args)
-			}
-			if diff := cmp.Diff(out.String(), tt.mockStdout); diff != "" {
-				t.Fatalf(diff)
 			}
 		})
 	}
