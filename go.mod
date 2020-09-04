@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/fatih/color v1.9.0
-	github.com/golang/mock v1.4.3
+	github.com/golang/mock v1.4.4
 	github.com/google/go-cmp v0.5.2
 	github.com/mattn/go-colorable v0.1.7
 	github.com/spf13/afero v1.3.5
