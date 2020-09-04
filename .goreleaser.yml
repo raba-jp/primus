@@ -9,8 +9,8 @@ builds:
     binary: primus
     ldflags:
       - -s -w
-      - -X cmd.Version={{.Version}}
-      - -X cmd.Revision={{.ShortCommit}}
+      - -X pkg.cli.cmd.Version={{.Version}}
+      - -X pkg.cli.cmd.Revision={{.ShortCommit}}
     env:
       - CGO_ENABLED=0
 archives:
