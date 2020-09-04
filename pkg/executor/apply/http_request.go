@@ -10,8 +10,10 @@ import (
 	"golang.org/x/xerrors"
 )
 
+const timeout = 10 * time.Minute
+
 func (e *applyExecutor) HTTPRequest(ctx context.Context, p *executor.HTTPRequestParams) (bool, error) {
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Minute)
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
 	req, err := http.NewRequest(http.MethodGet, p.URL, nil)

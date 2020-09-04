@@ -14,7 +14,6 @@ func (e *applyExecutor) FileCopy(ctx context.Context, p *executor.FileCopyParams
 	if err != nil {
 		return false, xerrors.Errorf("Failed to open src file: %w", err)
 	}
-	// permission
 	destFile, err := e.Fs.OpenFile(p.Dest, os.O_WRONLY|os.O_CREATE, p.Permission)
 	if err != nil {
 		return false, xerrors.Errorf("Failed to open dest file: %w", err)
