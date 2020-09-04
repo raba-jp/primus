@@ -23,7 +23,7 @@ func FileMove(ctx context.Context, exc executor.Executor) StarlarkFn {
 			src = filepath.Join(filepath.Dir(path), src)
 		}
 		if !filepath.IsAbs(dest) {
-			src = filepath.Join(filepath.Dir(path), dest)
+			dest = filepath.Join(filepath.Dir(path), dest)
 		}
 
 		ret, err := exc.FileMove(ctx, &executor.FileMoveParams{Src: src, Dest: dest})
