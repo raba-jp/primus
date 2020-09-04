@@ -2,17 +2,28 @@ package functions
 
 import (
 	"context"
+	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/starlarklib"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
 func FileMove(ctx context.Context, exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		path := starlarklib.GetCurrentFilePath(thread)
+
 		src, dest, err := parseFileMoveFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)
+		}
+
+		if !filepath.IsAbs(src) {
+			src = filepath.Join(filepath.Dir(path), src)
+		}
+		if !filepath.IsAbs(dest) {
+			src = filepath.Join(filepath.Dir(path), dest)
 		}
 
 		ret, err := exc.FileMove(ctx, &executor.FileMoveParams{Src: src, Dest: dest})
