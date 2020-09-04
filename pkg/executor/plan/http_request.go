@@ -2,12 +2,12 @@ package plan
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 )
 
 func (e *planExecutor) HTTPRequest(ctx context.Context, p *executor.HTTPRequestParams) (bool, error) {
-	fmt.Fprintf(e.Out, "URL: %s SavePath: %s", p.URL, p.Path)
+	ui.Printf("curl -Lo %s %s\n", p.Path, p.URL)
 	return true, nil
 }

@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"bytes"
 	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/cli/args"
-	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor/plan"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/spf13/cobra"
@@ -21,8 +19,7 @@ func NewPlanCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			buf := new(bytes.Buffer)
-			exc := plan.NewPlanExecutorWithArgs(buf)
+			exc := plan.NewPlanExecutor()
 
 			path, err := filepath.Abs(args[0])
 			if err != nil {
@@ -35,7 +32,6 @@ func NewPlanCommand() *cobra.Command {
 				return xerrors.Errorf(": %w", err)
 			}
 
-			ui.Printf(buf.String())
 			return nil
 		},
 	}

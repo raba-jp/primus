@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 )
 
@@ -14,7 +15,8 @@ func (e *planExecutor) Command(ctx context.Context, p *executor.CommandParams) (
 	for _, arg := range p.CmdArgs {
 		fmt.Fprintf(buf, "%s ", arg)
 	}
+	fmt.Fprintf(buf, "\n")
 
-	fmt.Fprintln(e.Out, buf.String())
+	ui.Printf(buf.String())
 	return true, nil
 }
