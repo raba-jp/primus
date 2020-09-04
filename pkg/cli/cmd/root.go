@@ -5,7 +5,6 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 func NewPrimusCommand() *cobra.Command {
@@ -27,7 +26,6 @@ func NewPrimusCommand() *cobra.Command {
 func Execute() {
 	cmd := NewPrimusCommand()
 	if err := cmd.Execute(); err != nil {
-		zap.L().Error("Failed to execute", zap.Error(err))
 		os.Exit(1)
 	}
 }

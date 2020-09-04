@@ -7,7 +7,6 @@ import (
 	"github.com/raba-jp/primus/pkg/functions"
 	"github.com/spf13/afero"
 	"go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -31,7 +30,6 @@ func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) e
 	}
 	_, err = starlark.ExecFile(thread, path, data, predeclared)
 	if err != nil {
-		zap.L().Error("Failed to exec", zap.Error(err))
 		return xerrors.Errorf("Failed exec file: %w", err)
 	}
 
