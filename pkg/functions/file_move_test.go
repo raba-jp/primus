@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -74,7 +73,7 @@ func TestFileMove(t *testing.T) {
 			m.EXPECT().FileMove(gomock.Any(), tt.matcher).Return(true, nil)
 
 			predeclared := starlark.StringDict{
-				"file_move": starlark.NewBuiltin("file_move", functions.FileMove(context.Background(), m)),
+				"file_move": starlark.NewBuiltin("file_move", functions.FileMove(m)),
 			}
 			thread := &starlark.Thread{
 				Name: "testing",

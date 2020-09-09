@@ -1,18 +1,19 @@
 package functions
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/starlarklib"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
 // Command execute external command
 // Example command(command string, args []string, user string, cwd string)
-func Command(ctx context.Context, exc executor.Executor) StarlarkFn {
+func Command(exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		ctx := starlarklib.GetCtx(thread)
 		params, err := parseCommandFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)

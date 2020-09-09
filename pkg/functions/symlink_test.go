@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -25,7 +24,7 @@ func TestSymlink(t *testing.T) {
 			m.EXPECT().Symlink(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
-				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(context.Background(), m)),
+				"symlink": starlark.NewBuiltin("symlink", functions.Symlink(m)),
 			}
 
 			thread := &starlark.Thread{

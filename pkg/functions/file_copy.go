@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 
@@ -12,8 +11,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func FileCopy(ctx context.Context, exc executor.Executor) StarlarkFn {
+func FileCopy(exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		ctx := starlarklib.GetCtx(thread)
 		path := starlarklib.GetCurrentFilePath(thread)
 
 		params, err := parseFileCopyFnArgs(b, args, kargs)

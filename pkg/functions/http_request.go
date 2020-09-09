@@ -1,15 +1,15 @@
 package functions
 
 import (
-	"context"
-
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/starlarklib"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func HTTPRequest(ctx context.Context, exc executor.Executor) StarlarkFn {
+func HTTPRequest(exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		ctx := starlarklib.GetCtx(thread)
 		url, path, err := parseHTTPRequestFnArgs(b, args, kargs)
 		if err != nil {
 			return starlark.False, xerrors.Errorf(": %w", err)

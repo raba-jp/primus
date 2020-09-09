@@ -1,7 +1,6 @@
 package functions
 
 import (
-	"context"
 	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/executor"
@@ -10,8 +9,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func FileMove(ctx context.Context, exc executor.Executor) StarlarkFn {
+func FileMove(exc executor.Executor) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+		ctx := starlarklib.GetCtx(thread)
 		path := starlarklib.GetCurrentFilePath(thread)
 
 		src, dest, err := parseFileMoveFnArgs(b, args, kargs)

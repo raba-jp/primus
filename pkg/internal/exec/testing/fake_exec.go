@@ -22,7 +22,7 @@ import (
 	"io"
 	"syscall"
 
-	"github.com/raba-jp/primus/pkg/exec"
+	"github.com/raba-jp/primus/pkg/internal/exec"
 )
 
 // FakeExec is a simple scripted Interface type.

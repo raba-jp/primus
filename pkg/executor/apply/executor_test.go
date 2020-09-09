@@ -5,9 +5,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/executor/apply"
+	"github.com/raba-jp/primus/pkg/internal/exec"
 	"github.com/spf13/afero"
 )
 

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/spf13/afero"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
@@ -20,12 +21,12 @@ func toStarlarkBool(v bool) starlark.Value {
 
 func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) error {
 	predeclared := starlark.StringDict{
-		"execute":      starlark.NewBuiltin("execute", Command(ctx, exc)),
-		"symlink":      starlark.NewBuiltin("symlink", Symlink(ctx, exc)),
-		"http_request": starlark.NewBuiltin("http_request", HTTPRequest(ctx, exc)),
-		"package":      starlark.NewBuiltin("package", Package(ctx, exc)),
-		"file_copy":    starlark.NewBuiltin("file_copy", FileCopy(ctx, exc)),
-		"file_move":    starlark.NewBuiltin("file_move", FileMove(ctx, exc)),
+		"execute":      starlark.NewBuiltin("execute", Command(exc)),
+		"symlink":      starlark.NewBuiltin("symlink", Symlink(exc)),
+		"http_request": starlark.NewBuiltin("http_request", HTTPRequest(exc)),
+		"package":      starlark.NewBuiltin("package", Package(exc)),
+		"file_copy":    starlark.NewBuiltin("file_copy", FileCopy(exc)),
+		"file_move":    starlark.NewBuiltin("file_move", FileMove(exc)),
 	}
 
 	fs := afero.NewOsFs()
@@ -35,7 +36,10 @@ func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) e
 	}
 	thread := &starlark.Thread{
 		Name: "main",
+		Load: Load(fs),
 	}
+	starlarklib.SetCtx(ctx, thread)
+
 	_, err = starlark.ExecFile(thread, path, data, predeclared)
 	if err != nil {
 		return xerrors.Errorf("Failed exec file: %w", err)

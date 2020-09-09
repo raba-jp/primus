@@ -1,7 +1,6 @@
 package functions_test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -25,7 +24,7 @@ func TestPackage(t *testing.T) {
 			m.EXPECT().Package(gomock.Any(), gomock.Any()).Return(true, nil)
 
 			predeclared := starlark.StringDict{
-				"package": starlark.NewBuiltin("package", functions.Package(context.Background(), m)),
+				"package": starlark.NewBuiltin("package", functions.Package(m)),
 			}
 
 			thread := &starlark.Thread{
