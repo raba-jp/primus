@@ -29,7 +29,7 @@ func Command(exc executor.Executor) StarlarkFn {
 			CmdName: cmdArgs.Cmd,
 			CmdArgs: cmdArgs.Args,
 			User:    cmdArgs.User,
-			Cwd:     cmdArgs.Cmd,
+			Cwd:     cmdArgs.Cwd,
 		})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)

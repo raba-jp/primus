@@ -19,6 +19,7 @@ func (e *applyExecutor) Command(ctx context.Context, p *executor.CommandParams) 
 	cmd.SetStdout(buf)
 	cmd.SetStderr(errbuf)
 	if p.Cwd != "" {
+		zap.L().Debug("Set directory", zap.String("cwd", p.Cwd))
 		cmd.SetDir(p.Cwd)
 	}
 
