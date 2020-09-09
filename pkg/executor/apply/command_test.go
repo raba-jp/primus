@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/internal/exec"
+	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
 )
 
 func TestExecutor_Command(t *testing.T) {
