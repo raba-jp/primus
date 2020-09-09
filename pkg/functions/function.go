@@ -28,7 +28,6 @@ func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) e
 		"file_copy":    starlark.NewBuiltin("file_copy", FileCopy(exc)),
 		"file_move":    starlark.NewBuiltin("file_move", FileMove(exc)),
 	}
-
 	fs := afero.NewOsFs()
 	data, err := afero.ReadFile(fs, path)
 	if err != nil {
@@ -36,7 +35,7 @@ func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) e
 	}
 	thread := &starlark.Thread{
 		Name: "main",
-		Load: Load(fs),
+		Load: Load(fs, predeclared),
 	}
 	starlarklib.SetCtx(ctx, thread)
 
