@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/functions"
 	"github.com/raba-jp/primus/pkg/starlarklib"
+	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"github.com/spf13/afero"
 	"go.starlark.net/starlark"
 )

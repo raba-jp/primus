@@ -5,7 +5,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/args"
 	"github.com/raba-jp/primus/pkg/executor/plan"
-	"github.com/raba-jp/primus/pkg/functions"
+	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
