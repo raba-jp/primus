@@ -36,6 +36,7 @@ func ExecStarlarkFile(ctx context.Context, exc executor.Executor, path string) e
 	}
 	thread := &starlark.Thread{
 		Name: "main",
+		Load: Load(fs),
 	}
 	starlarklib.SetCtx(ctx, thread)
 
