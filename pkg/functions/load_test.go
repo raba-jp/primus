@@ -65,3 +65,25 @@ child()
 		t.Fatalf("%v", err)
 	}
 }
+
+func TestLoad_AbstractPath(t *testing.T) {
+	fs := afero.NewMemMapFs()
+	if err := afero.WriteFile(fs, "/sym/child.star", []byte(
+		`
+def child():
+	return None
+`), 0644); err != nil {
+		t.Fatalf("%v", err)
+	}
+
+	thread := &starlark.Thread{
+		Name: "main",
+		Load: functions.Load(fs),
+	}
+	starlarklib.SetCtx(context.Background(), thread)
+
+	_, err := starlark.ExecFile(thread, "/sym/parent.star", `load("/sym/child.star", "child")`, nil)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+}

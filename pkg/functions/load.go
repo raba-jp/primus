@@ -13,9 +13,15 @@ type StarlarkLoadFn = func(thread *starlark.Thread, module string) (starlark.Str
 
 func Load(fs afero.Fs) StarlarkLoadFn {
 	return func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
-		path := starlarklib.GetCurrentFilePath(thread)
-		mp := filepath.Join(filepath.Dir(path), module)
-		data, err := afero.ReadFile(fs, mp)
+		var modulePath string
+		if filepath.IsAbs(module) {
+			modulePath = module
+		} else {
+			path := starlarklib.GetCurrentFilePath(thread)
+			modulePath = filepath.Join(filepath.Dir(path), module)
+		}
+
+		data, err := afero.ReadFile(fs, modulePath)
 		if err != nil {
 			return nil, xerrors.Errorf(": %w", err)
 		}
@@ -23,6 +29,6 @@ func Load(fs afero.Fs) StarlarkLoadFn {
 		ctx := starlarklib.GetCtx(thread)
 		childThread := starlarklib.NewThread(module, starlarklib.WithLoad(Load(fs)), starlarklib.WithContext(ctx))
 
-		return starlark.ExecFile(childThread, mp, data, nil)
+		return starlark.ExecFile(childThread, modulePath, data, nil)
 	}
 }
