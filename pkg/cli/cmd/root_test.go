@@ -23,8 +23,8 @@ func TestExecute(t *testing.T) {
 			goldenFile: "execute_no_args.golden",
 		},
 		{
-			name:       "enable debug",
-			args:       []string{"--debug"},
+			name:       "set logLevel",
+			args:       []string{"--logLevel=info"},
 			goldenFile: "execute_enable_debug.golden",
 		},
 	}

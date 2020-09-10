@@ -3,7 +3,8 @@ package cmd
 import (
 	"os"
 
-	"github.com/raba-jp/primus/pkg/cli"
+	"github.com/raba-jp/primus/pkg/cli/logging"
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -31,14 +32,13 @@ func Execute() {
 }
 
 func AddLoggingFlag(cmd *cobra.Command) {
-	var debugEnabled bool
-	cmd.PersistentFlags().BoolVar(&debugEnabled, "debug", false, "Debug level output")
+	var logLevel string
 
+	cmd.PersistentFlags().StringVar(&logLevel, "logLevel", "", "Set log level. Allow info, debug, warn, and error")
 	cobra.OnInitialize(func() {
-		if !debugEnabled {
-			cli.EnableLogger()
-		} else {
-			cli.EnableDebugLogger()
+		if err := logging.EnableLogger(logLevel); err != nil {
+			ui.Errorf("%s", err)
+			os.Exit(1)
 		}
 	})
 }
