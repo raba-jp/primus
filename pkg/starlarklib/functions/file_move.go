@@ -3,6 +3,7 @@ package functions
 import (
 	"path/filepath"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -36,6 +37,7 @@ func FileMove(exc executor.Executor) StarlarkFn {
 			zap.String("source", src),
 			zap.String("destination", dest),
 		)
+		ui.Infof("Coping file. Source: %s, Destination: %s", src, dest)
 		ret, err := exc.FileMove(ctx, &executor.FileMoveParams{Src: src, Dest: dest})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)

@@ -1,6 +1,10 @@
 package functions
 
 import (
+	"bytes"
+	"fmt"
+
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -25,6 +29,13 @@ func Command(exc executor.Executor) StarlarkFn {
 			zap.String("user", cmdArgs.User),
 			zap.String("cwd", cmdArgs.Cwd),
 		)
+
+		buf := new(bytes.Buffer)
+		for _, arg := range cmdArgs.Args {
+			fmt.Fprintf(buf, " %s", arg)
+		}
+		fmt.Fprint(buf, "\n")
+		ui.Infof("Executing command: %s%s", cmdArgs.Cmd, buf.String())
 		ret, err := exc.Command(ctx, &executor.CommandParams{
 			CmdName: cmdArgs.Cmd,
 			CmdArgs: cmdArgs.Args,
