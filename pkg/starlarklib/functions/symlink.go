@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -24,6 +25,7 @@ func Symlink(exc executor.Executor) StarlarkFn {
 			zap.String("source", lnArgs.Src),
 			zap.String("destination", lnArgs.Dest),
 		)
+		ui.Infof("Creating symbolic link. Source: %s, Destination: %s", lnArgs.Src, lnArgs.Dest)
 		ret, err := exc.Symlink(ctx, &executor.SymlinkParams{Src: lnArgs.Src, Dest: lnArgs.Dest})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)

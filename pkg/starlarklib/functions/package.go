@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -21,6 +22,7 @@ func Package(exc executor.Executor) StarlarkFn {
 			"params",
 			zap.String("name", pkgArgs.Name),
 		)
+		ui.Infof("Installing package. Name: %s", pkgArgs.Name)
 		ret, err := exc.Package(ctx, &executor.PackageParams{Name: pkgArgs.Name})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)

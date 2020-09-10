@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -22,6 +23,7 @@ func HTTPRequest(exc executor.Executor) StarlarkFn {
 			zap.String("url", reqArgs.URL),
 			zap.String("path", reqArgs.Path),
 		)
+		ui.Infof("HTTP requesting. URL: %s, Path: %s", reqArgs.URL, reqArgs.Path)
 		ret, err := exc.HTTPRequest(ctx, &executor.HTTPRequestParams{URL: reqArgs.URL, Path: reqArgs.Path})
 		if err != nil {
 			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)

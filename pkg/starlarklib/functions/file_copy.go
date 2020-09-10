@@ -3,6 +3,7 @@ package functions
 import (
 	"path/filepath"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/executor"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
@@ -38,6 +39,7 @@ func FileCopy(exc executor.Executor) StarlarkFn {
 			zap.String("destination", dest),
 			zap.String("permission", perm.String()),
 		)
+		ui.Infof("Coping file. Source: %s, Destination: %s, Permission: %v", src, dest, perm)
 		ret, err := exc.FileCopy(ctx, &executor.FileCopyParams{
 			Src:        src,
 			Dest:       dest,
