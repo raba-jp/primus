@@ -31,7 +31,8 @@ type HTTPRequestParams struct {
 }
 
 type PackageParams struct {
-	Name string
+	Name   string
+	Option string
 }
 
 type SymlinkParams struct {
