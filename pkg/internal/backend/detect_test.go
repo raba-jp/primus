@@ -123,11 +123,11 @@ func TestDetectManjaroLinux(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "fail: Arch Linux",
+			name: "success: empty file",
 			mock: func(fs afero.Fs) {
 				afero.WriteFile(fs, "/etc/arch-release", []byte(""), 0o777)
 			},
-			want: false,
+			want: true,
 		},
 		{
 			name: "fail: not exists /etc/arch-release",
