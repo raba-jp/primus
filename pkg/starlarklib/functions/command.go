@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/executor"
+	"github.com/raba-jp/primus/pkg/internal/backend"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -15,12 +15,12 @@ import (
 
 // Command execute external command
 // Example command(command string, args []string, user string, cwd string)
-func Command(exc executor.Executor) StarlarkFn {
+func Command(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		cmdArgs, err := arguments.NewCommandArgs(b, args, kwargs)
 		if err != nil {
-			return starlark.False, xerrors.Errorf(": %w", err)
+			return retValue, xerrors.Errorf(": %w", err)
 		}
 		zap.L().Debug(
 			"params",
@@ -36,15 +36,14 @@ func Command(exc executor.Executor) StarlarkFn {
 		}
 		fmt.Fprint(buf, "\n")
 		ui.Infof("Executing command: %s%s", cmdArgs.Cmd, buf.String())
-		ret, err := exc.Command(ctx, &executor.CommandParams{
+		if err := be.Command(ctx, &backend.CommandParams{
 			CmdName: cmdArgs.Cmd,
 			CmdArgs: cmdArgs.Args,
 			User:    cmdArgs.User,
 			Cwd:     cmdArgs.Cwd,
-		})
-		if err != nil {
-			return toStarlarkBool(ret), xerrors.Errorf(": %w", err)
+		}); err != nil {
+			return retValue, xerrors.Errorf(": %w", err)
 		}
-		return toStarlarkBool(ret), nil
+		return retValue, nil
 	}
 }

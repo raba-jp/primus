@@ -100,7 +100,7 @@ func TestArchLinuxBackend_Install(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if err := be.Install(context.Background(), "base-devel", "option"); !tt.hasErr && err != nil {
+			if err := be.Install(context.Background(), &backend.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
