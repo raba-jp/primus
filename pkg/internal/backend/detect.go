@@ -12,7 +12,7 @@ type OS int
 const (
 	Unknown OS = iota + 1
 	Darwin
-	Manjaro
+	Arch
 )
 
 func DetectOS(execIF exec.Interface, fs afero.Fs) OS {
@@ -20,7 +20,7 @@ func DetectOS(execIF exec.Interface, fs afero.Fs) OS {
 		return Darwin
 	}
 	if manjaro := DetectArchLinux(fs); manjaro {
-		return Manjaro
+		return Arch
 	}
 	return Unknown
 }

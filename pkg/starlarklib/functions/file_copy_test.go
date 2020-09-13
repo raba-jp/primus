@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/raba-jp/primus/pkg/executor"
-	mock_executor "github.com/raba-jp/primus/pkg/executor/mock"
+	"github.com/raba-jp/primus/pkg/internal/backend"
+	mock_backend "github.com/raba-jp/primus/pkg/internal/backend/mock"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
@@ -16,22 +16,22 @@ func TestFileCopy(t *testing.T) {
 		name     string
 		expr     string
 		filename string
-		mock     func(*mock_executor.MockExecutor)
+		mock     func(*mock_backend.MockBackend)
 		hasErr   bool
 	}{
 		{
 			name:     "success",
 			expr:     `file_copy(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			filename: "test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
-					gomock.Eq(&executor.FileCopyParams{
+					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/src.txt",
 						Dest:       "/sym/dest.txt",
 						Permission: 0o777,
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -39,15 +39,15 @@ func TestFileCopy(t *testing.T) {
 			name:     "success: relative path current path",
 			expr:     `file_copy("src.txt", "dest.txt")`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
-					gomock.Eq(&executor.FileCopyParams{
+					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/src.txt",
 						Dest:       "/sym/test/dest.txt",
 						Permission: 0o777,
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -55,15 +55,15 @@ func TestFileCopy(t *testing.T) {
 			name:     "success: relative path child dir",
 			expr:     `file_copy("test2/src.txt", "test2/dest.txt")`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
-					gomock.Eq(&executor.FileCopyParams{
+					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/test2/src.txt",
 						Dest:       "/sym/test/test2/dest.txt",
 						Permission: 0o777,
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -71,15 +71,15 @@ func TestFileCopy(t *testing.T) {
 			name:     "success: relative path parent dir",
 			expr:     `file_copy("../src.txt", "../dest.txt")`,
 			filename: "/sym/test/test2/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
-					gomock.Eq(&executor.FileCopyParams{
+					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/src.txt",
 						Dest:       "/sym/test/dest.txt",
 						Permission: 0o777,
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -87,15 +87,15 @@ func TestFileCopy(t *testing.T) {
 			name:     "success: with permission",
 			expr:     `file_copy("/sym/src.txt", "/sym/dest.txt", 0o644)`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
-					gomock.Eq(&executor.FileCopyParams{
+					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/src.txt",
 						Dest:       "/sym/dest.txt",
 						Permission: 0o644,
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -103,18 +103,18 @@ func TestFileCopy(t *testing.T) {
 			name:     "error: too many arguments",
 			expr:     `file_copy("src.txt", "dest.txt", 0o644, "too many")`,
 			filename: "/sym/test/test.star",
-			mock:     func(m *mock_executor.MockExecutor) {},
+			mock:     func(m *mock_backend.MockBackend) {},
 			hasErr:   true,
 		},
 		{
 			name:     "error: file copy failed",
 			expr:     `file_copy("src.txt", "dest.txt", 0o644, )`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
 					gomock.Any(),
-				).Return(true, xerrors.New("dummy"))
+				).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},
@@ -125,7 +125,7 @@ func TestFileCopy(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			m := mock_executor.NewMockExecutor(ctrl)
+			m := mock_backend.NewMockBackend(ctrl)
 			tt.mock(m)
 
 			predeclared := starlark.StringDict{

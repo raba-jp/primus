@@ -32,7 +32,7 @@ func TestDetectOS(t *testing.T) {
 				afero.WriteFile(fs, "/etc/arch-release", []byte("Manjaro Linux"), 0o777)
 				return fs
 			},
-			want: backend.Manjaro,
+			want: backend.Arch,
 		},
 		{
 			name:       "fail: Unknown",

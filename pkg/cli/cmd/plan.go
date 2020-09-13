@@ -4,8 +4,10 @@ import (
 	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/cli/args"
-	"github.com/raba-jp/primus/pkg/executor/plan"
+	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/exec"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
@@ -19,7 +21,7 @@ func NewPlanCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := cmd.Context()
 
-			exc := plan.NewPlanExecutor()
+			be := backend.NewDryRunBackend(exec.New(), afero.NewOsFs())
 
 			path, err := filepath.Abs(args[0])
 			if err != nil {
@@ -27,7 +29,7 @@ func NewPlanCommand() *cobra.Command {
 			}
 			zap.L().Info("entrypoint", zap.String("filepath", path))
 
-			if err := functions.ExecStarlarkFile(ctx, exc, path); err != nil {
+			if err := functions.ExecStarlarkFile(ctx, be, path); err != nil {
 				zap.L().Error("Failed to exec", zap.Error(err))
 				return xerrors.Errorf(": %w", err)
 			}

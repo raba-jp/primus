@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/raba-jp/primus/pkg/executor"
-	mock_executor "github.com/raba-jp/primus/pkg/executor/mock"
+	"github.com/raba-jp/primus/pkg/internal/backend"
+	mock_backend "github.com/raba-jp/primus/pkg/internal/backend/mock"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
@@ -16,21 +16,21 @@ func TestFileMove(t *testing.T) {
 		name     string
 		expr     string
 		filename string
-		mock     func(*mock_executor.MockExecutor)
+		mock     func(*mock_backend.MockBackend)
 		hasErr   bool
 	}{
 		{
 			name:     "success",
 			expr:     `file_move(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			filename: "test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
-					gomock.Eq(&executor.FileMoveParams{
+					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -38,14 +38,14 @@ func TestFileMove(t *testing.T) {
 			name:     "success: relative path current path",
 			expr:     `file_move("src.txt", "dest.txt")`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
-					gomock.Eq(&executor.FileMoveParams{
+					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/src.txt",
 						Dest: "/sym/test/dest.txt",
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -53,14 +53,14 @@ func TestFileMove(t *testing.T) {
 			name:     "success: relative path child dir",
 			expr:     `file_move("test2/src.txt", "test2/dest.txt")`,
 			filename: "/sym/test/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
-					gomock.Eq(&executor.FileMoveParams{
+					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/test2/src.txt",
 						Dest: "/sym/test/test2/dest.txt",
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -68,14 +68,14 @@ func TestFileMove(t *testing.T) {
 			name:     "success: relative path parent dir",
 			expr:     `file_move("../src.txt", "../dest.txt")`,
 			filename: "/sym/test/test2/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
-					gomock.Eq(&executor.FileMoveParams{
+					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/src.txt",
 						Dest: "/sym/test/dest.txt",
 					}),
-				).Return(true, nil)
+				).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -83,18 +83,18 @@ func TestFileMove(t *testing.T) {
 			name:     "error: too many arguments",
 			expr:     `file_move("src.txt", "dest.txt", "too many")`,
 			filename: "/sym/test/test2/test.star",
-			mock:     func(m *mock_executor.MockExecutor) {},
+			mock:     func(m *mock_backend.MockBackend) {},
 			hasErr:   true,
 		},
 		{
 			name:     "error: file move failed",
 			expr:     `file_move("src.txt", "dest.txt")`,
 			filename: "/sym/test/test2/test.star",
-			mock: func(m *mock_executor.MockExecutor) {
+			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
 					gomock.Any(),
-				).Return(true, xerrors.New("dummy"))
+				).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},
@@ -105,7 +105,7 @@ func TestFileMove(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			m := mock_executor.NewMockExecutor(ctrl)
+			m := mock_backend.NewMockBackend(ctrl)
 			tt.mock(m)
 
 			predeclared := starlark.StringDict{
