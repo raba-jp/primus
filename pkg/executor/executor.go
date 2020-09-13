@@ -32,7 +32,7 @@ type HTTPRequestParams struct {
 
 type PackageParams struct {
 	Name   string
-	Option strnig
+	Option string
 }
 
 type SymlinkParams struct {
