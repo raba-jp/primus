@@ -1,5 +1,0 @@
-Executing command: echo hello world
-echo hello world 
-Coping file. Source: /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_src.txt, Destination: /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_dest.txt, Permission: -rwxrwxrwxcp /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_src.txt /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_dest.txt
-Coping file. Source: /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_src.txt, Destination: /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_dest.txtmv /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_src.txt /home/sakuraba/dev/src/github.com/raba-jp/primus/pkg/cli/cmd/testdata/testdata_dest.txt
-Creating symbolic link. Source: testdata_src.txt, Destination: testdata_dest.txtln -s testdata_src.txt testdata_dest.txt
