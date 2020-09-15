@@ -21,7 +21,7 @@ func TestCommand(t *testing.T) {
 			name: "success",
 			data: `command(name="echo", args=["hello", "world"])`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Command(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -29,7 +29,7 @@ func TestCommand(t *testing.T) {
 			name: "success: no args",
 			data: `command("echo")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Command(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -37,7 +37,7 @@ func TestCommand(t *testing.T) {
 			name: "success: with user and cwd",
 			data: `command("echo", [], user="testuser", cwd="/home/testuser")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Command(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -51,7 +51,7 @@ func TestCommand(t *testing.T) {
 			name: "error: execute command failed",
 			data: `command("echo")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Command(gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},

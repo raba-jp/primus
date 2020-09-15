@@ -21,7 +21,7 @@ func TestSymlink(t *testing.T) {
 			name: "success",
 			data: `symlink(src="/sym/src.txt", dest="/sys/dest.txt")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Symlink(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().Symlink(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -35,7 +35,7 @@ func TestSymlink(t *testing.T) {
 			name: "error: create symlink failed ",
 			data: `symlink("/sym/src.txt", "/sys/dest.txt")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().Symlink(gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+				m.EXPECT().Symlink(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},

@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/internal/exec"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -32,15 +33,27 @@ func (b *BaseBackend) CheckInstall(ctx context.Context, name string) bool {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Install(ctx context.Context, p *InstallParams) error {
+func (b *BaseBackend) Install(ctx context.Context, dryrun bool, p *InstallParams) error {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Uninstall(ctx context.Context, name string) error {
+func (b *BaseBackend) Uninstall(ctx context.Context, dryrun bool, name string) error {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Command(ctx context.Context, p *CommandParams) error {
+func (b *BaseBackend) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+	if dryrun {
+		buf := new(bytes.Buffer)
+		fmt.Fprintf(buf, "%s ", p.CmdName)
+		for _, arg := range p.CmdArgs {
+			fmt.Fprintf(buf, "%s ", arg)
+		}
+		fmt.Fprintf(buf, "\n")
+
+		ui.Printf(buf.String())
+		return nil
+	}
+
 	cmd := b.Exec.CommandContext(ctx, p.CmdName, p.CmdArgs...)
 	buf := new(bytes.Buffer)
 	errbuf := new(bytes.Buffer)
@@ -125,7 +138,12 @@ func newSysProcAttr(name string) (*syscall.SysProcAttr, error) {
 	return proc, nil
 }
 
-func (b *BaseBackend) FileCopy(ctx context.Context, p *FileCopyParams) error {
+func (b *BaseBackend) FileCopy(ctx context.Context, dryrun bool, p *FileCopyParams) error {
+	if dryrun {
+		ui.Printf("cp %s %s\n", p.Src, p.Dest)
+		return nil
+	}
+
 	srcFile, err := b.Fs.Open(p.Src)
 	if err != nil {
 		return xerrors.Errorf("Failed to open src file: %w", err)
@@ -146,7 +164,12 @@ func (b *BaseBackend) FileCopy(ctx context.Context, p *FileCopyParams) error {
 	return nil
 }
 
-func (b *BaseBackend) FileMove(ctx context.Context, p *FileMoveParams) error {
+func (b *BaseBackend) FileMove(ctx context.Context, dryrun bool, p *FileMoveParams) error {
+	if dryrun {
+		ui.Printf("mv %s %s\n", p.Src, p.Dest)
+		return nil
+	}
+
 	if err := b.Fs.Rename(p.Src, p.Dest); err != nil {
 		return xerrors.Errorf("Failed to move file: %s => %s: %w", p.Src, p.Dest, err)
 	}
@@ -158,7 +181,12 @@ func (b *BaseBackend) FileMove(ctx context.Context, p *FileMoveParams) error {
 	return nil
 }
 
-func (b *BaseBackend) Symlink(ctx context.Context, p *SymlinkParams) error {
+func (b *BaseBackend) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error {
+	if dryrun {
+		ui.Printf("ln -s %s %s\n", p.Src, p.Dest)
+		return nil
+	}
+
 	if ext := b.fileExists(p.Dest); ext {
 		return xerrors.New("File already exists")
 	}
@@ -180,7 +208,12 @@ func (b *BaseBackend) Symlink(ctx context.Context, p *SymlinkParams) error {
 	return nil
 }
 
-func (b *BaseBackend) HTTPRequest(ctx context.Context, p *HTTPRequestParams) error {
+func (b *BaseBackend) HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
+	if dryrun {
+		ui.Printf("curl -Lo %s %s\n", p.Path, p.URL)
+		return nil
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 

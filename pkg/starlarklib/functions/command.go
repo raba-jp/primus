@@ -18,6 +18,7 @@ import (
 func Command(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		cmdArgs, err := arguments.NewCommandArgs(b, args, kwargs)
 		if err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
@@ -36,7 +37,7 @@ func Command(be backend.Backend) StarlarkFn {
 		}
 		fmt.Fprint(buf, "\n")
 		ui.Infof("Executing command: %s%s", cmdArgs.Cmd, buf.String())
-		if err := be.Command(ctx, &backend.CommandParams{
+		if err := be.Command(ctx, dryrun, &backend.CommandParams{
 			CmdName: cmdArgs.Cmd,
 			CmdArgs: cmdArgs.Args,
 			User:    cmdArgs.User,

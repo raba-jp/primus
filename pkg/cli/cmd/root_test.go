@@ -33,7 +33,7 @@ func TestExecute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			buf := new(bytes.Buffer)
-			rootCmd := cmd.NewPrimusCommand()
+			rootCmd := cmd.Initialize()
 			rootCmd.SetOut(buf)
 			rootCmd.SetErr(buf)
 			rootCmd.SetArgs(tt.args)

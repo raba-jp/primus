@@ -26,6 +26,7 @@ func TestFileCopy(t *testing.T) {
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
+					gomock.Any(),
 					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/src.txt",
 						Dest:       "/sym/dest.txt",
@@ -41,6 +42,7 @@ func TestFileCopy(t *testing.T) {
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/src.txt",
@@ -58,6 +60,7 @@ func TestFileCopy(t *testing.T) {
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
+					gomock.Any(),
 					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/test2/src.txt",
 						Dest:       "/sym/test/test2/dest.txt",
@@ -74,6 +77,7 @@ func TestFileCopy(t *testing.T) {
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
 					gomock.Any(),
+					gomock.Any(),
 					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/test/src.txt",
 						Dest:       "/sym/test/dest.txt",
@@ -89,6 +93,7 @@ func TestFileCopy(t *testing.T) {
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Eq(&backend.FileCopyParams{
 						Src:        "/sym/src.txt",
@@ -112,6 +117,7 @@ func TestFileCopy(t *testing.T) {
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileCopy(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
 				).Return(xerrors.New("dummy"))

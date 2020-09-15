@@ -13,6 +13,7 @@ import (
 func HTTPRequest(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		reqArgs, err := arguments.NewHTTPRequestArguments(b, args, kwargs)
 		if err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
@@ -24,7 +25,7 @@ func HTTPRequest(be backend.Backend) StarlarkFn {
 			zap.String("path", reqArgs.Path),
 		)
 		ui.Infof("HTTP requesting. URL: %s, Path: %s", reqArgs.URL, reqArgs.Path)
-		if err := be.HTTPRequest(ctx, &backend.HTTPRequestParams{URL: reqArgs.URL, Path: reqArgs.Path}); err != nil {
+		if err := be.HTTPRequest(ctx, dryrun, &backend.HTTPRequestParams{URL: reqArgs.URL, Path: reqArgs.Path}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil
