@@ -3,6 +3,7 @@ package backend
 import (
 	"context"
 
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/internal/exec"
 	"golang.org/x/xerrors"
 )
@@ -20,7 +21,12 @@ func (b *ArchLinuxBackend) CheckInstall(ctx context.Context, name string) bool {
 	return err == nil
 }
 
-func (b *ArchLinuxBackend) Install(ctx context.Context, p *InstallParams) error {
+func (b *ArchLinuxBackend) Install(ctx context.Context, dryrun bool, p *InstallParams) error {
+	if dryrun {
+		ui.Printf("pacman -S --noconfirm %s %s", p.Option, p.Name)
+		return nil
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, installTimeout)
 	defer cancel()
 	if err := b.Exec.CommandContext(ctx, "pacman", "-S", "--noconfirm", p.Option, p.Name).Run(); err != nil {
@@ -29,7 +35,11 @@ func (b *ArchLinuxBackend) Install(ctx context.Context, p *InstallParams) error 
 	return nil
 }
 
-func (b *ArchLinuxBackend) Uninstall(ctx context.Context, name string) error {
+func (b *ArchLinuxBackend) Uninstall(ctx context.Context, dryrun bool, name string) error {
+	if dryrun {
+		ui.Printf("pacman -R %s", name)
+		return nil
+	}
 	ctx, cancel := context.WithTimeout(ctx, installTimeout)
 	defer cancel()
 	if err := b.Exec.CommandContext(ctx, "pacman", "-R", "--noconfirm", name).Run(); err != nil {
@@ -38,22 +48,22 @@ func (b *ArchLinuxBackend) Uninstall(ctx context.Context, name string) error {
 	return nil
 }
 
-func (b *ArchLinuxBackend) FileCopy(ctx context.Context, p *FileCopyParams) error {
-	return b.BaseBackend.FileCopy(ctx, p)
+func (b *ArchLinuxBackend) FileCopy(ctx context.Context, dryrun bool, p *FileCopyParams) error {
+	return b.BaseBackend.FileCopy(ctx, dryrun, p)
 }
 
-func (b *ArchLinuxBackend) FileMove(ctx context.Context, p *FileMoveParams) error {
-	return b.BaseBackend.FileMove(ctx, p)
+func (b *ArchLinuxBackend) FileMove(ctx context.Context, dryrun bool, p *FileMoveParams) error {
+	return b.BaseBackend.FileMove(ctx, dryrun, p)
 }
 
-func (b *ArchLinuxBackend) Symlink(ctx context.Context, p *SymlinkParams) error {
-	return b.BaseBackend.Symlink(ctx, p)
+func (b *ArchLinuxBackend) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error {
+	return b.BaseBackend.Symlink(ctx, dryrun, p)
 }
 
-func (b *ArchLinuxBackend) HTTPRequest(ctx context.Context, p *HTTPRequestParams) error {
-	return b.BaseBackend.HTTPRequest(ctx, p)
+func (b *ArchLinuxBackend) HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
+	return b.BaseBackend.HTTPRequest(ctx, dryrun, p)
 }
 
-func (b *ArchLinuxBackend) Command(ctx context.Context, p *CommandParams) error {
-	return b.BaseBackend.Command(ctx, p)
+func (b *ArchLinuxBackend) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+	return b.BaseBackend.Command(ctx, dryrun, p)
 }

@@ -11,7 +11,7 @@ import (
 
 type StarlarkLoadFn = func(thread *starlark.Thread, module string) (starlark.StringDict, error)
 
-func Load(fs afero.Fs, predeclared starlark.StringDict) StarlarkLoadFn {
+func Load(dryrun bool, fs afero.Fs, predeclared starlark.StringDict) StarlarkLoadFn {
 	return func(thread *starlark.Thread, module string) (starlark.StringDict, error) {
 		var modulePath string
 		if filepath.IsAbs(module) {
@@ -27,7 +27,12 @@ func Load(fs afero.Fs, predeclared starlark.StringDict) StarlarkLoadFn {
 		}
 
 		ctx := starlarklib.GetCtx(thread)
-		childThread := starlarklib.NewThread(module, starlarklib.WithLoad(Load(fs, predeclared)), starlarklib.WithContext(ctx))
+		childThread := starlarklib.NewThread(
+			module,
+			starlarklib.WithLoad(Load(dryrun, fs, predeclared)),
+			starlarklib.WithContext(ctx),
+			starlarklib.WithDryRun(dryrun),
+		)
 
 		return starlark.ExecFile(childThread, modulePath, data, predeclared)
 	}

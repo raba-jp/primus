@@ -14,7 +14,7 @@ func TestVersion(t *testing.T) {
 	ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 	versionCmd := cmd.NewVersionCommand()
-	if err := executeCommand(versionCmd); err != nil {
+	if err := executeCommand(versionCmd, buf); err != nil {
 		t.Fatalf("%v", err)
 	}
 	if diff := cmp.Diff("unset", buf.String()); diff != "" {

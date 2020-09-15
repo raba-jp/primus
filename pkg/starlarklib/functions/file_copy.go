@@ -15,6 +15,7 @@ import (
 func FileCopy(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		path := starlarklib.GetCurrentFilePath(thread)
 
 		copyArgs, err := arguments.NewFileCopyArguments(b, args, kwargs)
@@ -40,7 +41,7 @@ func FileCopy(be backend.Backend) StarlarkFn {
 			zap.String("permission", perm.String()),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s, Permission: %v", src, dest, perm)
-		if err := be.FileCopy(ctx, &backend.FileCopyParams{
+		if err := be.FileCopy(ctx, dryrun, &backend.FileCopyParams{
 			Src:        src,
 			Dest:       dest,
 			Permission: perm,

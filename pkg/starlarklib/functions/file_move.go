@@ -15,6 +15,7 @@ import (
 func FileMove(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		path := starlarklib.GetCurrentFilePath(thread)
 
 		moveArgs, err := arguments.NewFileMoveArguments(b, args, kwargs)
@@ -38,7 +39,7 @@ func FileMove(be backend.Backend) StarlarkFn {
 			zap.String("destination", dest),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s", src, dest)
-		if err := be.FileMove(ctx, &backend.FileMoveParams{Src: src, Dest: dest}); err != nil {
+		if err := be.FileMove(ctx, dryrun, &backend.FileMoveParams{Src: src, Dest: dest}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

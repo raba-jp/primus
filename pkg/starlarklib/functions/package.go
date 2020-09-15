@@ -13,6 +13,7 @@ import (
 func Package(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		pkgArgs, err := arguments.NewPackageArguments(b, args, kwargs)
 		if err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
@@ -26,7 +27,7 @@ func Package(be backend.Backend) StarlarkFn {
 		if installed := be.CheckInstall(ctx, pkgArgs.Name); installed {
 			return retValue, nil
 		}
-		if err := be.Install(ctx, &backend.InstallParams{Name: pkgArgs.Name}); err != nil {
+		if err := be.Install(ctx, dryrun, &backend.InstallParams{Name: pkgArgs.Name}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

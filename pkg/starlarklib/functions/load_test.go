@@ -22,7 +22,7 @@ def child():
 
 	thread := &starlark.Thread{
 		Name: "main",
-		Load: functions.Load(fs, nil),
+		Load: functions.Load(false, fs, nil),
 	}
 	starlarklib.SetCtx(context.Background(), thread)
 
@@ -53,7 +53,7 @@ def child2():
 
 	thread := &starlark.Thread{
 		Name: "main",
-		Load: functions.Load(fs, nil),
+		Load: functions.Load(false, fs, nil),
 	}
 	starlarklib.SetCtx(context.Background(), thread)
 
@@ -78,7 +78,7 @@ def child():
 
 	thread := &starlark.Thread{
 		Name: "main",
-		Load: functions.Load(fs, nil),
+		Load: functions.Load(false, fs, nil),
 	}
 	starlarklib.SetCtx(context.Background(), thread)
 

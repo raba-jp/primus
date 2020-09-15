@@ -8,24 +8,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewPrimusCommand() *cobra.Command {
+func NewCommand(planCmd PlanCommand, applyCmd ApplyCommand, versionCmd VersionCommand) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "primus",
 		Short: "provisioning tool for local machine",
 	}
 
-	cmd.AddCommand(
-		NewPlanCommand(),
-		NewApplyCommand(),
-		NewVersionCommand(),
-	)
+	cmd.AddCommand(planCmd, applyCmd, versionCmd)
 	AddLoggingFlag(cmd)
 
 	return cmd
 }
 
 func Execute() {
-	cmd := NewPrimusCommand()
+	cmd := Initialize()
 	if err := cmd.Execute(); err != nil {
 		os.Exit(1)
 	}

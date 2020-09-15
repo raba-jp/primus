@@ -48,13 +48,21 @@ type HTTPRequestParams struct {
 
 type Backend interface {
 	CheckInstall(ctx context.Context, name string) bool
-	Install(ctx context.Context, p *InstallParams) error
-	Uninstall(ctx context.Context, name string) error
-	FileCopy(ctx context.Context, p *FileCopyParams) error
-	FileMove(ctx context.Context, p *FileMoveParams) error
-	Symlink(ctx context.Context, p *SymlinkParams) error
-	HTTPRequest(ctx context.Context, p *HTTPRequestParams) error
-	Command(ctx context.Context, p *CommandParams) error
+	Install(ctx context.Context, dryrun bool, p *InstallParams) error
+	Uninstall(ctx context.Context, dryrun bool, name string) error
+	FileCopy(ctx context.Context, dryrun bool, p *FileCopyParams) error
+	FileMove(ctx context.Context, dryrun bool, p *FileMoveParams) error
+	Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error
+	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
+	Command(ctx context.Context, dryrun bool, p *CommandParams) error
+}
+
+func NewFs() afero.Fs {
+	return afero.NewOsFs()
+}
+
+func NewExecInterface() exec.Interface {
+	return exec.New()
 }
 
 func New(execIF exec.Interface, fs afero.Fs) Backend {

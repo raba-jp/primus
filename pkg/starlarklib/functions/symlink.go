@@ -15,6 +15,7 @@ import (
 func Symlink(be backend.Backend) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
+		dryrun := starlarklib.GetDryRun(thread)
 		lnArgs, err := arguments.NewSymlinkArguments(b, args, kwargs)
 		if err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
@@ -26,7 +27,7 @@ func Symlink(be backend.Backend) StarlarkFn {
 			zap.String("destination", lnArgs.Dest),
 		)
 		ui.Infof("Creating symbolic link. Source: %s, Destination: %s", lnArgs.Src, lnArgs.Dest)
-		if err := be.Symlink(ctx, &backend.SymlinkParams{Src: lnArgs.Src, Dest: lnArgs.Dest}); err != nil {
+		if err := be.Symlink(ctx, dryrun, &backend.SymlinkParams{Src: lnArgs.Src, Dest: lnArgs.Dest}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

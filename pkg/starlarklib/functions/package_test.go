@@ -22,7 +22,7 @@ func TestPackage(t *testing.T) {
 			data: `package(name="base-devel")`,
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(false)
-				m.EXPECT().Install(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().Install(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -37,7 +37,7 @@ func TestPackage(t *testing.T) {
 			data: `package(name="base-devel")`,
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(false)
-				m.EXPECT().Install(gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+				m.EXPECT().Install(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},

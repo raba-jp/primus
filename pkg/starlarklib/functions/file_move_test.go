@@ -26,6 +26,7 @@ func TestFileMove(t *testing.T) {
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
+					gomock.Any(),
 					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
@@ -40,6 +41,7 @@ func TestFileMove(t *testing.T) {
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/src.txt",
@@ -56,6 +58,7 @@ func TestFileMove(t *testing.T) {
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
 					gomock.Any(),
+					gomock.Any(),
 					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/test2/src.txt",
 						Dest: "/sym/test/test2/dest.txt",
@@ -70,6 +73,7 @@ func TestFileMove(t *testing.T) {
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Eq(&backend.FileMoveParams{
 						Src:  "/sym/test/src.txt",
@@ -92,6 +96,7 @@ func TestFileMove(t *testing.T) {
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_backend.MockBackend) {
 				m.EXPECT().FileMove(
+					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
 				).Return(xerrors.New("dummy"))

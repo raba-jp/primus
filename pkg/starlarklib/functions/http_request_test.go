@@ -21,7 +21,7 @@ func TestHttpRequest(t *testing.T) {
 			name: "success",
 			data: `http_request(url="https://example.com/", path="/sym/test.txt")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any()).Return(nil)
+				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
 		},
@@ -35,7 +35,7 @@ func TestHttpRequest(t *testing.T) {
 			name: "error: http request failed",
 			data: `http_request("https://example.com/", "/sym/test.txt")`,
 			mock: func(m *mock_backend.MockBackend) {
-				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},

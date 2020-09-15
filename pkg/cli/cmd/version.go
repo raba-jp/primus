@@ -10,7 +10,9 @@ var (
 	Revision = "unset"
 )
 
-func NewVersionCommand() *cobra.Command {
+type VersionCommand *cobra.Command
+
+func NewVersionCommand() VersionCommand {
 	return &cobra.Command{
 		Use:   "version",
 		Short: "Print the version information",

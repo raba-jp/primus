@@ -2,12 +2,10 @@ package cmd_test
 
 import (
 	"bytes"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/cmd"
 )
 
@@ -33,7 +31,7 @@ func TestExecute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			buf := new(bytes.Buffer)
-			rootCmd := cmd.NewPrimusCommand()
+			rootCmd := cmd.Initialize()
 			rootCmd.SetOut(buf)
 			rootCmd.SetErr(buf)
 			rootCmd.SetArgs(tt.args)
@@ -44,18 +42,7 @@ func TestExecute(t *testing.T) {
 
 			wd, _ := os.Getwd()
 			path := filepath.Join(wd, "testdata", "golden", tt.goldenFile)
-			if _, err := os.Stat(path); err != nil {
-				ioutil.WriteFile(path, buf.Bytes(), 0644)
-				return
-			} else {
-				data, err := ioutil.ReadFile(path)
-				if err != nil {
-					t.Fatalf("%v", err)
-				}
-				if diff := cmp.Diff(data, buf.Bytes()); diff != "" {
-					t.Fatal(diff)
-				}
-			}
+			goldenTest(t, path, buf.String())
 		})
 	}
 }
