@@ -1,0 +1,7 @@
+Error: requires a filepath
+Usage:
+   apply [flags]
+
+Flags:
+  -h, --help   help for apply
+
