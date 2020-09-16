@@ -250,3 +250,46 @@ func (b *BaseBackend) fileExists(path string) bool {
 	}
 	return false
 }
+
+func (b *BaseBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handlers.FishSetVariableParams) error {
+	var scope string
+	switch p.Scope {
+	case handlers.FishVariableUniversalScope:
+		scope = "--universal"
+	case handlers.FishVariableGlobalScope:
+		scope = "--global"
+	case handlers.FishVariableLocalScope:
+		scope = "--local"
+	}
+
+	export := ""
+	if p.Export {
+		export = " --export"
+	}
+
+	arg := fmt.Sprintf("'set %s%s %s %s'", scope, export, p.Name, p.Value)
+
+	if dryrun {
+		ui.Printf("fish --command %s\n", arg)
+		return nil
+	}
+
+	cmd := b.Exec.CommandContext(ctx, "fish", "--command", arg)
+	buf := new(bytes.Buffer)
+	errbuf := new(bytes.Buffer)
+	cmd.SetStdout(buf)
+	cmd.SetStderr(errbuf)
+	if err := cmd.Run(); err != nil {
+		return xerrors.Errorf("failed to set variable: fish --command %s: %w", arg, err)
+	}
+	zap.L().Info(
+		"set fish variable",
+		zap.String("name", p.Name),
+		zap.String("value", p.Value),
+		zap.String("scope", scope),
+		zap.Bool("export", p.Export),
+		zap.String("stdout", buf.String()),
+		zap.String("stderr", errbuf.String()),
+	)
+	return nil
+}

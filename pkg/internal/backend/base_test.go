@@ -652,3 +652,135 @@ func TestBaseBackend_Symlink__DryRun(t *testing.T) {
 		})
 	}
 }
+
+func TestBaseBackend_FishSetVariable(t *testing.T) {
+	tests := []struct {
+		name       string
+		mockStdout string
+		mockErr    error
+		params     *handlers.FishSetVariableParams
+		hasErr     bool
+	}{
+		{
+			name:       "success: scope universal",
+			mockStdout: "dummy",
+			mockErr:    nil,
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableUniversalScope,
+				Export: true,
+			},
+			hasErr: false,
+		},
+		{
+			name:       "success: scope global",
+			mockStdout: "dummy",
+			mockErr:    nil,
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableGlobalScope,
+				Export: true,
+			},
+			hasErr: false,
+		},
+		{
+			name:       "success: scope local",
+			mockStdout: "dummy",
+			mockErr:    nil,
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableLocalScope,
+				Export: true,
+			},
+			hasErr: false,
+		},
+		{
+			name:       "success: no export",
+			mockStdout: "dummy",
+			mockErr:    nil,
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableLocalScope,
+				Export: false,
+			},
+			hasErr: false,
+		},
+		{
+			name:       "error",
+			mockStdout: "dummy",
+			mockErr:    xerrors.New("dummy"),
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableUniversalScope,
+				Export: true,
+			},
+			hasErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			execIF := &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte(tt.mockStdout), []byte{}, tt.mockErr
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			}
+
+			be := backend.BaseBackend{Exec: execIF}
+			err := be.FishSetVariable(context.Background(), false, tt.params)
+			if !tt.hasErr && err != nil {
+				t.Fatalf("%v", err)
+			}
+		})
+	}
+}
+
+func TestBaseBackend_FishSetVariable__DryRun(t *testing.T) {
+	tests := []struct {
+		name   string
+		src    string
+		params *handlers.FishSetVariableParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.FishSetVariableParams{
+				Name:   "GOPATH",
+				Value:  "$HOME/go",
+				Scope:  handlers.FishVariableUniversalScope,
+				Export: true,
+			},
+			want: "fish --command 'set --universal --export GOPATH $HOME/go'\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			be := &backend.BaseBackend{}
+			err := be.FishSetVariable(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
+			}
+		})
+	}
+}
