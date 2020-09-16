@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func FileMove(be backend.Backend) StarlarkFn {
+func FileMove(handler handlers.FileMoveHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -39,7 +39,7 @@ func FileMove(be backend.Backend) StarlarkFn {
 			zap.String("destination", dest),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s", src, dest)
-		if err := be.FileMove(ctx, dryrun, &backend.FileMoveParams{Src: src, Dest: dest}); err != nil {
+		if err := handler.FileMove(ctx, dryrun, &handlers.FileMoveParams{Src: src, Dest: dest}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

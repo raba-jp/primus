@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -15,7 +15,7 @@ import (
 
 // Command execute external command
 // Example command(command string, args []string, user string, cwd string)
-func Command(be backend.Backend) StarlarkFn {
+func Command(handler handlers.CommandHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -37,7 +37,7 @@ func Command(be backend.Backend) StarlarkFn {
 		}
 		fmt.Fprint(buf, "\n")
 		ui.Infof("Executing command: %s%s", cmdArgs.Cmd, buf.String())
-		if err := be.Command(ctx, dryrun, &backend.CommandParams{
+		if err := handler.Command(ctx, dryrun, &handlers.CommandParams{
 			CmdName: cmdArgs.Cmd,
 			CmdArgs: cmdArgs.Args,
 			User:    cmdArgs.User,

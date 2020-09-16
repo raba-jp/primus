@@ -2,7 +2,7 @@ package functions
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -12,7 +12,7 @@ import (
 
 // Symlink create symbolic link
 // Example symlink(src string, dest string)
-func Symlink(be backend.Backend) StarlarkFn {
+func Symlink(handler handlers.SymlinkHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -27,7 +27,7 @@ func Symlink(be backend.Backend) StarlarkFn {
 			zap.String("destination", lnArgs.Dest),
 		)
 		ui.Infof("Creating symbolic link. Source: %s, Destination: %s", lnArgs.Src, lnArgs.Dest)
-		if err := be.Symlink(ctx, dryrun, &backend.SymlinkParams{Src: lnArgs.Src, Dest: lnArgs.Dest}); err != nil {
+		if err := handler.Symlink(ctx, dryrun, &handlers.SymlinkParams{Src: lnArgs.Src, Dest: lnArgs.Dest}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil
