@@ -42,6 +42,7 @@ func NewExecFileFn(predeclared Predeclared, fs afero.Fs) ExecFileFn {
 			Load: Load(dryrun, fs, predeclared),
 		}
 		starlarklib.SetCtx(ctx, thread)
+		starlarklib.SetDryRun(thread, dryrun)
 		if _, err := starlark.ExecFile(thread, path, data, predeclared); err != nil {
 			return xerrors.Errorf("Failed exec file: %w", err)
 		}
