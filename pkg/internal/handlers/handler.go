@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/handler.go . CheckInstallHandler,InstallHandler,UninstallHandler,FileCopyHandler,FileMoveHandler,SymlinkHandler,HTTPRequestHandler,CommandHandler
+//go:generate mockgen -destination mock/handler.go . CheckInstallHandler,InstallHandler,UninstallHandler,FileCopyHandler,FileMoveHandler,SymlinkHandler,HTTPRequestHandler,CommandHandler,FishSetVariableHandler
 
 package handlers
 
@@ -122,5 +122,30 @@ type CommandHandler interface {
 type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error
 
 func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+	return f(ctx, dryrun, p)
+}
+
+type FishVariableScope int
+
+const (
+	FishVariableUniversalScope FishVariableScope = iota + 1
+	FishVariableGlobalScope
+	FishVariableLocalScope
+)
+
+type FishSetVariableParams struct {
+	Name   string
+	Value  string
+	Scope  FishVariableScope
+	Export bool
+}
+
+type FishSetVariableHandler interface {
+	FishSetVariable(ctx context.Context, dryrun bool, p *FishSetVariableParams) error
+}
+
+type FishSetVariableHandlerFunc func(ctx context.Context, dryrun bool, p *FishSetVariableParams) error
+
+func (f FishSetVariableHandlerFunc) FishSetVariable(ctx context.Context, dryrun bool, p *FishSetVariableParams) error {
 	return f(ctx, dryrun, p)
 }
