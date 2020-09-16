@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"os"
 
 	"github.com/raba-jp/primus/pkg/cli/logging"
@@ -22,7 +23,7 @@ func NewCommand(planCmd PlanCommand, applyCmd ApplyCommand, versionCmd VersionCo
 
 func Execute() {
 	cmd := Initialize()
-	if err := cmd.Execute(); err != nil {
+	if err := cmd.ExecuteContext(context.Background()); err != nil {
 		os.Exit(1)
 	}
 }
