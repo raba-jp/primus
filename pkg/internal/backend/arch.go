@@ -68,3 +68,7 @@ func (b *ArchLinuxBackend) HTTPRequest(ctx context.Context, dryrun bool, p *hand
 func (b *ArchLinuxBackend) Command(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
 	return b.BaseBackend.Command(ctx, dryrun, p)
 }
+
+func (b *ArchLinuxBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handlers.FishSetVariableParams) error {
+	return b.BaseBackend.FishSetVariable(ctx, dryrun, p)
+}

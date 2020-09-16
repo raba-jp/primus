@@ -84,3 +84,7 @@ func (b *DarwinBackend) HTTPRequest(ctx context.Context, dryrun bool, p *handler
 func (b *DarwinBackend) Command(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
 	return b.BaseBackend.Command(ctx, dryrun, p)
 }
+
+func (b *DarwinBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handlers.FishSetVariableParams) error {
+	return b.BaseBackend.FishSetVariable(ctx, dryrun, p)
+}
