@@ -15,6 +15,7 @@ import (
 	"github.com/raba-jp/primus/pkg/internal/backend"
 	"github.com/raba-jp/primus/pkg/internal/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
@@ -37,14 +38,14 @@ func MockHttpClient(fn func(req *http.Request) *http.Response) *http.Client {
 func TestBaseBackend_Command(t *testing.T) {
 	tests := []struct {
 		name       string
-		params     *backend.CommandParams
+		params     *handlers.CommandParams
 		mockStdout string
 		mockErr    error
 		hasErr     bool
 	}{
 		{
 			name: "success",
-			params: &backend.CommandParams{
+			params: &handlers.CommandParams{
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 			},
@@ -54,7 +55,7 @@ func TestBaseBackend_Command(t *testing.T) {
 		},
 		{
 			name: "success: with user",
-			params: &backend.CommandParams{
+			params: &handlers.CommandParams{
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 				User:    "root",
@@ -65,7 +66,7 @@ func TestBaseBackend_Command(t *testing.T) {
 		},
 		{
 			name: "success: with cwd",
-			params: &backend.CommandParams{
+			params: &handlers.CommandParams{
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 				Cwd:     "/",
@@ -76,7 +77,7 @@ func TestBaseBackend_Command(t *testing.T) {
 		},
 		{
 			name: "success: with user and cwd",
-			params: &backend.CommandParams{
+			params: &handlers.CommandParams{
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 				User:    "root",
@@ -88,7 +89,7 @@ func TestBaseBackend_Command(t *testing.T) {
 		},
 		{
 			name: "error: ",
-			params: &backend.CommandParams{
+			params: &handlers.CommandParams{
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 				User:    "root",
@@ -159,7 +160,7 @@ func TestBaseBackend_Command__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			be := backend.BaseBackend{}
-			err := be.Command(context.Background(), true, &backend.CommandParams{
+			err := be.Command(context.Background(), true, &handlers.CommandParams{
 				CmdName: tt.command,
 				CmdArgs: tt.args,
 			})
@@ -177,7 +178,7 @@ func TestBaseBackend_FileCopy(t *testing.T) {
 	tests := []struct {
 		name       string
 		setup      func() afero.Fs
-		params     *backend.FileCopyParams
+		params     *handlers.FileCopyParams
 		permission os.FileMode
 		contents   string
 		hasErr     bool
@@ -189,7 +190,7 @@ func TestBaseBackend_FileCopy(t *testing.T) {
 				_ = afero.WriteFile(fs, "/sym/src.txt", []byte("test"), 0o777)
 				return fs
 			},
-			params: &backend.FileCopyParams{
+			params: &handlers.FileCopyParams{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
@@ -204,7 +205,7 @@ func TestBaseBackend_FileCopy(t *testing.T) {
 				_ = afero.WriteFile(fs, "/sym/src.txt", []byte("test"), 0o777)
 				return fs
 			},
-			params: &backend.FileCopyParams{
+			params: &handlers.FileCopyParams{
 				Src:        "/sym/src.txt",
 				Dest:       "/sym/dest.txt",
 				Permission: 0o644,
@@ -217,7 +218,7 @@ func TestBaseBackend_FileCopy(t *testing.T) {
 			setup: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
-			params: &backend.FileCopyParams{
+			params: &handlers.FileCopyParams{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
@@ -276,7 +277,7 @@ func TestBaseBackend_FileCopy__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			be := &backend.BaseBackend{}
-			err := be.FileCopy(context.Background(), true, &backend.FileCopyParams{
+			err := be.FileCopy(context.Background(), true, &handlers.FileCopyParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -294,7 +295,7 @@ func TestBaseBackend_FileMove(t *testing.T) {
 	tests := []struct {
 		name     string
 		setup    func() afero.Fs
-		params   *backend.FileMoveParams
+		params   *handlers.FileMoveParams
 		contents string
 		hasErr   bool
 	}{
@@ -305,7 +306,7 @@ func TestBaseBackend_FileMove(t *testing.T) {
 				_ = afero.WriteFile(fs, "/sym/src.txt", []byte("test"), 0777)
 				return fs
 			},
-			params: &backend.FileMoveParams{
+			params: &handlers.FileMoveParams{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
@@ -317,7 +318,7 @@ func TestBaseBackend_FileMove(t *testing.T) {
 			setup: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
-			params: &backend.FileMoveParams{
+			params: &handlers.FileMoveParams{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
@@ -373,7 +374,7 @@ func TestBaseBackend_FileMove__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			be := &backend.BaseBackend{}
-			err := be.FileMove(context.Background(), true, &backend.FileMoveParams{
+			err := be.FileMove(context.Background(), true, &handlers.FileMoveParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -414,7 +415,7 @@ func TestBackend_HTTPRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			be := backend.BaseBackend{Fs: fs, Client: MockHttpClient(tt.httpMock)}
-			err := be.HTTPRequest(context.Background(), false, &backend.HTTPRequestParams{
+			err := be.HTTPRequest(context.Background(), false, &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})
@@ -453,7 +454,7 @@ func TestBaseBackend_HTTPRequest__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			be := backend.BaseBackend{}
-			err := be.HTTPRequest(context.Background(), true, &backend.HTTPRequestParams{
+			err := be.HTTPRequest(context.Background(), true, &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})
@@ -500,7 +501,7 @@ func TestBackend_Symlink(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 
 			be := backend.BaseBackend{Fs: fs}
-			err := be.Symlink(context.Background(), false, &backend.SymlinkParams{
+			err := be.Symlink(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -554,7 +555,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.dest, []byte("test file"), 0777)
 
 			be := backend.BaseBackend{Fs: fs}
-			_ = be.Symlink(context.Background(), false, &backend.SymlinkParams{
+			_ = be.Symlink(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -602,7 +603,7 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 			_ = l.SymlinkIfPossible(another, tt.dest)
 
 			be := backend.BaseBackend{Fs: fs}
-			_ = be.Symlink(context.Background(), false, &backend.SymlinkParams{
+			_ = be.Symlink(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -638,7 +639,7 @@ func TestBaseBackend_Symlink__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			be := &backend.BaseBackend{}
-			err := be.Symlink(context.Background(), true, &backend.SymlinkParams{
+			err := be.Symlink(context.Background(), true, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

@@ -8,6 +8,7 @@ import (
 	"github.com/raba-jp/primus/pkg/internal/backend"
 	"github.com/raba-jp/primus/pkg/internal/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
@@ -181,7 +182,7 @@ func TestDarwinBackend_Install(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
-			if err := be.Install(context.Background(), false, &backend.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
+			if err := be.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
@@ -239,7 +240,7 @@ func TestDarwinBackend_Uninstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
-			if err := be.Uninstall(context.Background(), false, "base-devel"); !tt.hasErr && err != nil {
+			if err := be.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock_backend "github.com/raba-jp/primus/pkg/internal/backend/mock"
+	mock_handlers "github.com/raba-jp/primus/pkg/internal/handlers/mock"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"
@@ -14,13 +14,13 @@ func TestHttpRequest(t *testing.T) {
 	tests := []struct {
 		name   string
 		data   string
-		mock   func(*mock_backend.MockBackend)
+		mock   func(*mock_handlers.MockHTTPRequestHandler)
 		hasErr bool
 	}{
 		{
 			name: "success",
 			data: `http_request(url="https://example.com/", path="/sym/test.txt")`,
-			mock: func(m *mock_backend.MockBackend) {
+			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
 				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
 			hasErr: false,
@@ -28,13 +28,13 @@ func TestHttpRequest(t *testing.T) {
 		{
 			name:   "error: too many arguments",
 			data:   `http_request("https://example.com/", "/sym/test.txt", "too many")`,
-			mock:   func(m *mock_backend.MockBackend) {},
+			mock:   func(m *mock_handlers.MockHTTPRequestHandler) {},
 			hasErr: true,
 		},
 		{
 			name: "error: http request failed",
 			data: `http_request("https://example.com/", "/sym/test.txt")`,
-			mock: func(m *mock_backend.MockBackend) {
+			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
 				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
@@ -46,7 +46,7 @@ func TestHttpRequest(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			m := mock_backend.NewMockBackend(ctrl)
+			m := mock_handlers.NewMockHTTPRequestHandler(ctrl)
 			tt.mock(m)
 
 			predeclared := starlark.StringDict{

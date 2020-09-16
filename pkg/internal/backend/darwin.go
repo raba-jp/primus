@@ -8,6 +8,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/internal/exec"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
@@ -40,7 +41,7 @@ func (b *DarwinBackend) CheckInstall(ctx context.Context, name string) bool {
 	return installed
 }
 
-func (b *DarwinBackend) Install(ctx context.Context, dryrun bool, p *InstallParams) error {
+func (b *DarwinBackend) Install(ctx context.Context, dryrun bool, p *handlers.InstallParams) error {
 	if dryrun {
 		ui.Printf("brew install %s %s", p.Option, p.Name)
 		return nil
@@ -52,34 +53,34 @@ func (b *DarwinBackend) Install(ctx context.Context, dryrun bool, p *InstallPara
 	return nil
 }
 
-func (b *DarwinBackend) Uninstall(ctx context.Context, dryrun bool, name string) error {
+func (b *DarwinBackend) Uninstall(ctx context.Context, dryrun bool, p *handlers.UninstallParams) error {
 	if dryrun {
-		ui.Printf("brew uninstall %s", name)
+		ui.Printf("brew uninstall %s", p.Name)
 		return nil
 	}
 
-	if err := b.Exec.CommandContext(ctx, "brew", "uninstall", name).Run(); err != nil {
+	if err := b.Exec.CommandContext(ctx, "brew", "uninstall", p.Name).Run(); err != nil {
 		return xerrors.Errorf("Remove package failed: %w", err)
 	}
 	return nil
 }
 
-func (b *DarwinBackend) FileCopy(ctx context.Context, dryrun bool, p *FileCopyParams) error {
+func (b *DarwinBackend) FileCopy(ctx context.Context, dryrun bool, p *handlers.FileCopyParams) error {
 	return b.BaseBackend.FileCopy(ctx, dryrun, p)
 }
 
-func (b *DarwinBackend) FileMove(ctx context.Context, dryrun bool, p *FileMoveParams) error {
+func (b *DarwinBackend) FileMove(ctx context.Context, dryrun bool, p *handlers.FileMoveParams) error {
 	return b.BaseBackend.FileMove(ctx, dryrun, p)
 }
 
-func (b *DarwinBackend) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error {
+func (b *DarwinBackend) Symlink(ctx context.Context, dryrun bool, p *handlers.SymlinkParams) error {
 	return b.BaseBackend.Symlink(ctx, dryrun, p)
 }
 
-func (b *DarwinBackend) HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
+func (b *DarwinBackend) HTTPRequest(ctx context.Context, dryrun bool, p *handlers.HTTPRequestParams) error {
 	return b.BaseBackend.HTTPRequest(ctx, dryrun, p)
 }
 
-func (b *DarwinBackend) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+func (b *DarwinBackend) Command(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
 	return b.BaseBackend.Command(ctx, dryrun, p)
 }

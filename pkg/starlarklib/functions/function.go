@@ -22,7 +22,7 @@ func NewPredeclaredFunction(be backend.Backend, execIF exec.Interface, fs afero.
 		"execute":       starlark.NewBuiltin("execute", Command(be)),
 		"symlink":       starlark.NewBuiltin("symlink", Symlink(be)),
 		"http_request":  starlark.NewBuiltin("http_request", HTTPRequest(be)),
-		"package":       starlark.NewBuiltin("package", Package(be)),
+		"package":       starlark.NewBuiltin("package", Package(be, be)),
 		"file_copy":     starlark.NewBuiltin("file_copy", FileCopy(be)),
 		"file_move":     starlark.NewBuiltin("file_move", FileMove(be)),
 		"is_darwin":     starlark.NewBuiltin("is_darwin", IsDarwin(execIF)),

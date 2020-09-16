@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func FileCopy(be backend.Backend) StarlarkFn {
+func FileCopy(handler handlers.FileCopyHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -41,7 +41,7 @@ func FileCopy(be backend.Backend) StarlarkFn {
 			zap.String("permission", perm.String()),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s, Permission: %v", src, dest, perm)
-		if err := be.FileCopy(ctx, dryrun, &backend.FileCopyParams{
+		if err := handler.FileCopy(ctx, dryrun, &handlers.FileCopyParams{
 			Src:        src,
 			Dest:       dest,
 			Permission: perm,

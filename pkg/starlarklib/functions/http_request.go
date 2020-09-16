@@ -2,7 +2,7 @@ package functions
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func HTTPRequest(be backend.Backend) StarlarkFn {
+func HTTPRequest(handler handlers.HTTPRequestHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -25,7 +25,7 @@ func HTTPRequest(be backend.Backend) StarlarkFn {
 			zap.String("path", reqArgs.Path),
 		)
 		ui.Infof("HTTP requesting. URL: %s, Path: %s", reqArgs.URL, reqArgs.Path)
-		if err := be.HTTPRequest(ctx, dryrun, &backend.HTTPRequestParams{URL: reqArgs.URL, Path: reqArgs.Path}); err != nil {
+		if err := handler.HTTPRequest(ctx, dryrun, &handlers.HTTPRequestParams{URL: reqArgs.URL, Path: reqArgs.Path}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

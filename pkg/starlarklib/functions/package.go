@@ -2,7 +2,7 @@ package functions
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func Package(be backend.Backend) StarlarkFn {
+func Package(chHandler handlers.CheckInstallHandler, inHandler handlers.InstallHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
@@ -24,10 +24,10 @@ func Package(be backend.Backend) StarlarkFn {
 			zap.String("name", pkgArgs.Name),
 		)
 		ui.Infof("Installing package. Name: %s", pkgArgs.Name)
-		if installed := be.CheckInstall(ctx, pkgArgs.Name); installed {
+		if installed := chHandler.CheckInstall(ctx, pkgArgs.Name); installed {
 			return retValue, nil
 		}
-		if err := be.Install(ctx, dryrun, &backend.InstallParams{Name: pkgArgs.Name}); err != nil {
+		if err := inHandler.Install(ctx, dryrun, &handlers.InstallParams{Name: pkgArgs.Name}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
 		return retValue, nil

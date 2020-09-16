@@ -14,6 +14,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/internal/exec"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
@@ -24,24 +25,29 @@ const timeout = 10 * time.Minute
 var _ Backend = (*BaseBackend)(nil)
 
 type BaseBackend struct {
-	Exec   exec.Interface
-	Fs     afero.Fs
-	Client *http.Client
+	Exec        exec.Interface
+	Fs          afero.Fs
+	Client      *http.Client
+	FnCallCount int
+}
+
+func (b *BaseBackend) FunctionCallCount() int {
+	return b.FnCallCount
 }
 
 func (b *BaseBackend) CheckInstall(ctx context.Context, name string) bool {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Install(ctx context.Context, dryrun bool, p *InstallParams) error {
+func (b *BaseBackend) Install(ctx context.Context, dryrun bool, p *handlers.InstallParams) error {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Uninstall(ctx context.Context, dryrun bool, name string) error {
+func (b *BaseBackend) Uninstall(ctx context.Context, dryrun bool, p *handlers.UninstallParams) error {
 	panic("Delegate to other backend")
 }
 
-func (b *BaseBackend) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+func (b *BaseBackend) Command(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
 	if dryrun {
 		buf := new(bytes.Buffer)
 		fmt.Fprintf(buf, "%s ", p.CmdName)
@@ -138,7 +144,7 @@ func newSysProcAttr(name string) (*syscall.SysProcAttr, error) {
 	return proc, nil
 }
 
-func (b *BaseBackend) FileCopy(ctx context.Context, dryrun bool, p *FileCopyParams) error {
+func (b *BaseBackend) FileCopy(ctx context.Context, dryrun bool, p *handlers.FileCopyParams) error {
 	if dryrun {
 		ui.Printf("cp %s %s\n", p.Src, p.Dest)
 		return nil
@@ -164,7 +170,7 @@ func (b *BaseBackend) FileCopy(ctx context.Context, dryrun bool, p *FileCopyPara
 	return nil
 }
 
-func (b *BaseBackend) FileMove(ctx context.Context, dryrun bool, p *FileMoveParams) error {
+func (b *BaseBackend) FileMove(ctx context.Context, dryrun bool, p *handlers.FileMoveParams) error {
 	if dryrun {
 		ui.Printf("mv %s %s\n", p.Src, p.Dest)
 		return nil
@@ -181,7 +187,7 @@ func (b *BaseBackend) FileMove(ctx context.Context, dryrun bool, p *FileMovePara
 	return nil
 }
 
-func (b *BaseBackend) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error {
+func (b *BaseBackend) Symlink(ctx context.Context, dryrun bool, p *handlers.SymlinkParams) error {
 	if dryrun {
 		ui.Printf("ln -s %s %s\n", p.Src, p.Dest)
 		return nil
@@ -208,7 +214,7 @@ func (b *BaseBackend) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams
 	return nil
 }
 
-func (b *BaseBackend) HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
+func (b *BaseBackend) HTTPRequest(ctx context.Context, dryrun bool, p *handlers.HTTPRequestParams) error {
 	if dryrun {
 		ui.Printf("curl -Lo %s %s\n", p.Path, p.URL)
 		return nil

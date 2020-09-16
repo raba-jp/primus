@@ -8,6 +8,7 @@ import (
 	"github.com/raba-jp/primus/pkg/internal/backend"
 	"github.com/raba-jp/primus/pkg/internal/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
+	"github.com/raba-jp/primus/pkg/internal/handlers"
 	"golang.org/x/xerrors"
 )
 
@@ -100,7 +101,7 @@ func TestArchLinuxBackend_Install(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if err := be.Install(context.Background(), false, &backend.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
+			if err := be.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
@@ -158,7 +159,7 @@ func TestArchLinuxBackend_Uninstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if err := be.Uninstall(context.Background(), false, "base-devel"); !tt.hasErr && err != nil {
+			if err := be.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
