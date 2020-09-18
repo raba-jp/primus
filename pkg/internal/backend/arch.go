@@ -72,3 +72,7 @@ func (b *ArchLinuxBackend) Command(ctx context.Context, dryrun bool, p *handlers
 func (b *ArchLinuxBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handlers.FishSetVariableParams) error {
 	return b.BaseBackend.FishSetVariable(ctx, dryrun, p)
 }
+
+func (b *ArchLinuxBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.FishSetPathParams) error {
+	return b.BaseBackend.FishSetPath(ctx, dryrun, p)
+}

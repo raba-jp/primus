@@ -20,6 +20,7 @@ type Backend interface {
 	handlers.HTTPRequestHandler
 	handlers.CommandHandler
 	handlers.FishSetVariableHandler
+	handlers.FishSetPathHandler
 }
 
 func NewFs() afero.Fs {
