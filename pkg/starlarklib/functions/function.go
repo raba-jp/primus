@@ -28,6 +28,7 @@ func NewPredeclaredFunction(be backend.Backend, execIF exec.Interface, fs afero.
 		"is_darwin":         starlark.NewBuiltin("is_darwin", IsDarwin(execIF)),
 		"is_arch_linux":     starlark.NewBuiltin("is_arch_linux", IsArchLinux(fs)),
 		"fish_set_variable": starlark.NewBuiltin("fish_set_variable", FishSetVariable(be)),
+		"fish_set_path":     starlark.NewBuiltin("fish_set_path", FishSetPath(be)),
 	}
 }
 
