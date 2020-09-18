@@ -9,13 +9,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommand(planCmd PlanCommand, applyCmd ApplyCommand, versionCmd VersionCommand) *cobra.Command {
+func NewCommand(
+	planCmd PlanCommand,
+	applyCmd ApplyCommand,
+	versionCmd VersionCommand,
+	replCmd ReplCommand,
+) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "primus",
 		Short: "provisioning tool for local machine",
 	}
 
-	cmd.AddCommand(planCmd, applyCmd, versionCmd)
+	cmd.AddCommand(planCmd, applyCmd, versionCmd, replCmd)
 	AddLoggingFlag(cmd)
 
 	return cmd
