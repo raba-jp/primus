@@ -784,3 +784,90 @@ func TestBaseBackend_FishSetVariable__DryRun(t *testing.T) {
 		})
 	}
 }
+
+func TestBaseBackend_FishSetPath(t *testing.T) {
+	tests := []struct {
+		name       string
+		mockStdout string
+		mockErr    error
+		params     *handlers.FishSetPathParams
+		hasErr     bool
+	}{
+		{
+			name:       "success",
+			mockStdout: "dummy",
+			mockErr:    nil,
+			params: &handlers.FishSetPathParams{
+				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
+			},
+			hasErr: false,
+		},
+		{
+			name:       "error",
+			mockStdout: "dummy",
+			mockErr:    xerrors.New("dummy"),
+			params: &handlers.FishSetPathParams{
+				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
+			},
+			hasErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			execIF := &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte(tt.mockStdout), []byte{}, tt.mockErr
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			}
+
+			be := backend.BaseBackend{Exec: execIF}
+			err := be.FishSetPath(context.Background(), false, tt.params)
+			if !tt.hasErr && err != nil {
+				t.Fatalf("%v", err)
+			}
+		})
+	}
+}
+
+func TestBaseBackend_FishSetPath__DryRun(t *testing.T) {
+	tests := []struct {
+		name   string
+		src    string
+		params *handlers.FishSetPathParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.FishSetPathParams{
+				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
+			},
+			want: "fish --command 'set --universal fish_user_paths $GOPATH/bin $HOME/.bin'\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			be := &backend.BaseBackend{}
+			err := be.FishSetPath(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
+			}
+		})
+	}
+}

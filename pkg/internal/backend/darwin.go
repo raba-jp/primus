@@ -88,3 +88,7 @@ func (b *DarwinBackend) Command(ctx context.Context, dryrun bool, p *handlers.Co
 func (b *DarwinBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handlers.FishSetVariableParams) error {
 	return b.BaseBackend.FishSetVariable(ctx, dryrun, p)
 }
+
+func (b *DarwinBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.FishSetPathParams) error {
+	return b.BaseBackend.FishSetPath(ctx, dryrun, p)
+}

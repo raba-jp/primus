@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/user"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -291,5 +292,25 @@ func (b *BaseBackend) FishSetVariable(ctx context.Context, dryrun bool, p *handl
 		zap.String("stdout", buf.String()),
 		zap.String("stderr", errbuf.String()),
 	)
+	return nil
+}
+
+func (b *BaseBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.FishSetPathParams) error {
+	path := fmt.Sprintf("'set --universal fish_user_paths %s'", strings.Join(p.Values, " "))
+
+	if dryrun {
+		ui.Printf("fish --command %s\n", path)
+		return nil
+	}
+
+	cmd := b.Exec.CommandContext(ctx, "fish", "--command", path)
+	buf := new(bytes.Buffer)
+	errbuf := new(bytes.Buffer)
+	cmd.SetStdout(buf)
+	cmd.SetStderr(errbuf)
+	if err := cmd.Run(); err != nil {
+		return xerrors.Errorf("failed to set path: fish --command 'set --universal fish_user_path %s': %w", path, err)
+	}
+	zap.L().Info("set fish path", zap.Strings("values", p.Values))
 	return nil
 }
