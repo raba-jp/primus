@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/raba-jp/primus/pkg/internal/repl"
+	"github.com/raba-jp/primus/pkg/internal/promptlib"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ func NewReplCommand() ReplCommand {
 		Use:   "repl",
 		Short: "Start REPL",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			repl.NewPrompt()
+			promptlib.NewPrompt()
 			return nil
 		},
 	}
