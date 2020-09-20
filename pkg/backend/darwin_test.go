@@ -5,28 +5,55 @@ import (
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/internal/backend"
-	"github.com/raba-jp/primus/pkg/internal/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
-	"github.com/raba-jp/primus/pkg/internal/handlers"
+	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/raba-jp/primus/pkg/exec"
+	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
+	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
 
-func TestArchLinuxBackend_CheckInstall(t *testing.T) {
+func TestDarwinBackend_CheckInstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
+		fs       func() afero.Fs
 		want     bool
 	}{
 		{
-			name: "success",
+			name: "success: $(brew --prefix)/Celler",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
 							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte("/opt/"), []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/opt/Celler/cat", []byte{}, 0o777)
+				return fs
+			},
+			want: true,
+		},
+		{
+			name: "success: /opt/homebrew-cask/Caskroom",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
 								func() ([]byte, []byte, error) {
 									return []byte{}, []byte{}, nil
 								},
@@ -36,21 +63,75 @@ func TestArchLinuxBackend_CheckInstall(t *testing.T) {
 					},
 				},
 			},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/opt/homebrew-cask/Caskroom/cat", []byte{}, 0o777)
+				return fs
+			},
 			want: true,
+		},
+		{
+			name: "success: /usr/local/Caskroom",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/usr/local/Caskroom/cat", []byte{}, 0o777)
+				return fs
+			},
+			want: true,
+		},
+		{
+			name: "error: not found",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				return fs
+			},
+			want: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if res := be.CheckInstall(context.Background(), "base-devel"); res != tt.want {
+			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: tt.fs()}
+			if res := be.CheckInstall(context.Background(), "cat"); res != tt.want {
 				t.Fatal("Fail")
 			}
 		})
 	}
 }
 
-func TestArchLinuxBackend_Install(t *testing.T) {
+func TestDarwinBackend_Install(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -100,7 +181,7 @@ func TestArchLinuxBackend_Install(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
+			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
 			if err := be.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
@@ -108,7 +189,7 @@ func TestArchLinuxBackend_Install(t *testing.T) {
 	}
 }
 
-func TestArchLinuxBackend_Uninstall(t *testing.T) {
+func TestDarwinBackend_Uninstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -158,7 +239,7 @@ func TestArchLinuxBackend_Uninstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
+			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
 			if err := be.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

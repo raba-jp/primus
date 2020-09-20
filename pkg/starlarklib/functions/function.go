@@ -3,8 +3,8 @@ package functions
 import (
 	"context"
 
-	"github.com/raba-jp/primus/pkg/internal/backend"
-	"github.com/raba-jp/primus/pkg/internal/exec"
+	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/spf13/afero"
 	"go.starlark.net/starlark"

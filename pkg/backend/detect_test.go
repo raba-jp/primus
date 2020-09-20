@@ -3,9 +3,9 @@ package backend_test
 import (
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/internal/backend"
-	"github.com/raba-jp/primus/pkg/internal/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
+	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/raba-jp/primus/pkg/exec"
+	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/spf13/afero"
 )
 

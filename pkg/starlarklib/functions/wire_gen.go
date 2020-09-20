@@ -7,7 +7,7 @@ package functions
 
 import (
 	"context"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/backend"
 )
 
 // Injectors from wire.go:
