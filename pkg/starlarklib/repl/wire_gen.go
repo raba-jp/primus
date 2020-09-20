@@ -12,7 +12,7 @@ import (
 
 // Injectors from wire.go:
 
-func Initialize() REPL {
+func Initialize() PromptFunc {
 	state := NewState()
 	thread := newThread()
 	execInterface := backend.NewExecInterface()
@@ -20,5 +20,8 @@ func Initialize() REPL {
 	backendBackend := backend.New(execInterface, fs)
 	stringDict := functions.NewPredeclaredFunction(backendBackend, execInterface, fs)
 	replREPL := NewREPL(state, thread, stringDict)
-	return replREPL
+	executor := NewExecutor(replREPL)
+	completer := NewCompleter()
+	promptFunc := NewPrompt(replREPL, executor, completer)
+	return promptFunc
 }
