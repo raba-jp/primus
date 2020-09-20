@@ -29,14 +29,13 @@ func (r *repl) Eval(input string) error {
 	r.state.AppendInput(input)
 
 	f, err := syntax.ParseCompoundStmt("<stdin>", r.state.Readline)
-	if r.state.Continuation {
-		return nil
-	}
-
-	defer r.state.Reset()
 	if err != nil {
+		if r.state.Continuation {
+			return nil
+		}
 		return err
 	}
+	defer r.state.Reset()
 
 	if expr := r.soleExpr(f); expr != nil {
 		v, err := starlark.EvalExpr(r.thread, expr, r.predeclared)
