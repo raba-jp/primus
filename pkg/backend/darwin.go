@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/exec"
-	"github.com/raba-jp/primus/pkg/internal/handlers"
+	"github.com/raba-jp/primus/pkg/exec"
+	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )

@@ -3,7 +3,7 @@ package backend
 import (
 	"strings"
 
-	"github.com/raba-jp/primus/pkg/internal/exec"
+	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/spf13/afero"
 )
 

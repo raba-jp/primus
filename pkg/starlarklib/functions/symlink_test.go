@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/internal/handlers/mock"
+	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 	"go.starlark.net/starlark"
 	"golang.org/x/xerrors"

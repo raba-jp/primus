@@ -11,11 +11,11 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/backend"
-	"github.com/raba-jp/primus/pkg/internal/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/internal/exec/testing"
-	"github.com/raba-jp/primus/pkg/internal/handlers"
+	"github.com/raba-jp/primus/pkg/exec"
+	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
+	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )

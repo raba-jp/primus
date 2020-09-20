@@ -6,7 +6,7 @@
 package repl
 
 import (
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlarklib/functions"
 )
 

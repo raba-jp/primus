@@ -2,7 +2,7 @@ package functions
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/internal/handlers"
+	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
 	"github.com/raba-jp/primus/pkg/starlarklib/arguments"
 	"go.starlark.net/starlark"

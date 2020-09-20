@@ -4,7 +4,7 @@ package functions
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/internal/backend"
+	"github.com/raba-jp/primus/pkg/backend"
 )
 
 func Initialize() ExecFileFn {
