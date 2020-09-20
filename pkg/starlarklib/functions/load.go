@@ -27,12 +27,12 @@ func Load(dryrun bool, fs afero.Fs, predeclared starlark.StringDict) StarlarkLoa
 		}
 
 		ctx := starlarklib.GetCtx(thread)
-		childThread := starlarklib.NewThread(
-			module,
-			starlarklib.WithLoad(Load(dryrun, fs, predeclared)),
-			starlarklib.WithContext(ctx),
-			starlarklib.WithDryRun(dryrun),
-		)
+		childThread := &starlark.Thread{
+			Name: module,
+			Load: Load(dryrun, fs, predeclared),
+		}
+		starlarklib.SetCtx(ctx, childThread)
+		starlarklib.SetDryRun(childThread, dryrun)
 
 		return starlark.ExecFile(childThread, modulePath, data, predeclared)
 	}

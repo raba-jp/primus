@@ -13,6 +13,7 @@ func Initialize() *cobra.Command {
 		NewPlanCommand,
 		NewApplyCommand,
 		NewVersionCommand,
+		NewReplCommand,
 	)
 	return nil
 }

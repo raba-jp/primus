@@ -15,6 +15,7 @@ func Initialize() *cobra.Command {
 	planCommand := NewPlanCommand()
 	applyCommand := NewApplyCommand()
 	versionCommand := NewVersionCommand()
-	command := NewCommand(planCommand, applyCommand, versionCommand)
+	replCommand := NewReplCommand()
+	command := NewCommand(planCommand, applyCommand, versionCommand, replCommand)
 	return command
 }
