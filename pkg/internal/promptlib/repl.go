@@ -9,24 +9,23 @@ import (
 	"github.com/raba-jp/primus/pkg/starlarklib/repl"
 )
 
-// const (
-// 	defaultPrefix  = ">>> "
-// 	enteringPrefix = "... "
-// )
-//
-// var entring = false
+const (
+	defaultPrefix  = ">>> "
+	enteringPrefix = "... "
+)
 
 func NewPrompt() {
+	repl := repl.Initialize()
 	p := prompt.New(
-		Executor(),
+		Executor(repl),
 		NewCompeter,
-	//prompt.OptionPrefix(defaultPrefix),
-	//prompt.OptionLivePrefix(func() (string, bool) {
-	//	if entring {
-	//		return enteringPrefix, true
-	//	}
-	//	return defaultPrefix, false
-	//})
+		prompt.OptionPrefix(defaultPrefix),
+		prompt.OptionLivePrefix(func() (string, bool) {
+			if repl.IsContinuation() {
+				return enteringPrefix, true
+			}
+			return defaultPrefix, false
+		}),
 	)
 	p.Run()
 }
@@ -46,8 +45,7 @@ func NewCompeter(d prompt.Document) []prompt.Suggest {
 	return prompt.FilterFuzzy(s, d.GetWordBeforeCursor(), true)
 }
 
-func Executor() func(s string) {
-	repl := repl.Initialize()
+func Executor(repl repl.REPL) func(s string) {
 	return func(s string) {
 		s = strings.TrimSpace(s)
 		if s == "exit" || s == "quit" {

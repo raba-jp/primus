@@ -9,6 +9,7 @@ import (
 
 type REPL interface {
 	Eval(input string) error
+	IsContinuation() bool
 }
 
 type repl struct {
@@ -67,4 +68,8 @@ func newThread() *starlark.Thread {
 	return &starlark.Thread{
 		Name: "REPL",
 	}
+}
+
+func (r *repl) IsContinuation() bool {
+	return r.state.Continuation
 }
