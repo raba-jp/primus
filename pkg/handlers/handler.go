@@ -163,3 +163,18 @@ type FishSetPathHandlerFunc func(ctx context.Context, dryrun bool, p *FishSetPat
 func (f FishSetPathHandlerFunc) FishSetPath(ctx context.Context, dryrun bool, p *FishSetPathParams) error {
 	return f(ctx, dryrun, p)
 }
+
+type CreateDirectoryParams struct {
+	Path       string
+	Permission os.FileMode
+}
+
+type CreateDirectoryHandler interface {
+	CreateDirectory(ctx context.Context, dryrun bool, p *CreateDirectoryParams) error
+}
+
+type CreateDirectoryHandlerFunc func(ctx context.Context, dryrun bool, p *CreateDirectoryParams) error
+
+func (f CreateDirectoryHandlerFunc) FileExists(ctx context.Context, dryrun bool, p *CreateDirectoryParams) error {
+	return f(ctx, dryrun, p)
+}
