@@ -52,7 +52,7 @@ func (a *CommandArgs) Parse(b *starlark.Builtin, args starlark.Tuple, kwargs []s
 		case "int":
 			i32, err := starlark.AsInt32(val)
 			if err != nil {
-				return xerrors.Errorf("Failed parse int32 execute function arguments: %s: cause(%w)", cmdArgs.String(), err)
+				return xerrors.Errorf("Failed parse int32 command function arguments: %s: cause(%w)", cmdArgs.String(), err)
 			}
 			cmdArgsStr[index] = fmt.Sprintf("%d", i32)
 		}

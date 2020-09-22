@@ -17,7 +17,7 @@ func TestNewFileCopyArguments(t *testing.T) {
 	}{
 		{
 			name: "success: kwargs",
-			data: `file_copy(src="/sym/src.txt", dest="/sym/dest.txt")`,
+			data: `copy_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			want: &arguments.FileCopyArguments{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
@@ -27,7 +27,7 @@ func TestNewFileCopyArguments(t *testing.T) {
 		},
 		{
 			name: "success: args",
-			data: `file_copy("/sym/src.txt", "/sym/dest.txt")`,
+			data: `copy_file("/sym/src.txt", "/sym/dest.txt")`,
 			want: &arguments.FileCopyArguments{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
@@ -37,7 +37,7 @@ func TestNewFileCopyArguments(t *testing.T) {
 		},
 		{
 			name: "success: with permission",
-			data: `file_copy("/sym/src.txt", "/sym/dest.txt", 0o644)`,
+			data: `copy_file("/sym/src.txt", "/sym/dest.txt", 0o644)`,
 			want: &arguments.FileCopyArguments{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
@@ -47,7 +47,7 @@ func TestNewFileCopyArguments(t *testing.T) {
 		},
 		{
 			name: "error: too many arguments",
-			data: `file_copy("/sym/src.txt", "/sym/dest.txt", 0o644, "many")`,
+			data: `copy_file("/sym/src.txt", "/sym/dest.txt", 0o644, "many")`,
 			want: &arguments.FileCopyArguments{
 				Src:  "",
 				Dest: "",
@@ -62,7 +62,7 @@ func TestNewFileCopyArguments(t *testing.T) {
 			var got *arguments.FileCopyArguments
 
 			predeclared := starlark.StringDict{
-				"file_copy": starlark.NewBuiltin("file_copy", func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+				"copy_file": starlark.NewBuiltin("copy_file", func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 					var err error
 					got, err = arguments.NewFileCopyArguments(b, args, kwargs)
 					return starlark.None, err

@@ -21,7 +21,7 @@ func TestFileMove(t *testing.T) {
 	}{
 		{
 			name:     "success",
-			expr:     `file_move(src="/sym/src.txt", dest="/sym/dest.txt")`,
+			expr:     `move_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			filename: "test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -37,7 +37,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path current path",
-			expr:     `file_move("src.txt", "dest.txt")`,
+			expr:     `move_file("src.txt", "dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -53,7 +53,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path child dir",
-			expr:     `file_move("test2/src.txt", "test2/dest.txt")`,
+			expr:     `move_file("test2/src.txt", "test2/dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -69,7 +69,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path parent dir",
-			expr:     `file_move("../src.txt", "../dest.txt")`,
+			expr:     `move_file("../src.txt", "../dest.txt")`,
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -85,14 +85,14 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "error: too many arguments",
-			expr:     `file_move("src.txt", "dest.txt", "too many")`,
+			expr:     `move_file("src.txt", "dest.txt", "too many")`,
 			filename: "/sym/test/test2/test.star",
 			mock:     func(m *mock_handlers.MockFileMoveHandler) {},
 			hasErr:   true,
 		},
 		{
 			name:     "error: file move failed",
-			expr:     `file_move("src.txt", "dest.txt")`,
+			expr:     `move_file("src.txt", "dest.txt")`,
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -114,7 +114,7 @@ func TestFileMove(t *testing.T) {
 			tt.mock(m)
 
 			predeclared := starlark.StringDict{
-				"file_move": starlark.NewBuiltin("file_move", functions.FileMove(m)),
+				"move_file": starlark.NewBuiltin("move_file", functions.FileMove(m)),
 			}
 			thread := &starlark.Thread{
 				Name: "testing",
