@@ -35,9 +35,9 @@ func NewPrompt(repl REPL, executor prompt.Executor, completer prompt.Completer) 
 func NewCompleter() prompt.Completer {
 	return func(d prompt.Document) []prompt.Suggest {
 		s := []prompt.Suggest{
-			{Text: "execute", Description: "Execute command. `execute('cmd', ['option1', 'option2'])`"},
-			{Text: "file_copy", Description: "File copy. `file_copy('/a/src.txt', '/b/dest.txt')`"},
-			{Text: "file_move", Description: "File move. `file_move('/a/src/txt', '/b/dest.txt')`"},
+			{Text: "command", Description: "Execute command. `command('cmd', ['option1', 'option2'])`"},
+			{Text: "copy_file", Description: "File copy. `copy_file('/a/src.txt', '/b/dest.txt')`"},
+			{Text: "move_file", Description: "File move. `move_file('/a/src/txt', '/b/dest.txt')`"},
 			{Text: "fish_set_path", Description: "Set $PATH. `fish_set_path(['$GOPATH/bin', '$HOME/.bin'])`"},
 			{Text: "fish_set_varialbe", Description: "Set variable. `fish_set_variable('GOPATH', '$HOME/go')`"},
 			{Text: "http_request", Description: "Send HTTP request. `http_request('https://example.com', '$HOME/example.html')`"},

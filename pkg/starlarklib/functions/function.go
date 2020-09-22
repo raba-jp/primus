@@ -19,12 +19,12 @@ const retValue = starlark.None
 
 func NewPredeclaredFunction(be backend.Backend, execIF exec.Interface, fs afero.Fs) Predeclared {
 	return starlark.StringDict{
-		"execute":           starlark.NewBuiltin("execute", Command(be)),
+		"command":           starlark.NewBuiltin("command", Command(be)),
 		"symlink":           starlark.NewBuiltin("symlink", Symlink(be)),
 		"http_request":      starlark.NewBuiltin("http_request", HTTPRequest(be)),
 		"package":           starlark.NewBuiltin("package", Package(be, be)),
-		"file_copy":         starlark.NewBuiltin("file_copy", FileCopy(be)),
-		"file_move":         starlark.NewBuiltin("file_move", FileMove(be)),
+		"copy_file":         starlark.NewBuiltin("copy_file", FileCopy(be)),
+		"move_file":         starlark.NewBuiltin("move_file", FileMove(be)),
 		"is_darwin":         starlark.NewBuiltin("is_darwin", IsDarwin(execIF)),
 		"is_arch_linux":     starlark.NewBuiltin("is_arch_linux", IsArchLinux(fs)),
 		"fish_set_variable": starlark.NewBuiltin("fish_set_variable", FishSetVariable(be)),

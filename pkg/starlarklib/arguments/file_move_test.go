@@ -17,7 +17,7 @@ func TestNewFileMoveArguments(t *testing.T) {
 	}{
 		{
 			name: "success: kwargs",
-			data: `file_move(src="/sym/src.txt", dest="/sym/dest.txt")`,
+			data: `move_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			want: &arguments.FileMoveArguments{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
@@ -26,7 +26,7 @@ func TestNewFileMoveArguments(t *testing.T) {
 		},
 		{
 			name: "success: args",
-			data: `file_move("/sym/src.txt", "/sym/dest.txt")`,
+			data: `move_file("/sym/src.txt", "/sym/dest.txt")`,
 			want: &arguments.FileMoveArguments{
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
@@ -35,7 +35,7 @@ func TestNewFileMoveArguments(t *testing.T) {
 		},
 		{
 			name: "error: too many arguments",
-			data: `file_move("/sym/src.txt", "/sym/dest.txt", "too many")`,
+			data: `move_file("/sym/src.txt", "/sym/dest.txt", "too many")`,
 			want: &arguments.FileMoveArguments{
 				Src:  "",
 				Dest: "",
@@ -49,7 +49,7 @@ func TestNewFileMoveArguments(t *testing.T) {
 			var got *arguments.FileMoveArguments
 
 			predeclared := starlark.StringDict{
-				"file_move": starlark.NewBuiltin("file_move", func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
+				"move_file": starlark.NewBuiltin("move_file", func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 					var err error
 					got, err = arguments.NewFileMoveArguments(b, args, kwargs)
 					return starlark.None, err

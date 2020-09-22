@@ -1,3 +1,3 @@
-execute("echo", ["hello world"])
-file_copy("src_copy.txt", "dest_copy.txt",)
+command("echo", ["hello world"])
+copy_file("src_copy.txt", "dest_copy.txt",)
 symlink("src_symlink.txt", "dest_symlink.txt",)
