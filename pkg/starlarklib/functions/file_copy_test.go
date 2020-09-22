@@ -14,14 +14,14 @@ import (
 func TestFileCopy(t *testing.T) {
 	tests := []struct {
 		name     string
-		expr     string
+		data     string
 		filename string
 		mock     func(*mock_handlers.MockFileCopyHandler)
 		hasErr   bool
 	}{
 		{
 			name:     "success",
-			expr:     `copy_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
+			data:     `copy_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			filename: "test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -38,7 +38,7 @@ func TestFileCopy(t *testing.T) {
 		},
 		{
 			name:     "success: relative path current path",
-			expr:     `copy_file("src.txt", "dest.txt")`,
+			data:     `copy_file("src.txt", "dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -55,7 +55,7 @@ func TestFileCopy(t *testing.T) {
 		},
 		{
 			name:     "success: relative path child dir",
-			expr:     `copy_file("test2/src.txt", "test2/dest.txt")`,
+			data:     `copy_file("test2/src.txt", "test2/dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -72,7 +72,7 @@ func TestFileCopy(t *testing.T) {
 		},
 		{
 			name:     "success: relative path parent dir",
-			expr:     `copy_file("../src.txt", "../dest.txt")`,
+			data:     `copy_file("../src.txt", "../dest.txt")`,
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -89,7 +89,7 @@ func TestFileCopy(t *testing.T) {
 		},
 		{
 			name:     "success: with permission",
-			expr:     `copy_file("/sym/src.txt", "/sym/dest.txt", 0o644)`,
+			data:     `copy_file("/sym/src.txt", "/sym/dest.txt", 0o644)`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -106,14 +106,14 @@ func TestFileCopy(t *testing.T) {
 		},
 		{
 			name:     "error: too many arguments",
-			expr:     `copy_file("src.txt", "dest.txt", 0o644, "too many")`,
+			data:     `copy_file("src.txt", "dest.txt", 0o644, "too many")`,
 			filename: "/sym/test/test.star",
 			mock:     func(m *mock_handlers.MockFileCopyHandler) {},
 			hasErr:   true,
 		},
 		{
 			name:     "error: file copy failed",
-			expr:     `copy_file("src.txt", "dest.txt", 0o644, )`,
+			data:     `copy_file("src.txt", "dest.txt", 0o644, )`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileCopyHandler) {
 				m.EXPECT().FileCopy(
@@ -140,7 +140,7 @@ func TestFileCopy(t *testing.T) {
 			thread := &starlark.Thread{
 				Name: "testing",
 			}
-			_, err := starlark.ExecFile(thread, tt.filename, tt.expr, predeclared)
+			_, err := starlark.ExecFile(thread, tt.filename, tt.data, predeclared)
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

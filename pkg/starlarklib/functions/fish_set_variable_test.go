@@ -13,13 +13,13 @@ import (
 func TestFishSetVariable(t *testing.T) {
 	tests := []struct {
 		name   string
-		expr   string
+		data   string
 		mock   func(*mock_handlers.MockFishSetVariableHandler)
 		hasErr bool
 	}{
 		{
 			name: "success",
-			expr: `fish_set_variable(name="GOPATH", value="$HOME/go", scope="universal", export=True)`,
+			data: `fish_set_variable(name="GOPATH", value="$HOME/go", scope="universal", export=True)`,
 			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
 				m.EXPECT().FishSetVariable(
 					gomock.Any(),
@@ -36,7 +36,7 @@ func TestFishSetVariable(t *testing.T) {
 		},
 		{
 			name:   "error: too many arguments",
-			expr:   `fish_set_variable("GOPATH", "$HOME/go", "universal", True, "too many")`,
+			data:   `fish_set_variable("GOPATH", "$HOME/go", "universal", True, "too many")`,
 			mock:   func(m *mock_handlers.MockFishSetVariableHandler) {},
 			hasErr: true,
 		},
@@ -56,7 +56,7 @@ func TestFishSetVariable(t *testing.T) {
 			thread := &starlark.Thread{
 				Name: "testing",
 			}
-			_, err := starlark.ExecFile(thread, "test.star", tt.expr, predeclared)
+			_, err := starlark.ExecFile(thread, "test.star", tt.data, predeclared)
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

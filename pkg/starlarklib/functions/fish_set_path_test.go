@@ -13,13 +13,13 @@ import (
 func TestFishSetPath(t *testing.T) {
 	tests := []struct {
 		name   string
-		expr   string
+		data   string
 		mock   func(*mock_handlers.MockFishSetPathHandler)
 		hasErr bool
 	}{
 		{
 			name: "success",
-			expr: `fish_set_path(values=["$GOPATH/bin", "$HOME/.bin"])`,
+			data: `fish_set_path(values=["$GOPATH/bin", "$HOME/.bin"])`,
 			mock: func(m *mock_handlers.MockFishSetPathHandler) {
 				m.EXPECT().FishSetPath(
 					gomock.Any(),
@@ -33,7 +33,7 @@ func TestFishSetPath(t *testing.T) {
 		},
 		{
 			name:   "error: too many arguments",
-			expr:   `fish_set_path(["$GOPATH/bin", "$HOME/.bin"], "too many")`,
+			data:   `fish_set_path(["$GOPATH/bin", "$HOME/.bin"], "too many")`,
 			mock:   func(m *mock_handlers.MockFishSetPathHandler) {},
 			hasErr: true,
 		},
@@ -53,7 +53,7 @@ func TestFishSetPath(t *testing.T) {
 			thread := &starlark.Thread{
 				Name: "testing",
 			}
-			_, err := starlark.ExecFile(thread, "test.star", tt.expr, predeclared)
+			_, err := starlark.ExecFile(thread, "test.star", tt.data, predeclared)
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

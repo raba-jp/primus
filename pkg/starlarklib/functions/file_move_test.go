@@ -14,14 +14,14 @@ import (
 func TestFileMove(t *testing.T) {
 	tests := []struct {
 		name     string
-		expr     string
+		data     string
 		filename string
 		mock     func(*mock_handlers.MockFileMoveHandler)
 		hasErr   bool
 	}{
 		{
 			name:     "success",
-			expr:     `move_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
+			data:     `move_file(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			filename: "test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -37,7 +37,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path current path",
-			expr:     `move_file("src.txt", "dest.txt")`,
+			data:     `move_file("src.txt", "dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -53,7 +53,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path child dir",
-			expr:     `move_file("test2/src.txt", "test2/dest.txt")`,
+			data:     `move_file("test2/src.txt", "test2/dest.txt")`,
 			filename: "/sym/test/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -69,7 +69,7 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "success: relative path parent dir",
-			expr:     `move_file("../src.txt", "../dest.txt")`,
+			data:     `move_file("../src.txt", "../dest.txt")`,
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -85,14 +85,14 @@ func TestFileMove(t *testing.T) {
 		},
 		{
 			name:     "error: too many arguments",
-			expr:     `move_file("src.txt", "dest.txt", "too many")`,
+			data:     `move_file("src.txt", "dest.txt", "too many")`,
 			filename: "/sym/test/test2/test.star",
 			mock:     func(m *mock_handlers.MockFileMoveHandler) {},
 			hasErr:   true,
 		},
 		{
 			name:     "error: file move failed",
-			expr:     `move_file("src.txt", "dest.txt")`,
+			data:     `move_file("src.txt", "dest.txt")`,
 			filename: "/sym/test/test2/test.star",
 			mock: func(m *mock_handlers.MockFileMoveHandler) {
 				m.EXPECT().FileMove(
@@ -119,7 +119,7 @@ func TestFileMove(t *testing.T) {
 			thread := &starlark.Thread{
 				Name: "testing",
 			}
-			_, err := starlark.ExecFile(thread, tt.filename, tt.expr, predeclared)
+			_, err := starlark.ExecFile(thread, tt.filename, tt.data, predeclared)
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
