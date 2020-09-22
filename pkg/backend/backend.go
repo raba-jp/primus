@@ -21,6 +21,7 @@ type Backend interface {
 	handlers.CommandHandler
 	handlers.FishSetVariableHandler
 	handlers.FishSetPathHandler
+	handlers.CreateDirectoryHandler
 }
 
 func NewFs() afero.Fs {

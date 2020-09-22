@@ -43,6 +43,7 @@ func NewCompleter() prompt.Completer {
 			{Text: "http_request", Description: "Send HTTP request. `http_request('https://example.com', '$HOME/example.html')`"},
 			{Text: "package", Description: "Install package. `package('base-devel')`"},
 			{Text: "symlink", Description: "Create symbolic link. `symlink('/a/src.txt', '/b/dest.txt')`"},
+			{Text: "create_directory", Description: "Create directories. `create_directory('/a/dir', 0o644)`"},
 		}
 
 		return prompt.FilterFuzzy(s, d.GetWordBeforeCursor(), true)

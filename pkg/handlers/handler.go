@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/handler.go . CheckInstallHandler,InstallHandler,UninstallHandler,FileCopyHandler,FileMoveHandler,SymlinkHandler,HTTPRequestHandler,CommandHandler,FishSetVariableHandler,FishSetPathHandler
+//go:generate mockgen -destination mock/handler.go . CheckInstallHandler,InstallHandler,UninstallHandler,FileCopyHandler,FileMoveHandler,SymlinkHandler,HTTPRequestHandler,CommandHandler,FishSetVariableHandler,FishSetPathHandler,CreateDirectoryHandler
 
 package handlers
 

@@ -92,3 +92,7 @@ func (b *DarwinBackend) FishSetVariable(ctx context.Context, dryrun bool, p *han
 func (b *DarwinBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.FishSetPathParams) error {
 	return b.BaseBackend.FishSetPath(ctx, dryrun, p)
 }
+
+func (b *DarwinBackend) CreateDirectory(ctx context.Context, dryrun bool, p *handlers.CreateDirectoryParams) error {
+	return b.BaseBackend.CreateDirectory(ctx, dryrun, p)
+}

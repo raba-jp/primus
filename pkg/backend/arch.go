@@ -76,3 +76,7 @@ func (b *ArchLinuxBackend) FishSetVariable(ctx context.Context, dryrun bool, p *
 func (b *ArchLinuxBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.FishSetPathParams) error {
 	return b.BaseBackend.FishSetPath(ctx, dryrun, p)
 }
+
+func (b *ArchLinuxBackend) CreateDirectory(ctx context.Context, dryrun bool, p *handlers.CreateDirectoryParams) error {
+	return b.BaseBackend.CreateDirectory(ctx, dryrun, p)
+}
