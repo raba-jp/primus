@@ -1,6 +1,8 @@
 package functions
 
 import (
+	"path/filepath"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/raba-jp/primus/pkg/starlarklib"
@@ -14,10 +16,18 @@ func CreateDirectory(handler handlers.CreateDirectoryHandler) StarlarkFn {
 	return func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kwargs []starlark.Tuple) (starlark.Value, error) {
 		ctx := starlarklib.GetCtx(thread)
 		dryrun := starlarklib.GetDryRun(thread)
+
 		mkdirArgs, err := arguments.NewCreateDirectoryArguments(b, args, kwargs)
 		if err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
 		}
+
+		path := mkdirArgs.Path
+		if !filepath.IsAbs(mkdirArgs.Path) {
+			current := starlarklib.GetCurrentFilePath(thread)
+			path = filepath.Join(filepath.Dir(current), path)
+		}
+
 		zap.L().Debug(
 			"params",
 			zap.String("path", mkdirArgs.Path),
@@ -26,7 +36,7 @@ func CreateDirectory(handler handlers.CreateDirectoryHandler) StarlarkFn {
 
 		ui.Infof("Creating directories: %s", mkdirArgs.Path)
 		if err := handler.CreateDirectory(ctx, dryrun, &handlers.CreateDirectoryParams{
-			Path:       mkdirArgs.Path,
+			Path:       path,
 			Permission: mkdirArgs.Permission,
 		}); err != nil {
 			return retValue, xerrors.Errorf(": %w", err)
