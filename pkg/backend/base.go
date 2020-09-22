@@ -314,3 +314,17 @@ func (b *BaseBackend) FishSetPath(ctx context.Context, dryrun bool, p *handlers.
 	zap.L().Info("set fish path", zap.Strings("values", p.Values))
 	return nil
 }
+
+func (b *BaseBackend) CreateDirectory(ctx context.Context, dryrun bool, p *handlers.CreateDirectoryParams) error {
+	if dryrun {
+		ui.Printf("mkdir -p %s\n", p.Path)
+		ui.Printf("chmod %o %s\n", p.Permission, p.Path)
+		return nil
+	}
+
+	if err := b.Fs.MkdirAll(p.Path, p.Permission); err != nil {
+		return xerrors.Errorf("Create directory fialed: %w", err)
+	}
+	zap.L().Info("create directory", zap.String("path", p.Path), zap.String("permission", p.Permission.String()))
+	return nil
+}

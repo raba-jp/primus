@@ -871,3 +871,82 @@ func TestBaseBackend_FishSetPath__DryRun(t *testing.T) {
 		})
 	}
 }
+
+func TestBaseBackend_CreateDirectory(t *testing.T) {
+	tests := []struct {
+		name   string
+		setup  func() afero.Fs
+		params *handlers.CreateDirectoryParams
+		hasErr bool
+	}{
+		{
+			name: "success",
+			setup: func() afero.Fs {
+				return afero.NewMemMapFs()
+			},
+			params: &handlers.CreateDirectoryParams{
+				Path:       "/sym/test",
+				Permission: 0o644,
+			},
+			hasErr: false,
+		},
+		{
+			name: "success: already exists",
+			setup: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				fs.MkdirAll("/sym/test", 0o644)
+				return fs
+			},
+			params: &handlers.CreateDirectoryParams{
+				Path:       "/sym/test",
+				Permission: 0o644,
+			},
+			hasErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fs := tt.setup()
+			be := backend.BaseBackend{Fs: fs}
+			err := be.CreateDirectory(context.Background(), false, tt.params)
+			if !tt.hasErr && err != nil {
+				t.Fatalf("%v", err)
+			}
+		})
+	}
+}
+
+func TestBaseBackend_CreateDirectory__DryRun(t *testing.T) {
+	tests := []struct {
+		name   string
+		src    string
+		params *handlers.CreateDirectoryParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.CreateDirectoryParams{
+				Path:       "/sym/test",
+				Permission: 0o644,
+			},
+			want: "mkdir -p /sym/test\nchmod 644 /sym/test\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			be := &backend.BaseBackend{}
+			err := be.CreateDirectory(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
+			}
+		})
+	}
+}
