@@ -5,10 +5,9 @@ import (
 
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/raba-jp/primus/pkg/starlark/builtin/os"
 	"github.com/spf13/afero"
-	"go.starlark.net/starlark"
 	lib "go.starlark.net/starlark"
 )
 
@@ -46,7 +45,7 @@ func TestIsDarwin(t *testing.T) {
 					},
 				},
 			}
-			globals, err := builtin.ExecForTest("test", `v = test()`, os.IsDarwin(execIF))
+			globals, err := starlark.ExecForTest("test", `v = test()`, os.IsDarwin(execIF))
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -62,27 +61,27 @@ func TestIsArchLinux(t *testing.T) {
 	tests := []struct {
 		name string
 		mock func(fs afero.Fs)
-		want starlark.Value
+		want lib.Value
 	}{
 		{
 			name: "success",
 			mock: func(fs afero.Fs) {
 				afero.WriteFile(fs, "/etc/arch-release", []byte("Arch Linux"), 0o777)
 			},
-			want: starlark.True,
+			want: lib.True,
 		},
 		{
 			name: "success: empty file",
 			mock: func(fs afero.Fs) {
 				afero.WriteFile(fs, "/etc/arch-release", []byte(""), 0o777)
 			},
-			want: starlark.True,
+			want: lib.True,
 		},
 		{
 			name: "fail: not exists /etc/arch-release",
 			mock: func(fs afero.Fs) {
 			},
-			want: starlark.False,
+			want: lib.False,
 		},
 	}
 
@@ -91,7 +90,7 @@ func TestIsArchLinux(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			tt.mock(fs)
 
-			globals, err := builtin.ExecForTest("test", `v = test()`, os.IsArchLinux(fs))
+			globals, err := starlark.ExecForTest("test", `v = test()`, os.IsArchLinux(fs))
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

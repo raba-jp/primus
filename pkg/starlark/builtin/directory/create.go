@@ -7,13 +7,12 @@ import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
 	lib "go.starlark.net/starlark"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
-func Create(handler handlers.CreateDirectoryHandler) builtin.StarlarkFn {
+func Create(handler handlers.CreateDirectoryHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)

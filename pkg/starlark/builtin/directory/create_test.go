@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/raba-jp/primus/pkg/starlark/builtin/directory"
 	"golang.org/x/xerrors"
 )
@@ -92,7 +92,7 @@ func TestCreateDirectory(t *testing.T) {
 			m := mock_handlers.NewMockCreateDirectoryHandler(ctrl)
 			tt.mock(m)
 
-			_, err := builtin.ExecForTest("test", tt.data, directory.Create(m))
+			_, err := starlark.ExecForTest("test", tt.data, directory.Create(m))
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

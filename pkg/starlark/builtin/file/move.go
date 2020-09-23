@@ -6,13 +6,12 @@ import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
 	lib "go.starlark.net/starlark"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
-func Move(handler handlers.FileMoveHandler) builtin.StarlarkFn {
+func Move(handler handlers.FileMoveHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)

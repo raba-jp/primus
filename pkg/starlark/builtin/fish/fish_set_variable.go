@@ -3,12 +3,11 @@ package fish
 import (
 	"github.com/raba-jp/primus/pkg/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
 	lib "go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func SetVariable(handler handlers.FishSetVariableHandler) builtin.StarlarkFn {
+func SetVariable(handler handlers.FishSetVariableHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)

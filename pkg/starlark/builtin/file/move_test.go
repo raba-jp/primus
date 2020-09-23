@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/raba-jp/primus/pkg/starlark/builtin/file"
 	"golang.org/x/xerrors"
 )
@@ -106,7 +106,7 @@ func TestFileMove(t *testing.T) {
 			m := mock_handlers.NewMockFileMoveHandler(ctrl)
 			tt.mock(m)
 
-			_, err := builtin.ExecForTest("test", tt.data, file.Move(m))
+			_, err := starlark.ExecForTest("test", tt.data, file.Move(m))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

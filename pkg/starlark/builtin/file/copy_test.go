@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/raba-jp/primus/pkg/starlark/builtin/file"
 	"golang.org/x/xerrors"
 )
@@ -126,7 +126,7 @@ func TestCopy(t *testing.T) {
 			m := mock_handlers.NewMockFileCopyHandler(ctrl)
 			tt.mock(m)
 
-			_, err := builtin.ExecForTest("test", tt.data, file.Copy(m))
+			_, err := starlark.ExecForTest("test", tt.data, file.Copy(m))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
