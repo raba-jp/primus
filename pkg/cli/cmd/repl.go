@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/raba-jp/primus/pkg/starlarklib/repl"
+	"github.com/raba-jp/primus/pkg/starlark/repl"
 	"github.com/spf13/cobra"
 )
 
