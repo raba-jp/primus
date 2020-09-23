@@ -116,7 +116,7 @@ func TestSetVariable(t *testing.T) {
 			m := mock_handlers.NewMockFishSetVariableHandler(ctrl)
 			tt.mock(m)
 
-			err := builtin.ExecForTest("test", tt.data, fish.SetVariable(m))
+			_, err := builtin.ExecForTest("test", tt.data, fish.SetVariable(m))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

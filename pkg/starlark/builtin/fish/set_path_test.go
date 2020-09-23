@@ -84,7 +84,7 @@ func TestSetPath(t *testing.T) {
 			m := mock_handlers.NewMockFishSetPathHandler(ctrl)
 			tt.mock(m)
 
-			err := builtin.ExecForTest("test", tt.data, fish.SetPath(m))
+			_, err := builtin.ExecForTest("test", tt.data, fish.SetPath(m))
 			if !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}

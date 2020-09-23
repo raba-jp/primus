@@ -7,10 +7,9 @@ import (
 
 type StarlarkFn = func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kargs []lib.Tuple) (lib.Value, error)
 
-func ExecForTest(name string, data string, fn StarlarkFn) error {
+func ExecForTest(name string, data string, fn StarlarkFn) (lib.StringDict, error) {
 	predeclared := lib.StringDict{
 		name: lib.NewBuiltin(name, fn),
 	}
-	_, err := lib.ExecFile(starlark.NewThread("test"), "test.star", data, predeclared)
-	return err
+	return lib.ExecFile(starlark.NewThread("test"), "test.star", data, predeclared)
 }

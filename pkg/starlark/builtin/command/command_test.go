@@ -121,7 +121,7 @@ func TestCommand(t *testing.T) {
 			m := mock_handlers.NewMockCommandHandler(ctrl)
 			tt.mock(m)
 
-			err := builtin.ExecForTest("test", tt.data, command.Command(m))
+			_, err := builtin.ExecForTest("test", tt.data, command.Command(m))
 			if !tt.hasErr && err != nil {
 				t.Error(err)
 			}
