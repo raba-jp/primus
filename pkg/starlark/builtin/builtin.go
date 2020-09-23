@@ -11,5 +11,5 @@ func ExecForTest(name string, data string, fn StarlarkFn) (lib.StringDict, error
 	predeclared := lib.StringDict{
 		name: lib.NewBuiltin(name, fn),
 	}
-	return lib.ExecFile(starlark.NewThread("test"), "test.star", data, predeclared)
+	return lib.ExecFile(starlark.NewThread("test"), "/sym/test.star", data, predeclared)
 }
