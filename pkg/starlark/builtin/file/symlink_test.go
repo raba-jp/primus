@@ -59,7 +59,7 @@ func TestSymlink(t *testing.T) {
 
 			_, err := builtin.ExecForTest("test", tt.data, file.Symlink(m))
 			if !tt.hasErr && err != nil {
-				t.Fatal(err)
+				t.Errorf("unexpected error: %v", err)
 			}
 		})
 	}

@@ -128,7 +128,7 @@ func TestCopy(t *testing.T) {
 
 			_, err := builtin.ExecForTest("test", tt.data, file.Copy(m))
 			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
+				t.Errorf("unexpected error: %v", err)
 			}
 		})
 	}

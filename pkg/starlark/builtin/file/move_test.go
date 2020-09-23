@@ -108,7 +108,7 @@ func TestFileMove(t *testing.T) {
 
 			_, err := builtin.ExecForTest("test", tt.data, file.Move(m))
 			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
+				t.Errorf("unexpected error: %v", err)
 			}
 		})
 	}

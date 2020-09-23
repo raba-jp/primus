@@ -51,7 +51,7 @@ func TestHttpRequest(t *testing.T) {
 
 			_, err := builtin.ExecForTest("test", tt.data, network.HTTPRequest(m))
 			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
+				t.Fatalf("unexpected error: %v", err)
 			}
 		})
 	}
