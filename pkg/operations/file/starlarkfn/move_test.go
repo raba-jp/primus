@@ -1,13 +1,13 @@
-package file_test
+package starlarkfn_test
 
 import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/raba-jp/primus/pkg/handlers"
-	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/file/handlers"
+	mock_handlers "github.com/raba-jp/primus/pkg/operations/file/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/file/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin/file"
 	"golang.org/x/xerrors"
 )
 
@@ -15,17 +15,17 @@ func TestFileMove(t *testing.T) {
 	tests := []struct {
 		name   string
 		data   string
-		mock   func(*mock_handlers.MockFileMoveHandler)
+		mock   func(*mock_handlers.MockMoveHandler)
 		hasErr bool
 	}{
 		{
 			name: "success",
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
-			mock: func(m *mock_handlers.MockFileMoveHandler) {
-				m.EXPECT().FileMove(
+			mock: func(m *mock_handlers.MockMoveHandler) {
+				m.EXPECT().Move(
 					gomock.Any(),
 					gomock.Any(),
-					gomock.Eq(&handlers.FileMoveParams{
+					gomock.Eq(&handlers.MoveParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
 					}),
@@ -81,14 +81,14 @@ func TestFileMove(t *testing.T) {
 		{
 			name:   "error: too many arguments",
 			data:   `test("src.txt", "dest.txt", "too many")`,
-			mock:   func(m *mock_handlers.MockFileMoveHandler) {},
+			mock:   func(m *mock_handlers.MockMoveHandler) {},
 			hasErr: true,
 		},
 		{
 			name: "error: file move failed",
 			data: `test("src.txt", "dest.txt")`,
-			mock: func(m *mock_handlers.MockFileMoveHandler) {
-				m.EXPECT().FileMove(
+			mock: func(m *mock_handlers.MockMoveHandler) {
+				m.EXPECT().Move(
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
@@ -103,10 +103,10 @@ func TestFileMove(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			m := mock_handlers.NewMockFileMoveHandler(ctrl)
+			m := mock_handlers.NewMockMoveHandler(ctrl)
 			tt.mock(m)
 
-			_, err := starlark.ExecForTest("test", tt.data, file.Move(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Move(m))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
