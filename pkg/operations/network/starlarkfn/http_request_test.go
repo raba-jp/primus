@@ -1,12 +1,12 @@
-package network_test
+package starlarkfn_test
 
 import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
+	mock_handlers "github.com/raba-jp/primus/pkg/operations/network/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/network/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin/network"
 	"golang.org/x/xerrors"
 )
 
@@ -49,7 +49,7 @@ func TestHttpRequest(t *testing.T) {
 			m := mock_handlers.NewMockHTTPRequestHandler(ctrl)
 			tt.mock(m)
 
-			_, err := starlark.ExecForTest("test", tt.data, network.HTTPRequest(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(m))
 			if !tt.hasErr && err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
