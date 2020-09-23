@@ -8,9 +8,9 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type StarlarkLoadFn = func(thread *lib.Thread, module string) (lib.StringDict, error)
+type LoadFn = func(thread *lib.Thread, module string) (lib.StringDict, error)
 
-func Load(fs afero.Fs, predeclared lib.StringDict) StarlarkLoadFn {
+func Load(fs afero.Fs, predeclared lib.StringDict) LoadFn {
 	return func(thread *lib.Thread, module string) (lib.StringDict, error) {
 		var modulePath string
 		if filepath.IsAbs(module) {

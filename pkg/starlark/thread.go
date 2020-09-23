@@ -41,7 +41,7 @@ func WithDryRunMode(dryrun bool) ThreadOption {
 	}
 }
 
-func WithLoad(loadFn StarlarkLoadFn) ThreadOption {
+func WithLoad(loadFn LoadFn) ThreadOption {
 	return func(thread *lib.Thread) {
 		thread.Load = loadFn
 	}
