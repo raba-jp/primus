@@ -22,19 +22,16 @@ func Create(handler handlers.CreateHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		// TODO: paramsにCwdを追加してhandlerでやるようにする
-		if !filepath.IsAbs(params.Path) {
-			current := starlark.GetCurrentFilePath(thread)
-			params.Path = filepath.Join(filepath.Dir(current), params.Path)
-		}
+		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
 
 		zap.L().Debug(
 			"params",
 			zap.String("path", params.Path),
 			zap.String("permission", params.Permission.String()),
+			zap.String("cwd", params.Cwd),
 		)
 
-		ui.Infof("Creating directories: %s", params.Path)
+		ui.Infof("Creating directories: %s\n", params.Path)
 		if err := handler.Create(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}

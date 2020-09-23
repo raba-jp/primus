@@ -28,6 +28,7 @@ func TestCreateDirectory(t *testing.T) {
 					gomock.Eq(&handlers.CreateParams{
 						Path:       "/sym/test",
 						Permission: 0o777,
+						Cwd:        "/sym",
 					}),
 				).Return(nil)
 			},
@@ -41,8 +42,9 @@ func TestCreateDirectory(t *testing.T) {
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Eq(&handlers.CreateParams{
-						Path:       "/sym/test",
+						Path:       "test",
 						Permission: 0o777,
+						Cwd:        "/sym",
 					}),
 				).Return(nil)
 			},
@@ -59,6 +61,7 @@ func TestCreateDirectory(t *testing.T) {
 						&handlers.CreateParams{
 							Path:       "/sym/test",
 							Permission: 0o644,
+							Cwd:        "/sym",
 						}),
 				).Return(nil)
 			},
