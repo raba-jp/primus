@@ -1,11 +1,11 @@
-package command
+package starlarkfn
 
 import (
 	"bytes"
 	"fmt"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/command/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
 	"go.uber.org/zap"
