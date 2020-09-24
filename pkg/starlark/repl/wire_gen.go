@@ -6,7 +6,6 @@
 package repl
 
 import (
-	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlark/builtin"
 )
 
@@ -15,10 +14,7 @@ import (
 func Initialize() PromptFunc {
 	state := NewState()
 	thread := newThread()
-	execInterface := backend.NewExecInterface()
-	fs := backend.NewFs()
-	backendBackend := backend.New(execInterface, fs)
-	stringDict := builtin.NewBuiltinFunction(backendBackend, execInterface, fs)
+	stringDict := builtin.NewBuiltinFunction()
 	replREPL := NewREPL(state, thread, stringDict)
 	executor := NewExecutor(replREPL)
 	completer := NewCompleter()

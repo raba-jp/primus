@@ -11,8 +11,6 @@ import (
 func Initialize() Fn {
 	wire.Build(
 		backend.NewFs,
-		backend.NewExecInterface,
-		backend.New,
 		builtin.NewBuiltinFunction,
 		NewExecFn,
 	)

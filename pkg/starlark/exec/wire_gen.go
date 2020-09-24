@@ -14,10 +14,8 @@ import (
 // Injectors from wire.go:
 
 func Initialize() func(ctx context.Context, dryrun bool, path string) error {
-	execInterface := backend.NewExecInterface()
+	stringDict := builtin.NewBuiltinFunction()
 	fs := backend.NewFs()
-	backendBackend := backend.New(execInterface, fs)
-	stringDict := builtin.NewBuiltinFunction(backendBackend, execInterface, fs)
 	v := NewExecFn(stringDict, fs)
 	return v
 }
