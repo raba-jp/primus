@@ -1,19 +1,20 @@
-package backend_test
+package handlers_test
 
 import (
 	"bytes"
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/google/go-cmp/cmp"
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
 )
 
-func TestDarwinBackend_CheckInstall(t *testing.T) {
+func TestDarwin_CheckInstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -123,18 +124,19 @@ func TestDarwinBackend_CheckInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: tt.fs()}
-			if res := be.CheckInstall(context.Background(), "cat"); res != tt.want {
+			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
+			if res := handler.CheckInstall(context.Background(), "cat"); res != tt.want {
 				t.Fatal("Fail")
 			}
 		})
 	}
 }
 
-func TestDarwinBackend_Install(t *testing.T) {
+func TestDarwin_Install(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
+		params   *handlers.InstallParams
 		hasErr   bool
 	}{
 		{
@@ -154,6 +156,10 @@ func TestDarwinBackend_Install(t *testing.T) {
 						return fakeexec.InitFakeCmd(fake, cmd, args...)
 					},
 				},
+			},
+			params: &handlers.InstallParams{
+				Name:   "pkg",
+				Option: "options",
 			},
 			hasErr: false,
 		},
@@ -175,24 +181,62 @@ func TestDarwinBackend_Install(t *testing.T) {
 					},
 				},
 			},
+			params: &handlers.InstallParams{
+				Name:   "pkg",
+				Option: "options",
+			},
 			hasErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
-			if err := be.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
+			handler := handlers.Darwin{Exec: tt.mockExec}
+			if err := handler.Install(context.Background(), false, tt.params); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
 	}
 }
 
-func TestDarwinBackend_Uninstall(t *testing.T) {
+func TestDarwin_Install__dryrun(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *handlers.InstallParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.InstallParams{
+				Name:   "pkg",
+				Option: "option",
+			},
+			want: "brew install option pkg\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			handler := &handlers.Darwin{}
+			err := handler.Install(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
+			}
+		})
+	}
+}
+
+func TestDarwin_Uninstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
+		params   *handlers.UninstallParams
 		hasErr   bool
 	}{
 		{
@@ -213,6 +257,7 @@ func TestDarwinBackend_Uninstall(t *testing.T) {
 					},
 				},
 			},
+			params: &handlers.UninstallParams{Name: "pkg"},
 			hasErr: false,
 		},
 		{
@@ -233,15 +278,48 @@ func TestDarwinBackend_Uninstall(t *testing.T) {
 					},
 				},
 			},
+			params: &handlers.UninstallParams{Name: "pkg"},
 			hasErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.DarwinBackend{Exec: tt.mockExec, Fs: afero.NewMemMapFs()}
-			if err := be.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
+			handler := handlers.Darwin{Exec: tt.mockExec}
+			if err := handler.Uninstall(context.Background(), false, tt.params); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
+			}
+		})
+	}
+}
+
+func TestDarwin_Uninstall__dryrun(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *handlers.UninstallParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.UninstallParams{
+				Name: "pkg",
+			},
+			want: "brew uninstall pkg\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			handler := &handlers.Darwin{}
+			err := handler.Uninstall(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
 			}
 		})
 	}

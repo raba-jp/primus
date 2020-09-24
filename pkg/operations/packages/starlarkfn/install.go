@@ -1,8 +1,8 @@
-package packages
+package starlarkfn
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
 	"go.uber.org/zap"

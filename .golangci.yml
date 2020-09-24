@@ -12,6 +12,7 @@ linters:
     - lll
     - gochecknoglobals
     - godot
+    - gochecknoinits
   disable-all: false
   presets:
     - bugs

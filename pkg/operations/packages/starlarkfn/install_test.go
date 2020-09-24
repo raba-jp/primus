@@ -1,12 +1,12 @@
-package packages_test
+package starlarkfn_test
 
 import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
+	mock_handlers "github.com/raba-jp/primus/pkg/operations/packages/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/packages/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin/packages"
 	"golang.org/x/xerrors"
 )
 
@@ -61,7 +61,7 @@ func TestInstall(t *testing.T) {
 
 			tt.mock(ch, i)
 
-			_, err := starlark.ExecForTest("test", tt.data, packages.Install(ch, i))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Install(ch, i))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

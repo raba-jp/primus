@@ -1,18 +1,19 @@
-package backend_test
+package handlers_test
 
 import (
 	"bytes"
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/google/go-cmp/cmp"
+	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
 	"golang.org/x/xerrors"
 )
 
-func TestArchLinuxBackend_CheckInstall(t *testing.T) {
+func TestArchLinux_CheckInstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -42,15 +43,15 @@ func TestArchLinuxBackend_CheckInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if res := be.CheckInstall(context.Background(), "base-devel"); res != tt.want {
+			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			if res := handler.CheckInstall(context.Background(), "base-devel"); res != tt.want {
 				t.Fatal("Fail")
 			}
 		})
 	}
 }
 
-func TestArchLinuxBackend_Install(t *testing.T) {
+func TestArchLinux_Install(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -100,15 +101,48 @@ func TestArchLinuxBackend_Install(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if err := be.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
+			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			if err := handler.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
 	}
 }
 
-func TestArchLinuxBackend_Uninstall(t *testing.T) {
+func TestArchLinux_Install__dryrun(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *handlers.InstallParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.InstallParams{
+				Name:   "pkg",
+				Option: "option",
+			},
+			want: "pacman -S --noconfirm option pkg\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			handler := &handlers.ArchLinux{}
+			err := handler.Install(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
+			}
+		})
+	}
+}
+
+func TestArchLinux_Uninstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -158,9 +192,41 @@ func TestArchLinuxBackend_Uninstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			be := backend.ArchLinuxBackend{Exec: tt.mockExec}
-			if err := be.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
+			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			if err := handler.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
+			}
+		})
+	}
+}
+
+func TestArchLinux_Uninstall__dryrun(t *testing.T) {
+	tests := []struct {
+		name   string
+		params *handlers.UninstallParams
+		want   string
+	}{
+		{
+			name: "success",
+			params: &handlers.UninstallParams{
+				Name: "pkg",
+			},
+			want: "pacman -R --noconfirm pkg\n",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
+			handler := &handlers.ArchLinux{}
+			err := handler.Uninstall(context.Background(), true, tt.params)
+			if err != nil {
+				t.Fatalf("%v", err)
+			}
+			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
+				t.Fatalf(diff)
 			}
 		})
 	}

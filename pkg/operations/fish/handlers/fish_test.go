@@ -112,7 +112,6 @@ func TestNewSetVariable(t *testing.T) {
 func TestBaseBackend_FishSetVariable__DryRun(t *testing.T) {
 	tests := []struct {
 		name   string
-		src    string
 		params *handlers.SetVariableParams
 		want   string
 	}{
