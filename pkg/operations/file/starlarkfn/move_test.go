@@ -28,56 +28,12 @@ func TestFileMove(t *testing.T) {
 					gomock.Eq(&handlers.MoveParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
+						Cwd:  "/sym",
 					}),
 				).Return(nil)
 			},
 			hasErr: false,
 		},
-		// {
-		// 	name: "success: relative path current path",
-		// 	data: `test("src.txt", "dest.txt")`,
-		// 	mock: func(m *mock_handlers.MockFileMoveHandler) {
-		// 		m.EXPECT().FileMove(
-		// 			gomock.Any(),
-		// 			gomock.Any(),
-		// 			gomock.Eq(&handlers.FileMoveParams{
-		// 				Src:  "/sym/test/src.txt",
-		// 				Dest: "/sym/test/dest.txt",
-		// 			}),
-		// 		).Return(nil)
-		// 	},
-		// 	hasErr: false,
-		// },
-		// {
-		// 	name: "success: relative path child dir",
-		// 	data: `test("test2/src.txt", "test2/dest.txt")`,
-		// 	mock: func(m *mock_handlers.MockFileMoveHandler) {
-		// 		m.EXPECT().FileMove(
-		// 			gomock.Any(),
-		// 			gomock.Any(),
-		// 			gomock.Eq(&handlers.FileMoveParams{
-		// 				Src:  "/sym/test/test2/src.txt",
-		// 				Dest: "/sym/test/test2/dest.txt",
-		// 			}),
-		// 		).Return(nil)
-		// 	},
-		// 	hasErr: false,
-		// },
-		// {
-		// 	name: "success: relative path parent dir",
-		// 	data: `test("../src.txt", "../dest.txt")`,
-		// 	mock: func(m *mock_handlers.MockFileMoveHandler) {
-		// 		m.EXPECT().FileMove(
-		// 			gomock.Any(),
-		// 			gomock.Any(),
-		// 			gomock.Eq(&handlers.FileMoveParams{
-		// 				Src:  "/sym/test/src.txt",
-		// 				Dest: "/sym/test/dest.txt",
-		// 			}),
-		// 		).Return(nil)
-		// 	},
-		// 	hasErr: false,
-		// },
 		{
 			name:   "error: too many arguments",
 			data:   `test("src.txt", "dest.txt", "too many")`,
