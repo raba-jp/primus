@@ -112,6 +112,8 @@ func getOSHandler(execIF exec.Interface, fs afero.Fs) osHandler {
 	case backend.Darwin:
 		return &darwin{Exec: execIF, Fs: fs}
 	case backend.Unknown:
+		fallthrough
+	default:
 		return &unknown{}
 	}
 }
