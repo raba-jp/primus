@@ -1,13 +1,13 @@
-package fish
+package starlarkfn
 
 import (
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func SetVariable(handler handlers.FishSetVariableHandler) starlark.Fn {
+func SetVariable(handler handlers.SetVariableHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -17,15 +17,15 @@ func SetVariable(handler handlers.FishSetVariableHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		if err := handler.FishSetVariable(ctx, dryrun, params); err != nil {
+		if err := handler.SetVariable(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil
 	}
 }
 
-func parseSetVariableArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*handlers.FishSetVariableParams, error) {
-	a := &handlers.FishSetVariableParams{}
+func parseSetVariableArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*handlers.SetVariableParams, error) {
+	a := &handlers.SetVariableParams{}
 
 	var scope string
 	if err := lib.UnpackArgs(
@@ -42,11 +42,11 @@ func parseSetVariableArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*
 
 	switch scope {
 	case "universal":
-		a.Scope = handlers.FishVariableUniversalScope
+		a.Scope = handlers.UniversalScope
 	case "global":
-		a.Scope = handlers.FishVariableGlobalScope
+		a.Scope = handlers.GlobalScope
 	case "local":
-		a.Scope = handlers.FishVariableLocalScope
+		a.Scope = handlers.LocalScope
 	default:
 		return nil, xerrors.Errorf("Unexpected scope: %s", scope)
 	}

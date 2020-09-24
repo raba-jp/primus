@@ -1,13 +1,13 @@
-package fish_test
+package starlarkfn_test
 
 import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/raba-jp/primus/pkg/handlers"
-	mock_handlers "github.com/raba-jp/primus/pkg/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
+	mock_handlers "github.com/raba-jp/primus/pkg/operations/fish/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/fish/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin/fish"
 	"golang.org/x/xerrors"
 )
 
@@ -15,20 +15,20 @@ func TestSetVariable(t *testing.T) {
 	tests := []struct {
 		name   string
 		data   string
-		mock   func(*mock_handlers.MockFishSetVariableHandler)
+		mock   func(*mock_handlers.MockSetVariableHandler)
 		hasErr bool
 	}{
 		{
 			name: "success",
 			data: `test(name="GOPATH", value="$HOME/go", scope="universal", export=True)`,
-			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
-				m.EXPECT().FishSetVariable(
+			mock: func(m *mock_handlers.MockSetVariableHandler) {
+				m.EXPECT().SetVariable(
 					gomock.Any(),
 					gomock.Any(),
-					gomock.Eq(&handlers.FishSetVariableParams{
+					gomock.Eq(&handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
-						Scope:  handlers.FishVariableUniversalScope,
+						Scope:  handlers.UniversalScope,
 						Export: true,
 					}),
 				).Return(nil)
@@ -38,14 +38,14 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: args",
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
-			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
-				m.EXPECT().FishSetVariable(
+			mock: func(m *mock_handlers.MockSetVariableHandler) {
+				m.EXPECT().SetVariable(
 					gomock.Any(),
 					gomock.Any(),
-					gomock.Eq(&handlers.FishSetVariableParams{
+					gomock.Eq(&handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
-						Scope:  handlers.FishVariableUniversalScope,
+						Scope:  handlers.UniversalScope,
 						Export: true,
 					}),
 				)
@@ -55,14 +55,14 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: global scope",
 			data: `test("GOPATH", "$HOME/go", "global", True)`,
-			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
-				m.EXPECT().FishSetVariable(
+			mock: func(m *mock_handlers.MockSetVariableHandler) {
+				m.EXPECT().SetVariable(
 					gomock.Any(),
 					gomock.Any(),
-					gomock.Eq(&handlers.FishSetVariableParams{
+					gomock.Eq(&handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
-						Scope:  handlers.FishVariableGlobalScope,
+						Scope:  handlers.GlobalScope,
 						Export: true,
 					}),
 				)
@@ -72,14 +72,14 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: local scope",
 			data: `test("GOPATH", "$HOME/go", "local", True)`,
-			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
-				m.EXPECT().FishSetVariable(
+			mock: func(m *mock_handlers.MockSetVariableHandler) {
+				m.EXPECT().SetVariable(
 					gomock.Any(),
 					gomock.Any(),
-					gomock.Eq(&handlers.FishSetVariableParams{
+					gomock.Eq(&handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
-						Scope:  handlers.FishVariableLocalScope,
+						Scope:  handlers.LocalScope,
 						Export: true,
 					}),
 				)
@@ -89,20 +89,20 @@ func TestSetVariable(t *testing.T) {
 		{
 			name:   "error: unexpected scope",
 			data:   `test(name="GOPATH", value="$HOME/go", scope="dummy", export=True)`,
-			mock:   func(m *mock_handlers.MockFishSetVariableHandler) {},
+			mock:   func(m *mock_handlers.MockSetVariableHandler) {},
 			hasErr: true,
 		},
 		{
 			name:   "error: too many arguments",
 			data:   `test("GOPATH", "$HOME/go", "universal", True, "too many")`,
-			mock:   func(m *mock_handlers.MockFishSetVariableHandler) {},
+			mock:   func(m *mock_handlers.MockSetVariableHandler) {},
 			hasErr: true,
 		},
 		{
 			name: "error: return handler error",
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
-			mock: func(m *mock_handlers.MockFishSetVariableHandler) {
-				m.EXPECT().FishSetVariable(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: func(m *mock_handlers.MockSetVariableHandler) {
+				m.EXPECT().SetVariable(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
 			hasErr: true,
 		},
@@ -113,10 +113,10 @@ func TestSetVariable(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			m := mock_handlers.NewMockFishSetVariableHandler(ctrl)
+			m := mock_handlers.NewMockSetVariableHandler(ctrl)
 			tt.mock(m)
 
-			_, err := starlark.ExecForTest("test", tt.data, fish.SetVariable(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetVariable(m))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

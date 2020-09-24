@@ -1,13 +1,13 @@
-package fish
+package starlarkfn
 
 import (
-	"github.com/raba-jp/primus/pkg/handlers"
+	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
-func SetPath(handler handlers.FishSetPathHandler) starlark.Fn {
+func SetPath(handler handlers.SetPathHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -17,15 +17,15 @@ func SetPath(handler handlers.FishSetPathHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		if err := handler.FishSetPath(ctx, dryrun, params); err != nil {
+		if err := handler.SetPath(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil
 	}
 }
 
-func parseSetPathArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*handlers.FishSetPathParams, error) {
-	a := &handlers.FishSetPathParams{}
+func parseSetPathArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*handlers.SetPathParams, error) {
+	a := &handlers.SetPathParams{}
 
 	list := &lib.List{}
 	if err := lib.UnpackArgs(b.Name(), args, kwargs, "values", &list); err != nil {
