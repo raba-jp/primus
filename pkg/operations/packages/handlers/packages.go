@@ -10,6 +10,7 @@ import (
 	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 )
 
 const installTimeout = 5 * time.Minute
@@ -71,6 +72,24 @@ type osHandler interface {
 	UninstallHandler
 }
 
+type unknown struct {
+	osHandler
+}
+
+func (*unknown) CheckInstall(ctx context.Context, name string) bool {
+	zap.L().Warn("Unsupported OS")
+	return false
+}
+func (*unknown) Install(ctx context.Context, dryrun bool, p *InstallParams) error {
+	zap.L().Warn("Unsupported OS")
+	return nil
+}
+
+func (*unknown) Uninstall(ctx context.Context, dryrun bool, p *UninstallParams) error {
+	zap.L().Warn("Unsupported OS")
+	return nil
+}
+
 func NewCheckInstall(execIF exec.Interface, fs afero.Fs) CheckInstallHandler {
 	h := getOSHandler(execIF, fs)
 	return CheckInstallHandlerFunc(h.CheckInstall)
@@ -93,8 +112,6 @@ func getOSHandler(execIF exec.Interface, fs afero.Fs) osHandler {
 	case backend.Darwin:
 		return &darwin{Exec: execIF, Fs: fs}
 	case backend.Unknown:
-		fallthrough
-	default:
-		return nil
+		return &unknown{}
 	}
 }
