@@ -1,12 +1,12 @@
-package os_test
+package starlarkfn_test
 
 import (
 	"testing"
 
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
+	"github.com/raba-jp/primus/pkg/operations/os/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"github.com/raba-jp/primus/pkg/starlark/builtin/os"
 	"github.com/spf13/afero"
 	lib "go.starlark.net/starlark"
 )
@@ -45,7 +45,7 @@ func TestIsDarwin(t *testing.T) {
 					},
 				},
 			}
-			globals, err := starlark.ExecForTest("test", `v = test()`, os.IsDarwin(execIF))
+			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsDarwin(execIF))
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}
@@ -90,7 +90,7 @@ func TestIsArchLinux(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			tt.mock(fs)
 
-			globals, err := starlark.ExecForTest("test", `v = test()`, os.IsArchLinux(fs))
+			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsArchLinux(fs))
 			if err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

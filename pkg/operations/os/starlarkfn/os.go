@@ -1,4 +1,4 @@
-package os
+package starlarkfn
 
 import (
 	"github.com/raba-jp/primus/pkg/backend"
