@@ -1,0 +1,34 @@
+site_name: Primus
+site_description: Configuration management and Provisioning tool for local machine
+copyright: Hiroki Sakuraba
+repo_url: https://github.com/raba-jp/primus
+edit_uri: edit/master/docs/
+docs_dir: contents
+
+theme:
+  name: material
+  language: ja
+  palette:
+    primary: teal
+    accent: green
+
+plugins:
+  - minify:
+      minify_html: true
+
+nav:
+  - Home: index.md
+  - installation.md
+  - cli.md
+  - support_os.md
+  - Functions:
+      - functions/command.md
+      - functions/copy_file.md
+      - functions/create_directory.md
+      - functions/fish_set_path.md
+      - functions/fish_set_variable.md
+      - functions/http_request.md
+      - functions/is_arch_linux.md
+      - functions/is_darwin.md
+      - functions/move_file.md
+      - functions/symlink.md
