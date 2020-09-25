@@ -32,3 +32,8 @@ nav:
       - functions/is_darwin.md
       - functions/move_file.md
       - functions/symlink.md
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
