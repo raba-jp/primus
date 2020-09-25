@@ -7,3 +7,17 @@
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 [![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/raba-jp/primus?style=flat-square)](go.mod)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/raba-jp/primus?style=flat-square)](https://github.com/raba-jp/primus/releases)
+
+Primus is configuraton management and provisioning tool for local machine.
+
+## Installation
+
+### go get
+
+```bash
+go get github.com/raba-jp/primus/cmd/primus
+```
+
+## License
+
+[MIT License](LICENSE)
