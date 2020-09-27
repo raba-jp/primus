@@ -8,6 +8,7 @@ import (
 	"github.com/raba-jp/primus/pkg/operations/network"
 	"github.com/raba-jp/primus/pkg/operations/os"
 	"github.com/raba-jp/primus/pkg/operations/packages"
+	"github.com/raba-jp/primus/pkg/operations/systemd"
 	lib "go.starlark.net/starlark"
 )
 
@@ -26,5 +27,7 @@ func NewBuiltinFunction() Predeclared {
 		"fish_set_variable": lib.NewBuiltin("fish_set_variable", fish.SetVariable()),
 		"fish_set_path":     lib.NewBuiltin("fish_set_path", fish.SetPath()),
 		"create_directory":  lib.NewBuiltin("create_directory", directory.Create()),
+		"enable_service":    lib.NewBuiltin("enable_service", systemd.EnableService()),
+		"start_service":     lib.NewBuiltin("start_service", systemd.StartService()),
 	}
 }
