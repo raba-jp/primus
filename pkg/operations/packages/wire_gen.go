@@ -14,11 +14,47 @@ import (
 
 // Injectors from wire.go:
 
-func Install() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+func DarwinPkgCheckInstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 	execInterface := backend.NewExecInterface()
 	fs := backend.NewFs()
-	checkInstallHandler := handlers.NewCheckInstall(execInterface, fs)
-	installHandler := handlers.NewInstall(execInterface, fs)
-	v := starlarkfn.Install(checkInstallHandler, installHandler)
+	darwinPkgCheckInstallHandler := handlers.NewDarwinPkgCheckInstallHandler(execInterface, fs)
+	v := starlarkfn.DarwinPkgCheckInstall(darwinPkgCheckInstallHandler)
+	return v
+}
+
+func DarwinPkgInstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	execInterface := backend.NewExecInterface()
+	fs := backend.NewFs()
+	darwinPkgInstallHandler := handlers.NewDarwinPkgInstallHandler(execInterface, fs)
+	v := starlarkfn.DarwinPkgInstall(darwinPkgInstallHandler)
+	return v
+}
+
+func DarwinPkgUninstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	execInterface := backend.NewExecInterface()
+	fs := backend.NewFs()
+	darwinPkgUninstallHandler := handlers.NewDarwinPkgUninstallHandler(execInterface, fs)
+	v := starlarkfn.DarwinPkgUninstall(darwinPkgUninstallHandler)
+	return v
+}
+
+func ArchPkgCheckInstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	execInterface := backend.NewExecInterface()
+	archPkgCheckInstallHandler := handlers.NewArchPkgCheckInstallHandler(execInterface)
+	v := starlarkfn.ArchPkgCheckInstall(archPkgCheckInstallHandler)
+	return v
+}
+
+func ArchPkgInstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	execInterface := backend.NewExecInterface()
+	archPkgInstallHandler := handlers.NewArchPkgInstallHandler(execInterface)
+	v := starlarkfn.ArchPkgInstall(archPkgInstallHandler)
+	return v
+}
+
+func ArchPkgUninstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	execInterface := backend.NewExecInterface()
+	archPkgUninstallHandler := handlers.NewArchPkgUninstallHandler(execInterface)
+	v := starlarkfn.ArchPkgUninstall(archPkgUninstallHandler)
 	return v
 }
