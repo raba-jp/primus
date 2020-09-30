@@ -67,6 +67,18 @@ func TestArchLinux_Install(t *testing.T) {
 							Stderr: new(bytes.Buffer),
 							RunScript: []fakeexec.FakeAction{
 								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, xerrors.New("not installed")
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
 									return []byte{}, []byte{}, nil
 								},
 							},
@@ -78,9 +90,41 @@ func TestArchLinux_Install(t *testing.T) {
 			hasErr: false,
 		},
 		{
-			name: "error: error occurred",
+			name: "success: already installed",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			hasErr: false,
+		},
+		{
+			name: "error: install failed",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, xerrors.New("not installed")
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -102,7 +146,7 @@ func TestArchLinux_Install(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := &handlers.ArchLinux{Exec: tt.mockExec}
-			if err := handler.Install(context.Background(), false, &handlers.InstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
+			if err := handler.Install(context.Background(), false, &handlers.ArchPkgInstallParams{Name: "base-devel", Option: "option"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
@@ -112,12 +156,12 @@ func TestArchLinux_Install(t *testing.T) {
 func TestArchLinux_Install__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
-		params *handlers.InstallParams
+		params *handlers.ArchPkgInstallParams
 		want   string
 	}{
 		{
 			name: "success",
-			params: &handlers.InstallParams{
+			params: &handlers.ArchPkgInstallParams{
 				Name:   "pkg",
 				Option: "option",
 			},
@@ -164,6 +208,38 @@ func TestArchLinux_Uninstall(t *testing.T) {
 						}
 						return fakeexec.InitFakeCmd(fake, cmd, args...)
 					},
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			hasErr: false,
+		},
+		{
+			name: "success: not installed",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, xerrors.New("not installed")
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 				},
 			},
 			hasErr: false,
@@ -172,6 +248,18 @@ func TestArchLinux_Uninstall(t *testing.T) {
 			name: "error: error occurred",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -193,7 +281,7 @@ func TestArchLinux_Uninstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := &handlers.ArchLinux{Exec: tt.mockExec}
-			if err := handler.Uninstall(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
+			if err := handler.Uninstall(context.Background(), false, &handlers.ArchPkgUninstallParams{Name: "base-devel"}); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
 		})
@@ -203,12 +291,12 @@ func TestArchLinux_Uninstall(t *testing.T) {
 func TestArchLinux_Uninstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
-		params *handlers.UninstallParams
+		params *handlers.ArchPkgUninstallParams
 		want   string
 	}{
 		{
 			name: "success",
-			params: &handlers.UninstallParams{
+			params: &handlers.ArchPkgUninstallParams{
 				Name: "pkg",
 			},
 			want: "pacman -R --noconfirm pkg\n",

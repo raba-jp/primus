@@ -1,5 +1,4 @@
 package handlers
 
-type ArchLinux = archLinux
-
 type Darwin = darwin
+type ArchLinux = archLinux

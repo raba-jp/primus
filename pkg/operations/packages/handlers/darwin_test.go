@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestDarwin_CheckInstall(t *testing.T) {
+func TestNewDarwinPkgCheckInstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
@@ -124,7 +124,7 @@ func TestDarwin_CheckInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
+			handler := &handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
 			if res := handler.CheckInstall(context.Background(), "cat"); res != tt.want {
 				t.Fatal("Fail")
 			}
@@ -132,17 +132,30 @@ func TestDarwin_CheckInstall(t *testing.T) {
 	}
 }
 
-func TestDarwin_Install(t *testing.T) {
+func TestNewDarwinPkgInstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
-		params   *handlers.InstallParams
+		fs       func() afero.Fs
+		params   *handlers.DarwinPkgInstallParams
 		hasErr   bool
 	}{
 		{
 			name: "success",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -157,16 +170,72 @@ func TestDarwin_Install(t *testing.T) {
 					},
 				},
 			},
-			params: &handlers.InstallParams{
+			params: &handlers.DarwinPkgInstallParams{
 				Name:   "pkg",
 				Option: "options",
+			},
+			fs: func() afero.Fs {
+				return afero.NewMemMapFs()
 			},
 			hasErr: false,
 		},
 		{
-			name: "error: error occurred",
+			name: "success: already installed",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			params: &handlers.DarwinPkgInstallParams{
+				Name:   "pkg",
+				Option: "options",
+			},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
+				return fs
+			},
+			hasErr: false,
+		},
+		{
+			name: "error: install package failed",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -181,9 +250,12 @@ func TestDarwin_Install(t *testing.T) {
 					},
 				},
 			},
-			params: &handlers.InstallParams{
+			params: &handlers.DarwinPkgInstallParams{
 				Name:   "pkg",
 				Option: "options",
+			},
+			fs: func() afero.Fs {
+				return afero.NewMemMapFs()
 			},
 			hasErr: true,
 		},
@@ -191,7 +263,7 @@ func TestDarwin_Install(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := handlers.Darwin{Exec: tt.mockExec}
+			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
 			if err := handler.Install(context.Background(), false, tt.params); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
@@ -199,15 +271,15 @@ func TestDarwin_Install(t *testing.T) {
 	}
 }
 
-func TestDarwin_Install__dryrun(t *testing.T) {
+func TestTestDarwinPkgInstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
-		params *handlers.InstallParams
+		params *handlers.DarwinPkgInstallParams
 		want   string
 	}{
 		{
 			name: "success",
-			params: &handlers.InstallParams{
+			params: &handlers.DarwinPkgInstallParams{
 				Name:   "pkg",
 				Option: "option",
 			},
@@ -220,7 +292,7 @@ func TestDarwin_Install__dryrun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := &handlers.Darwin{}
+			handler := handlers.Darwin{}
 			err := handler.Install(context.Background(), true, tt.params)
 			if err != nil {
 				t.Fatalf("%v", err)
@@ -236,13 +308,26 @@ func TestDarwin_Uninstall(t *testing.T) {
 	tests := []struct {
 		name     string
 		mockExec exec.Interface
-		params   *handlers.UninstallParams
+		fs       func() afero.Fs
+		params   *handlers.DarwinPkgUninstallParams
 		hasErr   bool
 	}{
 		{
 			name: "success",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -257,13 +342,66 @@ func TestDarwin_Uninstall(t *testing.T) {
 					},
 				},
 			},
-			params: &handlers.UninstallParams{Name: "pkg"},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
+				return fs
+			},
+			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
 			hasErr: false,
 		},
 		{
-			name: "error: error occurred",
+			name: "success: not installed",
 			mockExec: &fakeexec.FakeExec{
 				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							RunScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
+				},
+			},
+			fs: func() afero.Fs {
+				return afero.NewMemMapFs()
+			},
+			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
+			hasErr: false,
+		},
+		{
+			name: "error: uninstall failed",
+			mockExec: &fakeexec.FakeExec{
+				CommandScript: []fakeexec.FakeCommandAction{
+					func(cmd string, args ...string) exec.Cmd {
+						fake := &fakeexec.FakeCmd{
+							Stdout: new(bytes.Buffer),
+							Stderr: new(bytes.Buffer),
+							OutputScript: []fakeexec.FakeAction{
+								func() ([]byte, []byte, error) {
+									return []byte{}, []byte{}, nil
+								},
+							},
+						}
+						return fakeexec.InitFakeCmd(fake, cmd, args...)
+					},
 					func(cmd string, args ...string) exec.Cmd {
 						fake := &fakeexec.FakeCmd{
 							Stdout: new(bytes.Buffer),
@@ -278,14 +416,19 @@ func TestDarwin_Uninstall(t *testing.T) {
 					},
 				},
 			},
-			params: &handlers.UninstallParams{Name: "pkg"},
+			fs: func() afero.Fs {
+				fs := afero.NewMemMapFs()
+				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
+				return fs
+			},
+			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
 			hasErr: true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := handlers.Darwin{Exec: tt.mockExec}
+			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
 			if err := handler.Uninstall(context.Background(), false, tt.params); !tt.hasErr && err != nil {
 				t.Fatalf("%v", err)
 			}
@@ -296,12 +439,12 @@ func TestDarwin_Uninstall(t *testing.T) {
 func TestDarwin_Uninstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
-		params *handlers.UninstallParams
+		params *handlers.DarwinPkgUninstallParams
 		want   string
 	}{
 		{
 			name: "success",
-			params: &handlers.UninstallParams{
+			params: &handlers.DarwinPkgUninstallParams{
 				Name: "pkg",
 			},
 			want: "brew uninstall pkg\n",
@@ -313,7 +456,7 @@ func TestDarwin_Uninstall__dryrun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := &handlers.Darwin{}
+			handler := handlers.Darwin{}
 			err := handler.Uninstall(context.Background(), true, tt.params)
 			if err != nil {
 				t.Fatalf("%v", err)
