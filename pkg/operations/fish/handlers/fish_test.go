@@ -109,7 +109,7 @@ func TestNewSetVariable(t *testing.T) {
 	}
 }
 
-func TestBaseBackend_FishSetVariable__DryRun(t *testing.T) {
+func TestNewSetVariable__DryRun(t *testing.T) {
 	tests := []struct {
 		name   string
 		params *handlers.SetVariableParams
@@ -198,7 +198,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 	}
 }
 
-func TestBaseBackend_FishSetPath__DryRun(t *testing.T) {
+func TestNewSetPath__DryRun(t *testing.T) {
 	tests := []struct {
 		name   string
 		src    string
