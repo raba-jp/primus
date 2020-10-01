@@ -4,6 +4,7 @@ import (
 	"github.com/raba-jp/primus/pkg/operations/command"
 	"github.com/raba-jp/primus/pkg/operations/directory"
 	"github.com/raba-jp/primus/pkg/operations/file"
+	"github.com/raba-jp/primus/pkg/operations/filepath"
 	"github.com/raba-jp/primus/pkg/operations/fish"
 	"github.com/raba-jp/primus/pkg/operations/network"
 	"github.com/raba-jp/primus/pkg/operations/os"
@@ -34,5 +35,8 @@ func NewBuiltinFunction() Predeclared {
 		"arch_pkg_check_install":   lib.NewBuiltin("arch_pkg_check_install", packages.ArchPkgCheckInstall()),
 		"arch_pkg_install":         lib.NewBuiltin("arch_pkg_install", packages.ArchPkgInstall()),
 		"arch_pkg_uninstall":       lib.NewBuiltin("darwin_pkg_install", packages.ArchPkgUninstall()),
+		"current_filepath":         lib.NewBuiltin("current_filepath", filepath.Current()),
+		"get_dir":                  lib.NewBuiltin("get_dir", filepath.Dir()),
+		"join_filepath":            lib.NewBuiltin("join_filepath", filepath.Join()),
 	}
 }
