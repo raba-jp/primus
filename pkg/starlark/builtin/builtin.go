@@ -6,6 +6,7 @@ import (
 	"github.com/raba-jp/primus/pkg/operations/file"
 	"github.com/raba-jp/primus/pkg/operations/filepath"
 	"github.com/raba-jp/primus/pkg/operations/fish"
+	"github.com/raba-jp/primus/pkg/operations/git"
 	"github.com/raba-jp/primus/pkg/operations/network"
 	"github.com/raba-jp/primus/pkg/operations/os"
 	"github.com/raba-jp/primus/pkg/operations/packages"
@@ -41,5 +42,6 @@ func NewBuiltinFunction() Predeclared {
 		"get_dir":                  lib.NewBuiltin("get_dir", filepath.Dir()),
 		"join_filepath":            lib.NewBuiltin("join_filepath", filepath.Join()),
 		"vscode_install_extension": lib.NewBuiltin("vscode_install_extension", vscode.InstallExtension()),
+		"git_clone":                lib.NewBuiltin("git_clone", git.Clone()),
 	}
 }
