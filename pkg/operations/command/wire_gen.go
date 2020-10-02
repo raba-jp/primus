@@ -16,7 +16,14 @@ import (
 
 func Command() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 	execInterface := backend.NewExecInterface()
-	commandHandler := handlers.New(execInterface)
+	commandHandler := handlers.NewCommand(execInterface)
 	v := starlarkfn.Command(commandHandler)
+	return v
+}
+
+func Executable() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	fs := backend.NewFs()
+	executableHandler := handlers.NewExecutable(fs)
+	v := starlarkfn.Executable(executableHandler)
 	return v
 }

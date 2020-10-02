@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/handler.go . CommandHandler
+//go:generate mockgen -destination mock/command.go . CommandHandler
 
 package handlers
 
@@ -42,7 +42,7 @@ func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *Command
 	return f(ctx, dryrun, p)
 }
 
-func New(execIF exec.Interface) CommandHandler {
+func NewCommand(execIF exec.Interface) CommandHandler {
 	return CommandHandlerFunc(func(ctx context.Context, dryrun bool, p *CommandParams) error {
 		if dryrun {
 			buf := new(bytes.Buffer)

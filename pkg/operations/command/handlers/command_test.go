@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestNew(t *testing.T) {
+func TestNewCommand(t *testing.T) {
 	tests := []struct {
 		name       string
 		params     *handlers.CommandParams
@@ -96,7 +96,7 @@ func TestNew(t *testing.T) {
 					},
 				},
 			}
-			handler := handlers.New(execIF)
+			handler := handlers.NewCommand(execIF)
 
 			err := handler.Command(context.Background(), false, tt.params)
 			if !tt.hasErr && err != nil {
@@ -106,7 +106,7 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestNew__DryRun(t *testing.T) {
+func TestNewCommand__DryRun(t *testing.T) {
 	tests := []struct {
 		name    string
 		command string
@@ -138,7 +138,7 @@ func TestNew__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.New(nil)
+			handler := handlers.NewCommand(nil)
 			err := handler.Command(context.Background(), true, &handlers.CommandParams{
 				CmdName: tt.command,
 				CmdArgs: tt.args,

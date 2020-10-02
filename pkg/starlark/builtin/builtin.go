@@ -19,6 +19,7 @@ type Predeclared = lib.StringDict
 func NewBuiltinFunction() Predeclared {
 	return lib.StringDict{
 		"command":                  lib.NewBuiltin("command", command.Command()),
+		"executable":               lib.NewBuiltin("executable", command.Executable()),
 		"symlink":                  lib.NewBuiltin("symlink", file.Symlink()),
 		"http_request":             lib.NewBuiltin("http_request", network.HTTPRequest()),
 		"copy_file":                lib.NewBuiltin("copy_file", file.Copy()),
