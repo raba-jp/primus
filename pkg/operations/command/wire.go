@@ -13,8 +13,17 @@ import (
 func Command() starlark.Fn {
 	wire.Build(
 		backend.NewExecInterface,
-		handlers.New,
+		handlers.NewCommand,
 		starlarkfn.Command,
+	)
+	return nil
+}
+
+func Executable() starlark.Fn {
+	wire.Build(
+		backend.NewFs,
+		handlers.NewExecutable,
+		starlarkfn.Executable,
 	)
 	return nil
 }
