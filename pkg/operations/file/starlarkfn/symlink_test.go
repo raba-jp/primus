@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/file/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestSymlink(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockSymlinkHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockSymlinkHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -31,13 +33,13 @@ func TestSymlink(t *testing.T) {
 					},
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("/sym/src.txt", "/sys/dest.txt", "too many")`,
-			mock:   func(m *mock_handlers.MockSymlinkHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("/sym/src.txt", "/sys/dest.txt", "too many")`,
+			mock:      func(m *mock_handlers.MockSymlinkHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: create symlink failed ",
@@ -45,7 +47,7 @@ func TestSymlink(t *testing.T) {
 			mock: func(m *mock_handlers.MockSymlinkHandler) {
 				m.EXPECT().Symlink(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -58,9 +60,7 @@ func TestSymlink(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Symlink(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

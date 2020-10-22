@@ -6,7 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/spf13/cobra"
 )
 
@@ -30,11 +31,7 @@ func goldenTest(t *testing.T, path string, data string) {
 		return
 	} else {
 		res, err := ioutil.ReadFile(path)
-		if err != nil {
-			t.Fatalf("Failed to read golden test file: %s: %v", path, err)
-		}
-		if diff := cmp.Diff(string(res), data); diff != "" {
-			t.Fatal(diff)
-		}
+		assert.NoErrorf(t, err, "Failed to read golden test file")
+		assert.Equal(t, data, string(res))
 	}
 }

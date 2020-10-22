@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/operations/os/starlarkfn"
@@ -46,13 +48,9 @@ func TestIsDarwin(t *testing.T) {
 				},
 			}
 			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsDarwin(execIF))
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
 
-			if globals["v"] != tt.want {
-				t.Errorf("want: %v, got: %v", tt.want, globals["v"])
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, globals["v"])
 		})
 	}
 }
@@ -91,12 +89,9 @@ func TestIsArchLinux(t *testing.T) {
 			tt.mock(fs)
 
 			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsArchLinux(fs))
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
-			if globals["v"] != tt.want {
-				t.Errorf("want: %v, got: %v", tt.want, globals["v"])
-			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, globals["v"])
 		})
 	}
 }

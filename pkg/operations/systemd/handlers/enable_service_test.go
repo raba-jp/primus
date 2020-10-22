@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
@@ -25,9 +27,9 @@ func TestNewEnableService(t *testing.T) {
 	})
 
 	tests := []struct {
-		name   string
-		mock   exec.Interface
-		hasErr bool
+		name      string
+		mock      exec.Interface
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -37,7 +39,7 @@ func TestNewEnableService(t *testing.T) {
 					newFakeRunScript(successAction),
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: check cmd returns enabled",
@@ -47,7 +49,7 @@ func TestNewEnableService(t *testing.T) {
 					newFakeRunScript(successAction),
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: check fail",
@@ -56,7 +58,7 @@ func TestNewEnableService(t *testing.T) {
 					newFakeOutputScript(failureAction),
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: enabled fail",
@@ -66,7 +68,7 @@ func TestNewEnableService(t *testing.T) {
 					newFakeRunScript(failureAction),
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -74,9 +76,7 @@ func TestNewEnableService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := handlers.NewEnableService(tt.mock)
 			err := handler.EnableService(context.Background(), false, "dummy.service")
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

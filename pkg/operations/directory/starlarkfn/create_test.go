@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/directory/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/directory/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestCreateDirectory(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockCreateHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockCreateHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -32,7 +34,7 @@ func TestCreateDirectory(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path",
@@ -48,7 +50,7 @@ func TestCreateDirectory(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: without permission",
@@ -65,13 +67,13 @@ func TestCreateDirectory(t *testing.T) {
 						}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("/sym/test", 0o644, "too many")`,
-			mock:   func(m *mock_handlers.MockCreateHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("/sym/test", 0o644, "too many")`,
+			mock:      func(m *mock_handlers.MockCreateHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to create directory",
@@ -83,7 +85,7 @@ func TestCreateDirectory(t *testing.T) {
 					gomock.Any(),
 				).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -96,9 +98,7 @@ func TestCreateDirectory(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Create(m))
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

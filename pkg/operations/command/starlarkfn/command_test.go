@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/command/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/command/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestCommand(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockCommandHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockCommandHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: string array kwargs",
@@ -33,7 +35,7 @@ func TestCommand(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: int kwargs",
@@ -50,13 +52,13 @@ func TestCommand(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: bigint kwargs",
-			data:   `test(name="echo", args=[9007199254740991])`,
-			mock:   func(m *mock_handlers.MockCommandHandler) {},
-			hasErr: true,
+			name:      "error: bigint kwargs",
+			data:      `test(name="echo", args=[9007199254740991])`,
+			mock:      func(m *mock_handlers.MockCommandHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "success: bool kwargs",
@@ -73,13 +75,13 @@ func TestCommand(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "success(unsupported): float kwargs",
-			data:   `test(name="echo", args=[1.111])`,
-			mock:   func(m *mock_handlers.MockCommandHandler) {},
-			hasErr: true,
+			name:      "success(unsupported): float kwargs",
+			data:      `test(name="echo", args=[1.111])`,
+			mock:      func(m *mock_handlers.MockCommandHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "success: no args",
@@ -87,7 +89,7 @@ func TestCommand(t *testing.T) {
 			mock: func(m *mock_handlers.MockCommandHandler) {
 				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with user and cwd",
@@ -95,13 +97,13 @@ func TestCommand(t *testing.T) {
 			mock: func(m *mock_handlers.MockCommandHandler) {
 				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("echo", [], "testuser", "/home/testuser", "too many")`,
-			mock:   func(m *mock_handlers.MockCommandHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("echo", [], "testuser", "/home/testuser", "too many")`,
+			mock:      func(m *mock_handlers.MockCommandHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: execute command failed",
@@ -109,7 +111,7 @@ func TestCommand(t *testing.T) {
 			mock: func(m *mock_handlers.MockCommandHandler) {
 				m.EXPECT().Command(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -122,9 +124,7 @@ func TestCommand(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Command(m))
-			if !tt.hasErr && err != nil {
-				t.Error(err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

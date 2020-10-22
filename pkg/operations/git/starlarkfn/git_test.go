@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/git/handlers/mock"
 	"github.com/raba-jp/primus/pkg/operations/git/starlarkfn"
@@ -12,10 +14,10 @@ import (
 
 func TestClone(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(m *mock_handlers.MockCloneHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(m *mock_handlers.MockCloneHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success:",
@@ -23,7 +25,7 @@ func TestClone(t *testing.T) {
 			mock: func(m *mock_handlers.MockCloneHandler) {
 				m.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: failed to git clone",
@@ -31,13 +33,13 @@ func TestClone(t *testing.T) {
 			mock: func(m *mock_handlers.MockCloneHandler) {
 				m.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("https://example.com", "/sym", "main", "too many")`,
-			mock:   func(m *mock_handlers.MockCloneHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("https://example.com", "/sym", "main", "too many")`,
+			mock:      func(m *mock_handlers.MockCloneHandler) {},
+			errAssert: assert.Error,
 		},
 	}
 
@@ -50,9 +52,7 @@ func TestClone(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/file/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestFileMove(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockMoveHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockMoveHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -32,13 +34,13 @@ func TestFileMove(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("src.txt", "dest.txt", "too many")`,
-			mock:   func(m *mock_handlers.MockMoveHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("src.txt", "dest.txt", "too many")`,
+			mock:      func(m *mock_handlers.MockMoveHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: file move failed",
@@ -50,7 +52,7 @@ func TestFileMove(t *testing.T) {
 					gomock.Any(),
 				).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -63,9 +65,7 @@ func TestFileMove(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Move(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

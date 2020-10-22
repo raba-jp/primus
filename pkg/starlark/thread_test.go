@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
 )
@@ -18,13 +20,12 @@ func TestThreadOptions(t *testing.T) {
 			return nil, nil
 		}),
 	)
-	if got := starlark.GetCtx(thread); ctx != got {
-		t.Error("different context")
-	}
-	if dryrun := starlark.GetDryRunMode(thread); !dryrun {
-		t.Errorf("want: true, got: %v", dryrun)
-	}
-	if load := thread.Load; load == nil {
-		t.Error("Load is not set")
-	}
+	got := starlark.GetCtx(thread)
+	assert.Equalf(t, ctx, got, "different context")
+
+	dryrun := starlark.GetDryRunMode(thread)
+	assert.True(t, dryrun)
+
+	load := thread.Load
+	assert.NotNil(t, load)
 }

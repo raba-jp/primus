@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/file/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestCopy(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockCopyHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockCopyHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -33,7 +35,7 @@ func TestCopy(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with permission",
@@ -50,13 +52,13 @@ func TestCopy(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("src.txt", "dest.txt", 0o644, "too many")`,
-			mock:   func(m *mock_handlers.MockCopyHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("src.txt", "dest.txt", 0o644, "too many")`,
+			mock:      func(m *mock_handlers.MockCopyHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: file copy failed",
@@ -68,7 +70,7 @@ func TestCopy(t *testing.T) {
 					gomock.Any(),
 				).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -81,9 +83,7 @@ func TestCopy(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Copy(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

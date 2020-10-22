@@ -5,7 +5,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
@@ -125,20 +126,19 @@ func TestNewDarwinPkgCheckInstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := &handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
-			if res := handler.CheckInstall(context.Background(), "cat"); res != tt.want {
-				t.Fatal("Fail")
-			}
+			res := handler.CheckInstall(context.Background(), "cat")
+			assert.Equal(t, tt.want, res)
 		})
 	}
 }
 
 func TestNewDarwinPkgInstall(t *testing.T) {
 	tests := []struct {
-		name     string
-		mockExec exec.Interface
-		fs       func() afero.Fs
-		params   *handlers.DarwinPkgInstallParams
-		hasErr   bool
+		name      string
+		mockExec  exec.Interface
+		fs        func() afero.Fs
+		params    *handlers.DarwinPkgInstallParams
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -177,7 +177,7 @@ func TestNewDarwinPkgInstall(t *testing.T) {
 			fs: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: already installed",
@@ -218,7 +218,7 @@ func TestNewDarwinPkgInstall(t *testing.T) {
 				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
 				return fs
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: install package failed",
@@ -257,16 +257,15 @@ func TestNewDarwinPkgInstall(t *testing.T) {
 			fs: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
-			if err := handler.Install(context.Background(), false, tt.params); !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			err := handler.Install(context.Background(), false, tt.params)
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -294,23 +293,20 @@ func TestTestDarwinPkgInstall__dryrun(t *testing.T) {
 
 			handler := handlers.Darwin{}
 			err := handler.Install(context.Background(), true, tt.params)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }
 
 func TestDarwin_Uninstall(t *testing.T) {
 	tests := []struct {
-		name     string
-		mockExec exec.Interface
-		fs       func() afero.Fs
-		params   *handlers.DarwinPkgUninstallParams
-		hasErr   bool
+		name      string
+		mockExec  exec.Interface
+		fs        func() afero.Fs
+		params    *handlers.DarwinPkgUninstallParams
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -347,8 +343,8 @@ func TestDarwin_Uninstall(t *testing.T) {
 				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
 				return fs
 			},
-			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
-			hasErr: false,
+			params:    &handlers.DarwinPkgUninstallParams{Name: "pkg"},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: not installed",
@@ -383,8 +379,8 @@ func TestDarwin_Uninstall(t *testing.T) {
 			fs: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
-			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
-			hasErr: false,
+			params:    &handlers.DarwinPkgUninstallParams{Name: "pkg"},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: uninstall failed",
@@ -421,17 +417,16 @@ func TestDarwin_Uninstall(t *testing.T) {
 				afero.WriteFile(fs, "/usr/local/Caskroom/pkg", []byte{}, 0o777)
 				return fs
 			},
-			params: &handlers.DarwinPkgUninstallParams{Name: "pkg"},
-			hasErr: true,
+			params:    &handlers.DarwinPkgUninstallParams{Name: "pkg"},
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := handlers.Darwin{Exec: tt.mockExec, Fs: tt.fs()}
-			if err := handler.Uninstall(context.Background(), false, tt.params); !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			err := handler.Uninstall(context.Background(), false, tt.params)
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -458,12 +453,8 @@ func TestDarwin_Uninstall__dryrun(t *testing.T) {
 
 			handler := handlers.Darwin{}
 			err := handler.Uninstall(context.Background(), true, tt.params)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

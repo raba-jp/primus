@@ -5,7 +5,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
@@ -19,7 +20,7 @@ func TestNewSetVariable(t *testing.T) {
 		mockStdout string
 		mockErr    error
 		params     *handlers.SetVariableParams
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name:       "success: scope universal",
@@ -31,7 +32,7 @@ func TestNewSetVariable(t *testing.T) {
 				Scope:  handlers.UniversalScope,
 				Export: true,
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name:       "success: scope global",
@@ -43,7 +44,7 @@ func TestNewSetVariable(t *testing.T) {
 				Scope:  handlers.GlobalScope,
 				Export: true,
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name:       "success: scope local",
@@ -55,7 +56,7 @@ func TestNewSetVariable(t *testing.T) {
 				Scope:  handlers.LocalScope,
 				Export: true,
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name:       "success: no export",
@@ -67,7 +68,7 @@ func TestNewSetVariable(t *testing.T) {
 				Scope:  handlers.LocalScope,
 				Export: false,
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name:       "error",
@@ -79,7 +80,7 @@ func TestNewSetVariable(t *testing.T) {
 				Scope:  handlers.UniversalScope,
 				Export: true,
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -102,9 +103,7 @@ func TestNewSetVariable(t *testing.T) {
 
 			handler := handlers.NewSetVariable(execIF)
 			err := handler.SetVariable(context.Background(), false, tt.params)
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -134,12 +133,9 @@ func TestNewSetVariable__DryRun(t *testing.T) {
 
 			handler := handlers.NewSetVariable(nil)
 			err := handler.SetVariable(context.Background(), true, tt.params)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }
@@ -150,7 +146,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 		mockStdout string
 		mockErr    error
 		params     *handlers.SetPathParams
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name:       "success",
@@ -159,7 +155,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 			params: &handlers.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name:       "error",
@@ -168,7 +164,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 			params: &handlers.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -191,9 +187,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 
 			handler := handlers.NewSetPath(execIF)
 			err := handler.SetPath(context.Background(), false, tt.params)
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -221,12 +215,9 @@ func TestNewSetPath__DryRun(t *testing.T) {
 
 			handler := handlers.NewSetPath(nil)
 			err := handler.SetPath(context.Background(), true, tt.params)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/fish/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestSetVariable(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockSetVariableHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockSetVariableHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -33,7 +35,7 @@ func TestSetVariable(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: args",
@@ -50,7 +52,7 @@ func TestSetVariable(t *testing.T) {
 					}),
 				)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: global scope",
@@ -67,7 +69,7 @@ func TestSetVariable(t *testing.T) {
 					}),
 				)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: local scope",
@@ -84,19 +86,19 @@ func TestSetVariable(t *testing.T) {
 					}),
 				)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: unexpected scope",
-			data:   `test(name="GOPATH", value="$HOME/go", scope="dummy", export=True)`,
-			mock:   func(m *mock_handlers.MockSetVariableHandler) {},
-			hasErr: true,
+			name:      "error: unexpected scope",
+			data:      `test(name="GOPATH", value="$HOME/go", scope="dummy", export=True)`,
+			mock:      func(m *mock_handlers.MockSetVariableHandler) {},
+			errAssert: assert.Error,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("GOPATH", "$HOME/go", "universal", True, "too many")`,
-			mock:   func(m *mock_handlers.MockSetVariableHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("GOPATH", "$HOME/go", "universal", True, "too many")`,
+			mock:      func(m *mock_handlers.MockSetVariableHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: return handler error",
@@ -104,7 +106,7 @@ func TestSetVariable(t *testing.T) {
 			mock: func(m *mock_handlers.MockSetVariableHandler) {
 				m.EXPECT().SetVariable(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -117,9 +119,7 @@ func TestSetVariable(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetVariable(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

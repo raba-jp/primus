@@ -5,9 +5,10 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/raba-jp/primus/pkg/operations/command/handlers"
@@ -20,7 +21,7 @@ func TestNewCommand(t *testing.T) {
 		params     *handlers.CommandParams
 		mockStdout string
 		mockErr    error
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -30,7 +31,7 @@ func TestNewCommand(t *testing.T) {
 			},
 			mockStdout: "hello world",
 			mockErr:    nil,
-			hasErr:     false,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "success: with user",
@@ -41,7 +42,7 @@ func TestNewCommand(t *testing.T) {
 			},
 			mockStdout: "hello world",
 			mockErr:    nil,
-			hasErr:     false,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "success: with cwd",
@@ -52,7 +53,7 @@ func TestNewCommand(t *testing.T) {
 			},
 			mockStdout: "hello world",
 			mockErr:    nil,
-			hasErr:     false,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "success: with user and cwd",
@@ -64,7 +65,7 @@ func TestNewCommand(t *testing.T) {
 			},
 			mockStdout: "hello world",
 			mockErr:    nil,
-			hasErr:     false,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "error: ",
@@ -76,7 +77,7 @@ func TestNewCommand(t *testing.T) {
 			},
 			mockStdout: "hello world",
 			mockErr:    xerrors.New("dummy"),
-			hasErr:     true,
+			errAssert:  assert.Error,
 		},
 	}
 
@@ -99,9 +100,7 @@ func TestNewCommand(t *testing.T) {
 			handler := handlers.NewCommand(execIF)
 
 			err := handler.Command(context.Background(), false, tt.params)
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -143,12 +142,8 @@ func TestNewCommand__DryRun(t *testing.T) {
 				CmdName: tt.command,
 				CmdArgs: tt.args,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

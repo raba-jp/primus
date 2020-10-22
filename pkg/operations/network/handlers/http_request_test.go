@@ -7,7 +7,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/operations/network/handlers"
 	"github.com/spf13/afero"
@@ -59,16 +60,11 @@ func TestNewHTTPRequest(t *testing.T) {
 				URL:  tt.url,
 				Path: tt.path,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
+			assert.NoError(t, err)
+
 			data, err := afero.ReadFile(fs, tt.path)
-			if err != nil {
-				t.Fatalf("file read failed: %s: %v", tt.path, err)
-			}
-			if diff := cmp.Diff(tt.contents, string(data)); diff != "" {
-				t.Fatalf(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.contents, string(data))
 		})
 	}
 }
@@ -98,12 +94,8 @@ func TestNewHTTPRequest__DryRun(t *testing.T) {
 				URL:  tt.url,
 				Path: tt.path,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

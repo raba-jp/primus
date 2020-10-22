@@ -5,7 +5,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
@@ -25,9 +26,9 @@ func TestNewStartService(t *testing.T) {
 	})
 
 	tests := []struct {
-		name   string
-		mock   exec.Interface
-		hasErr bool
+		name      string
+		mock      exec.Interface
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -37,7 +38,7 @@ func TestNewStartService(t *testing.T) {
 					newFakeRunScript(successAction),
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: check cmd returns active",
@@ -47,7 +48,7 @@ func TestNewStartService(t *testing.T) {
 					newFakeRunScript(successAction),
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: check fail",
@@ -56,7 +57,7 @@ func TestNewStartService(t *testing.T) {
 					newFakeOutputScript(failureAction),
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: enabled fail",
@@ -66,7 +67,7 @@ func TestNewStartService(t *testing.T) {
 					newFakeRunScript(failureAction),
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -74,9 +75,7 @@ func TestNewStartService(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := handlers.NewStartService(tt.mock)
 			err := handler.StartService(context.Background(), false, "dummy.service")
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -99,12 +98,9 @@ func TestNewStartService__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 			handler := handlers.NewStartService(nil)
-			if err := handler.StartService(context.Background(), true, tt.in); err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
-			if diff := cmp.Diff(tt.out, buf.String()); diff != "" {
-				t.Error(diff)
-			}
+			err := handler.StartService(context.Background(), true, tt.in)
+			assert.NoError(t, err)
+			assert.Equal(t, tt.out, buf.String())
 		})
 	}
 }

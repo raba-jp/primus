@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/fish/handlers/mock"
@@ -13,10 +15,10 @@ import (
 
 func TestSetPath(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockSetPathHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockSetPathHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -30,7 +32,7 @@ func TestSetPath(t *testing.T) {
 					}),
 				).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: args",
@@ -44,7 +46,7 @@ func TestSetPath(t *testing.T) {
 					}),
 				)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: include int and bool",
@@ -58,13 +60,13 @@ func TestSetPath(t *testing.T) {
 					}),
 				)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test(["$GOPATH/bin", "$HOME/.bin"], "too many")`,
-			mock:   func(m *mock_handlers.MockSetPathHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test(["$GOPATH/bin", "$HOME/.bin"], "too many")`,
+			mock:      func(m *mock_handlers.MockSetPathHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: return handler error",
@@ -72,7 +74,7 @@ func TestSetPath(t *testing.T) {
 			mock: func(m *mock_handlers.MockSetPathHandler) {
 				m.EXPECT().SetPath(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -85,9 +87,7 @@ func TestSetPath(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetPath(m))
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/network/handlers/mock"
 	"github.com/raba-jp/primus/pkg/operations/network/starlarkfn"
@@ -12,10 +14,10 @@ import (
 
 func TestHttpRequest(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockHTTPRequestHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockHTTPRequestHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -23,13 +25,13 @@ func TestHttpRequest(t *testing.T) {
 			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
 				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("https://example.com/", "/sym/test.txt", "too many")`,
-			mock:   func(m *mock_handlers.MockHTTPRequestHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("https://example.com/", "/sym/test.txt", "too many")`,
+			mock:      func(m *mock_handlers.MockHTTPRequestHandler) {},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: http request failed",
@@ -37,7 +39,7 @@ func TestHttpRequest(t *testing.T) {
 			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
 				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -50,9 +52,7 @@ func TestHttpRequest(t *testing.T) {
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(m))
-			if !tt.hasErr && err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

@@ -3,8 +3,9 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
-	"github.com/google/go-cmp/cmp"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/command/handlers/mock"
 	"github.com/raba-jp/primus/pkg/operations/command/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
@@ -13,11 +14,11 @@ import (
 
 func TestExecutable(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(m *mock_handlers.MockExecutableHandler)
-		want   lib.Value
-		hasErr bool
+		name      string
+		data      string
+		mock      func(m *mock_handlers.MockExecutableHandler)
+		want      lib.Value
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: return true",
@@ -25,8 +26,8 @@ func TestExecutable(t *testing.T) {
 			mock: func(m *mock_handlers.MockExecutableHandler) {
 				m.EXPECT().Executable(gomock.Any(), gomock.Any()).Return(true)
 			},
-			want:   lib.True,
-			hasErr: false,
+			want:      lib.True,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: return false",
@@ -34,15 +35,15 @@ func TestExecutable(t *testing.T) {
 			mock: func(m *mock_handlers.MockExecutableHandler) {
 				m.EXPECT().Executable(gomock.Any(), gomock.Any()).Return(false)
 			},
-			want:   lib.False,
-			hasErr: false,
+			want:      lib.False,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `v = test("data", "too many")`,
-			mock:   func(m *mock_handlers.MockExecutableHandler) {},
-			want:   nil,
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `v = test("data", "too many")`,
+			mock:      func(m *mock_handlers.MockExecutableHandler) {},
+			want:      nil,
+			errAssert: assert.Error,
 		},
 	}
 
@@ -55,12 +56,8 @@ func TestExecutable(t *testing.T) {
 			tt.mock(m)
 
 			globals, err := starlark.ExecForTest("test", tt.data, starlarkfn.Executable(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
-			if diff := cmp.Diff(globals["v"], tt.want); diff != "" {
-				t.Error(diff)
-			}
+			tt.errAssert(t, err)
+			assert.Equal(t, globals["v"], tt.want)
 		})
 	}
 }

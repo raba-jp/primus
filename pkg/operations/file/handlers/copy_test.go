@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
@@ -19,7 +21,7 @@ func TestNewCopy(t *testing.T) {
 		params     *handlers.CopyParams
 		permission os.FileMode
 		contents   string
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -34,7 +36,7 @@ func TestNewCopy(t *testing.T) {
 			},
 			permission: 0o777,
 			contents:   "test",
-			hasErr:     false,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "success: set permission",
@@ -48,8 +50,8 @@ func TestNewCopy(t *testing.T) {
 				Dest:       "/sym/dest.txt",
 				Permission: 0o644,
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path current path",
@@ -64,8 +66,8 @@ func TestNewCopy(t *testing.T) {
 				Permission: 0o777,
 				Cwd:        "/sym",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path child path",
@@ -80,8 +82,8 @@ func TestNewCopy(t *testing.T) {
 				Permission: 0o777,
 				Cwd:        "/sym",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path parent path",
@@ -97,8 +99,8 @@ func TestNewCopy(t *testing.T) {
 				Permission: 0o777,
 				Cwd:        "/sym/test",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: source file not found",
@@ -109,8 +111,8 @@ func TestNewCopy(t *testing.T) {
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
-			contents: "test",
-			hasErr:   true,
+			contents:  "",
+			errAssert: assert.Error,
 		},
 	}
 
@@ -119,25 +121,14 @@ func TestNewCopy(t *testing.T) {
 			fs := tt.setup()
 			handler := handlers.NewCopy(fs)
 			err := handler.Copy(context.Background(), false, tt.params)
-			if !tt.hasErr {
-				if err != nil {
-					t.Fatalf("%v", err)
-				}
+			tt.errAssert(t, err)
 
-				data, err := afero.ReadFile(fs, tt.params.Dest)
-				if err != nil {
-					t.Fatalf("Failed to read file: %s: %v", tt.params.Dest, err)
-				}
-				if diff := cmp.Diff(tt.contents, string(data)); diff != "" {
-					t.Fatal(diff)
-				}
-				stat, err := fs.Stat(tt.params.Dest)
-				if err != nil {
-					t.Fatalf("%v", err)
-				}
-				if stat.Mode() != tt.params.Permission {
-					t.Fatalf("Set permission failed: %s", tt.params.Dest)
-				}
+			data, _ := afero.ReadFile(fs, tt.params.Dest)
+			assert.Equal(t, tt.contents, string(data))
+
+			stat, _ := fs.Stat(tt.params.Dest)
+			if stat != nil {
+				assert.Equal(t, tt.params.Permission, stat.Mode())
 			}
 		})
 	}

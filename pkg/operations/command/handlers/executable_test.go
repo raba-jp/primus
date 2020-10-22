@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/env"
 
 	"github.com/raba-jp/primus/pkg/operations/command/handlers"
@@ -104,9 +106,8 @@ func TestNewExecutable(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			env.SetFakeEnv(tt.env)
 			handler := handlers.NewExecutable(tt.fs())
-			if ret := handler.Executable(context.Background(), tt.data); ret != tt.want {
-				t.Errorf("Unexpected error: want: %v, got: %v", tt.want, ret)
-			}
+			ret := handler.Executable(context.Background(), tt.data)
+			assert.Equal(t, tt.want, ret)
 		})
 	}
 }

@@ -3,6 +3,8 @@ package starlarkfn_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/golang/mock/gomock"
 	mock_handlers "github.com/raba-jp/primus/pkg/operations/packages/handlers/mock"
 	"github.com/raba-jp/primus/pkg/operations/packages/starlarkfn"
@@ -11,10 +13,10 @@ import (
 
 func TestDarwinPkgCheckInstall(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockDarwinPkgCheckInstallHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockDarwinPkgCheckInstallHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: true",
@@ -22,7 +24,7 @@ func TestDarwinPkgCheckInstall(t *testing.T) {
 			mock: func(m *mock_handlers.MockDarwinPkgCheckInstallHandler) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(true)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: false",
@@ -30,13 +32,13 @@ func TestDarwinPkgCheckInstall(t *testing.T) {
 			mock: func(m *mock_handlers.MockDarwinPkgCheckInstallHandler) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(false)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("base-devel", "too many")`,
-			mock:   func(m *mock_handlers.MockDarwinPkgCheckInstallHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("base-devel", "too many")`,
+			mock:      func(m *mock_handlers.MockDarwinPkgCheckInstallHandler) {},
+			errAssert: assert.Error,
 		},
 	}
 
@@ -46,23 +48,20 @@ func TestDarwinPkgCheckInstall(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_handlers.NewMockDarwinPkgCheckInstallHandler(ctrl)
-
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.DarwinPkgCheckInstall(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
 
 func TestArchPkgCheckInstall(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockArchPkgCheckInstallHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      func(*mock_handlers.MockArchPkgCheckInstallHandler)
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: true",
@@ -70,7 +69,7 @@ func TestArchPkgCheckInstall(t *testing.T) {
 			mock: func(m *mock_handlers.MockArchPkgCheckInstallHandler) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(true)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: false",
@@ -78,13 +77,13 @@ func TestArchPkgCheckInstall(t *testing.T) {
 			mock: func(m *mock_handlers.MockArchPkgCheckInstallHandler) {
 				m.EXPECT().CheckInstall(gomock.Any(), gomock.Any()).Return(false)
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("base-devel", "too many")`,
-			mock:   func(m *mock_handlers.MockArchPkgCheckInstallHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("base-devel", "too many")`,
+			mock:      func(m *mock_handlers.MockArchPkgCheckInstallHandler) {},
+			errAssert: assert.Error,
 		},
 	}
 
@@ -94,13 +93,10 @@ func TestArchPkgCheckInstall(t *testing.T) {
 			defer ctrl.Finish()
 
 			m := mock_handlers.NewMockArchPkgCheckInstallHandler(ctrl)
-
 			tt.mock(m)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.ArchPkgCheckInstall(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

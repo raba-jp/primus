@@ -7,6 +7,7 @@ import (
 	"github.com/raba-jp/primus/pkg/exec"
 	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDetectOS(t *testing.T) {
@@ -61,9 +62,8 @@ func TestDetectOS(t *testing.T) {
 				},
 			}
 
-			if result := backend.DetectOS(execIF, tt.mockFs()); result != tt.want {
-				t.Fatalf("want: %#v, got: %#v", tt.want, result)
-			}
+			result := backend.DetectOS(execIF, tt.mockFs())
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
@@ -102,9 +102,8 @@ func TestDetectDarwin(t *testing.T) {
 					},
 				},
 			}
-			if result := backend.DetectDarwin(execIF); result != tt.want {
-				t.Fatal("Fail")
-			}
+			result := backend.DetectDarwin(execIF)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
@@ -142,9 +141,8 @@ func TestDetectManjaroLinux(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			tt.mock(fs)
 
-			if result := backend.DetectArchLinux(fs); result != tt.want {
-				t.Fatal("Fail")
-			}
+			result := backend.DetectArchLinux(fs)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
