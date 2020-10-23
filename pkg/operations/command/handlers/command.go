@@ -33,12 +33,12 @@ func (p *CommandParams) String() string {
 }
 
 type CommandHandler interface {
-	Command(ctx context.Context, dryrun bool, p *CommandParams) error
+	Command(ctx context.Context, dryrun bool, p *CommandParams) (err error)
 }
 
-type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error
+type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) (err error)
 
-func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) (err error) {
 	return f(ctx, dryrun, p)
 }
 

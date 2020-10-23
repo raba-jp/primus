@@ -19,12 +19,12 @@ const (
 )
 
 type ExecutableHandler interface {
-	Executable(ctx context.Context, name string) bool
+	Executable(ctx context.Context, name string) (ok bool)
 }
 
-type ExecutableHandlerFunc func(ctx context.Context, name string) bool
+type ExecutableHandlerFunc func(ctx context.Context, name string) (ok bool)
 
-func (f ExecutableHandlerFunc) Executable(ctx context.Context, name string) bool {
+func (f ExecutableHandlerFunc) Executable(ctx context.Context, name string) (ok bool) {
 	return f(ctx, name)
 }
 
