@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/afero"
 	"golang.org/x/xerrors"
@@ -15,17 +14,9 @@ import (
 
 const timeout = 10 * time.Minute
 
-func init() {
-	pp.ColoringEnabled = false
-}
-
 type HTTPRequestParams struct {
 	URL  string
 	Path string
-}
-
-func (p *HTTPRequestParams) String() string {
-	return pp.Sprintf("%v\n", p)
 }
 
 type HTTPRequestHandler interface {

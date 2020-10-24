@@ -6,7 +6,6 @@ import (
 	"context"
 	"path/filepath"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -17,10 +16,6 @@ type MoveParams struct {
 	Src  string
 	Dest string
 	Cwd  string
-}
-
-func (p *MoveParams) String() string {
-	return pp.Sprintf("%v\n", p)
 }
 
 type MoveHandler interface {

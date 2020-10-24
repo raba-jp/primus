@@ -7,7 +7,6 @@ package handlers
 import (
 	"context"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"golang.org/x/xerrors"
@@ -23,10 +22,6 @@ type ArchPkgInstallParams struct {
 	Cmd    string
 }
 
-func (p *ArchPkgInstallParams) String() string {
-	return pp.Sprintf("%v\n", p)
-}
-
 type ArchPkgInstallHandler interface {
 	Install(ctx context.Context, dryrun bool, p *ArchPkgInstallParams) (err error)
 }
@@ -34,10 +29,6 @@ type ArchPkgInstallHandler interface {
 type ArchPkgUninstallParams struct {
 	Name string
 	Cmd  string
-}
-
-func (p *ArchPkgUninstallParams) String() string {
-	return pp.Sprintf("%v\n", p)
 }
 
 type ArchPkgUninstallHandler interface {

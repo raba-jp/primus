@@ -7,25 +7,16 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
-func init() {
-	pp.ColoringEnabled = false
-}
-
 type CreateParams struct {
 	Path       string
 	Permission os.FileMode
 	Cwd        string
-}
-
-func (p *CreateParams) String() string {
-	return pp.Sprint(p)
 }
 
 type CreateHandler interface {

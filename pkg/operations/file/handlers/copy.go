@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -21,10 +20,6 @@ type CopyParams struct {
 	Dest       string
 	Permission os.FileMode
 	Cwd        string
-}
-
-func (p *CopyParams) String() string {
-	return pp.Sprintf("%v\n", p)
 }
 
 type CopyHandler interface {
