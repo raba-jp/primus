@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/cmd"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 )
@@ -16,13 +18,13 @@ func TestPlan(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       []string
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 		goldenFile string
 	}{
 		{
 			name:       "no args",
 			args:       []string{},
-			hasErr:     true,
+			errAssert:  assert.Error,
 			goldenFile: "plan_no_args.golden",
 		},
 		{
@@ -30,7 +32,7 @@ func TestPlan(t *testing.T) {
 			args: []string{
 				filepath.Join(wd, "testdata", "plan.star"),
 			},
-			hasErr:     false,
+			errAssert:  assert.NoError,
 			goldenFile: "plan_success.golden",
 		},
 	}
@@ -40,9 +42,8 @@ func TestPlan(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 			planCmd := cmd.NewPlanCommand()
-			if err := executeCommand(planCmd, buf, tt.args...); !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			err := executeCommand(planCmd, buf, tt.args...)
+			tt.errAssert(t, err)
 			path := filepath.Join(wd, "testdata", "golden", tt.goldenFile)
 			goldenTest(t, path, buf.String())
 		})

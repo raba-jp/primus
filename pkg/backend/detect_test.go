@@ -5,28 +5,63 @@ import (
 
 	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDetectOS(t *testing.T) {
 	tests := []struct {
 		name       string
+		mock       exec.InterfaceCommandExpectation
 		mockStdout string
 		mockFs     func() afero.Fs
 		want       backend.OS
 	}{
 		{
-			name:       "success: Darwin",
-			mockStdout: "Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64",
+			name: "success: Darwin",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			mockFs: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
 			want: backend.Darwin,
 		},
 		{
-			name:       "success: Manjaro Linux",
-			mockStdout: "Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux",
+			name: "success: Manjaro Linux",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			mockFs: func() afero.Fs {
 				fs := afero.NewMemMapFs()
 				afero.WriteFile(fs, "/etc/arch-release", []byte("Manjaro Linux"), 0o777)
@@ -35,8 +70,25 @@ func TestDetectOS(t *testing.T) {
 			want: backend.Arch,
 		},
 		{
-			name:       "fail: Unknown",
-			mockStdout: "",
+			name: "fail: Unknown",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte{},
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			mockFs: func() afero.Fs {
 				return afero.NewMemMapFs()
 			},
@@ -46,65 +98,74 @@ func TestDetectOS(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							OutputScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, nil
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
+			e := new(exec.MockInterface)
+			e.ApplyCommandExpectation(tt.mock)
 
-			if result := backend.DetectOS(execIF, tt.mockFs()); result != tt.want {
-				t.Fatalf("want: %#v, got: %#v", tt.want, result)
-			}
+			result := backend.DetectOS(e, tt.mockFs())
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
 
 func TestDetectDarwin(t *testing.T) {
 	tests := []struct {
-		name       string
-		mockStdout string
-		want       bool
+		name string
+		mock exec.InterfaceCommandExpectation
+		want bool
 	}{
 		{
-			name:       "success",
-			mockStdout: "Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64",
-			want:       true,
+			name: "success",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
+			want: true,
 		},
 		{
-			name:       "fail: linux",
-			mockStdout: "Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux",
-			want:       false,
+			name: "fail: linux",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
+			want: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							OutputScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, nil
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
-			if result := backend.DetectDarwin(execIF); result != tt.want {
-				t.Fatal("Fail")
-			}
+			e := new(exec.MockInterface)
+			e.ApplyCommandExpectation(tt.mock)
+
+			result := backend.DetectDarwin(e)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }
@@ -142,9 +203,8 @@ func TestDetectManjaroLinux(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			tt.mock(fs)
 
-			if result := backend.DetectArchLinux(fs); result != tt.want {
-				t.Fatal("Fail")
-			}
+			result := backend.DetectArchLinux(fs)
+			assert.Equal(t, tt.want, result)
 		})
 	}
 }

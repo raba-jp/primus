@@ -1,4 +1,5 @@
-//go:generate mockgen -destination mock/handler.go . SetVariableHandler,SetPathHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=SetVariableHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=SetPathHandler
 
 package handlers
 
@@ -39,7 +40,7 @@ func (p *SetVariableParams) String() string {
 }
 
 type SetVariableHandler interface {
-	SetVariable(ctx context.Context, dryrun bool, p *SetVariableParams) error
+	SetVariable(ctx context.Context, dryrun bool, p *SetVariableParams) (err error)
 }
 
 type SetVariableHandlerFunc func(ctx context.Context, dryrun bool, p *SetVariableParams) error
@@ -57,7 +58,7 @@ func (p *SetPathParams) String() string {
 }
 
 type SetPathHandler interface {
-	SetPath(ctx context.Context, dryrun bool, p *SetPathParams) error
+	SetPath(ctx context.Context, dryrun bool, p *SetPathParams) (err error)
 }
 
 type SetPathHandlerFunc func(ctx context.Context, dryrun bool, p *SetPathParams) error

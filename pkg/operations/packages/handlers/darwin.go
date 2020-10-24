@@ -1,4 +1,6 @@
-//go:generate mockgen -destination mock/darwin.go . DarwinPkgCheckInstallHandler,DarwinPkgInstallHandler,DarwinPkgUninstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgCheckInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgUninstallHandler
 
 package handlers
 
@@ -15,7 +17,7 @@ import (
 )
 
 type DarwinPkgCheckInstallHandler interface {
-	CheckInstall(ctx context.Context, name string) bool
+	CheckInstall(ctx context.Context, name string) (ok bool)
 }
 
 type DarwinPkgInstallParams struct {
@@ -26,7 +28,7 @@ type DarwinPkgInstallParams struct {
 }
 
 type DarwinPkgInstallHandler interface {
-	Install(ctx context.Context, dryrun bool, p *DarwinPkgInstallParams) error
+	Install(ctx context.Context, dryrun bool, p *DarwinPkgInstallParams) (err error)
 }
 
 type DarwinPkgUninstallParams struct {
@@ -36,7 +38,7 @@ type DarwinPkgUninstallParams struct {
 }
 
 type DarwinPkgUninstallHandler interface {
-	Uninstall(ctx context.Context, dryrun bool, p *DarwinPkgUninstallParams) error
+	Uninstall(ctx context.Context, dryrun bool, p *DarwinPkgUninstallParams) (err error)
 }
 
 type darwin struct {

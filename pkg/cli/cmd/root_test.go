@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/raba-jp/primus/pkg/cli/cmd"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestExecute(t *testing.T) {
@@ -36,9 +37,8 @@ func TestExecute(t *testing.T) {
 			rootCmd.SetErr(buf)
 			rootCmd.SetArgs(tt.args)
 
-			if err := rootCmd.Execute(); err != nil {
-				t.Fatalf("%v", err)
-			}
+			err := rootCmd.Execute()
+			assert.NoError(t, err)
 
 			wd, _ := os.Getwd()
 			path := filepath.Join(wd, "testdata", "golden", tt.goldenFile)

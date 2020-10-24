@@ -5,7 +5,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/operations/directory/handlers"
 	"github.com/spf13/afero"
@@ -13,11 +14,11 @@ import (
 
 func TestNew(t *testing.T) {
 	tests := []struct {
-		name   string
-		setup  func() afero.Fs
-		params *handlers.CreateParams
-		got    string
-		hasErr bool
+		name      string
+		setup     func() afero.Fs
+		params    *handlers.CreateParams
+		got       string
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -28,8 +29,8 @@ func TestNew(t *testing.T) {
 				Path:       "/sym/test",
 				Permission: 0o644,
 			},
-			got:    "/sym/test",
-			hasErr: false,
+			got:       "/sym/test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: already exists",
@@ -42,8 +43,8 @@ func TestNew(t *testing.T) {
 				Path:       "/sym/test",
 				Permission: 0o644,
 			},
-			got:    "/sym/test",
-			hasErr: false,
+			got:       "/sym/test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path",
@@ -57,8 +58,8 @@ func TestNew(t *testing.T) {
 				Permission: 0o644,
 				Cwd:        "/sym",
 			},
-			got:    "/sym/test",
-			hasErr: false,
+			got:       "/sym/test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path. child directory",
@@ -72,8 +73,8 @@ func TestNew(t *testing.T) {
 				Permission: 0o644,
 				Cwd:        "/sym/test",
 			},
-			got:    "/sym/test/test2/test3",
-			hasErr: false,
+			got:       "/sym/test/test2/test3",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path. parent directory",
@@ -85,8 +86,8 @@ func TestNew(t *testing.T) {
 				Permission: 0o644,
 				Cwd:        "/sym/test",
 			},
-			got:    "/sym/test2/test3",
-			hasErr: false,
+			got:       "/sym/test2/test3",
+			errAssert: assert.NoError,
 		},
 	}
 
@@ -95,16 +96,13 @@ func TestNew(t *testing.T) {
 			fs := tt.setup()
 			handler := handlers.New(fs)
 			err := handler.Create(context.Background(), false, tt.params)
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
+
 			stat, err := fs.Stat(tt.got)
-			if err != nil {
-				t.Fatalf("create directory failed: %v", err)
-			}
-			if !stat.IsDir() {
-				t.Errorf("%s is not directory", tt.got)
-			}
+			assert.NoErrorf(t, err, "create directory failed")
+
+			isdir := !stat.IsDir()
+			assert.Falsef(t, isdir, tt.got+"is not directory")
 		})
 	}
 }
@@ -133,12 +131,8 @@ func TestNew__DryRun(t *testing.T) {
 
 			handler := handlers.New(nil)
 			err := handler.Create(context.Background(), true, tt.params)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Errorf(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

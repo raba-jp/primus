@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/cmd"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 )
@@ -16,13 +18,13 @@ func TestApply(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       []string
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 		goldenFile string
 	}{
 		{
 			name:       "no args",
 			args:       []string{},
-			hasErr:     true,
+			errAssert:  assert.Error,
 			goldenFile: "apply_no_args.golden",
 		},
 		{
@@ -30,7 +32,7 @@ func TestApply(t *testing.T) {
 			args: []string{
 				filepath.Join(wd, "testdata", "apply.star"),
 			},
-			hasErr:     false,
+			errAssert:  assert.NoError,
 			goldenFile: "apply_success.golden",
 		},
 	}
@@ -40,9 +42,8 @@ func TestApply(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 			applyCmd := cmd.NewApplyCommand()
-			if err := executeCommand(applyCmd, buf, tt.args...); !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			err := executeCommand(applyCmd, buf, tt.args...)
+			tt.errAssert(t, err)
 			path := filepath.Join(wd, "testdata", "golden", tt.goldenFile)
 			goldenTest(t, path, buf.String())
 		})

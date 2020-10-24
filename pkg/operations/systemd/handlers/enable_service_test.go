@@ -5,78 +5,185 @@ import (
 	"context"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/xerrors"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/operations/systemd/handlers"
-	"golang.org/x/xerrors"
 )
 
 func TestNewEnableService(t *testing.T) {
-	successAction := fakeexec.FakeAction(func() ([]byte, []byte, error) {
-		return []byte{}, []byte{}, nil
-	})
-	enabledAction := fakeexec.FakeAction(func() ([]byte, []byte, error) {
-		return []byte("enabled"), []byte{}, nil
-	})
-	failureAction := fakeexec.FakeAction(func() ([]byte, []byte, error) {
-		return []byte{}, []byte{}, xerrors.New("dummy")
-	})
-
 	tests := []struct {
-		name   string
-		mock   exec.Interface
-		hasErr bool
+		name      string
+		mock      []exec.InterfaceCommandContextExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mock: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					newFakeOutputScript(successAction),
-					newFakeRunScript(successAction),
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"is-enabled", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+								Returns: exec.CmdOutputReturns{
+									Output: []byte{},
+									Err:    nil,
+								},
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"enable", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
+								},
+							})
+							return cmd
+						},
+					},
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: check cmd returns enabled",
-			mock: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					newFakeOutputScript(enabledAction),
-					newFakeRunScript(successAction),
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"is-enabled", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+								Returns: exec.CmdOutputReturns{
+									Output: []byte("enabled"),
+									Err:    nil,
+								},
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"enable", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
+								},
+							})
+							return cmd
+						},
+					},
 				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: check fail",
-			mock: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					newFakeOutputScript(failureAction),
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"is-enabled", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+								Returns: exec.CmdOutputReturns{
+									Output: []byte{},
+									Err:    xerrors.New("dummy"),
+								},
+							})
+							return cmd
+						},
+					},
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: enabled fail",
-			mock: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					newFakeOutputScript(successAction),
-					newFakeRunScript(failureAction),
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"is-enabled", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+								Returns: exec.CmdOutputReturns{
+									Output: []byte{},
+									Err:    nil,
+								},
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "systemctl",
+						Args:        []string{"enable", "dummy.service"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("dummy"),
+								},
+							})
+							return cmd
+						},
+					},
 				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := handlers.NewEnableService(tt.mock)
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectations(tt.mock)
+
+			handler := handlers.NewEnableService(e)
 			err := handler.EnableService(context.Background(), false, "dummy.service")
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }

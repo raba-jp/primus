@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/symlink.go . SymlinkHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=SymlinkHandler
 
 package handlers
 
@@ -23,7 +23,7 @@ func (p *SymlinkParams) String() string {
 }
 
 type SymlinkHandler interface {
-	Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error
+	Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) (err error)
 }
 
 type SymlinkHandlerFunc func(ctx context.Context, dryrun bool, p *SymlinkParams) error

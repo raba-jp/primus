@@ -5,7 +5,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
 	"github.com/spf13/afero"
@@ -13,11 +14,11 @@ import (
 
 func TestNewMove(t *testing.T) {
 	tests := []struct {
-		name     string
-		setup    func() afero.Fs
-		params   *handlers.MoveParams
-		contents string
-		hasErr   bool
+		name      string
+		setup     func() afero.Fs
+		params    *handlers.MoveParams
+		contents  string
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -30,8 +31,8 @@ func TestNewMove(t *testing.T) {
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path current path",
@@ -45,8 +46,8 @@ func TestNewMove(t *testing.T) {
 				Dest: "dest.txt",
 				Cwd:  "/sym",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path child path",
@@ -60,8 +61,8 @@ func TestNewMove(t *testing.T) {
 				Dest: "./test/dest.txt",
 				Cwd:  "/sym",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: relative path parent path",
@@ -75,8 +76,8 @@ func TestNewMove(t *testing.T) {
 				Dest: "../test2/dest.txt",
 				Cwd:  "/sym/test",
 			},
-			contents: "test",
-			hasErr:   false,
+			contents:  "test",
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: source file not found",
@@ -87,8 +88,8 @@ func TestNewMove(t *testing.T) {
 				Src:  "/sym/src.txt",
 				Dest: "/sym/dest.txt",
 			},
-			contents: "test",
-			hasErr:   true,
+			contents:  "",
+			errAssert: assert.Error,
 		},
 	}
 
@@ -98,22 +99,13 @@ func TestNewMove(t *testing.T) {
 
 			handler := handlers.NewMove(fs)
 			err := handler.Move(context.Background(), false, tt.params)
-			if !tt.hasErr {
-				if err != nil {
-					t.Fatalf("%v", err)
-				}
+			tt.errAssert(t, err)
 
-				data, err := afero.ReadFile(fs, tt.params.Dest)
-				if err != nil {
-					t.Fatalf("dest file read failed: %s: %v", tt.params.Dest, err)
-				}
-				if diff := cmp.Diff(tt.contents, string(data)); diff != "" {
-					t.Fatal(diff)
-				}
-				if _, err := fs.Stat(tt.params.Src); err == nil {
-					t.Fatal("src file exists")
-				}
-			}
+			data, _ := afero.ReadFile(fs, tt.params.Dest)
+			assert.Equal(t, tt.contents, string(data))
+
+			_, err = fs.Stat(tt.params.Src)
+			assert.NotNil(t, err)
 		})
 	}
 }
@@ -143,12 +135,8 @@ func TestNewMove__DryRun(t *testing.T) {
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatalf(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

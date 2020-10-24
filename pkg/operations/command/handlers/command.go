@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/command.go . CommandHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=CommandHandler
 
 package handlers
 
@@ -33,7 +33,7 @@ func (p *CommandParams) String() string {
 }
 
 type CommandHandler interface {
-	Command(ctx context.Context, dryrun bool, p *CommandParams) error
+	Command(ctx context.Context, dryrun bool, p *CommandParams) (err error)
 }
 
 type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error

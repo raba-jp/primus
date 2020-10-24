@@ -3,8 +3,10 @@ package starlarkfn_test
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/operations/packages/handlers/mock"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/packages/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -12,48 +14,60 @@ import (
 
 func TestDarwinPkgUninstall(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockDarwinPkgUninstallHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      mocks.DarwinPkgUninstallHandlerUninstallExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="base-devel")`,
-			mock: func(m *mock_handlers.MockDarwinPkgUninstallHandler) {
-				m.EXPECT().Uninstall(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			mock: mocks.DarwinPkgUninstallHandlerUninstallExpectation{
+				Args: mocks.DarwinPkgUninstallHandlerUninstallArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.DarwinPkgUninstallParams{
+						Name: "base-devel",
+					},
+				},
+				Returns: mocks.DarwinPkgUninstallHandlerUninstallReturns{
+					Err: nil,
+				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("base-devel", "too many")`,
-			mock:   func(m *mock_handlers.MockDarwinPkgUninstallHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("base-devel", "too many")`,
+			mock:      mocks.DarwinPkgUninstallHandlerUninstallExpectation{},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to uninstall",
 			data: `test(name="base-devel")`,
-			mock: func(m *mock_handlers.MockDarwinPkgUninstallHandler) {
-				m.EXPECT().Uninstall(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: mocks.DarwinPkgUninstallHandlerUninstallExpectation{
+				Args: mocks.DarwinPkgUninstallHandlerUninstallArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.DarwinPkgUninstallParams{
+						Name: "base-devel",
+					},
+				},
+				Returns: mocks.DarwinPkgUninstallHandlerUninstallReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(mocks.DarwinPkgUninstallHandler)
+			handler.ApplyUninstallExpectation(tt.mock)
 
-			m := mock_handlers.NewMockDarwinPkgUninstallHandler(ctrl)
-
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.DarwinPkgUninstall(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.DarwinPkgUninstall(handler))
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -62,28 +76,46 @@ func TestArchPkgUninstall(t *testing.T) {
 	tests := []struct {
 		name   string
 		data   string
-		mock   func(*mock_handlers.MockArchPkgUninstallHandler)
+		mock   mocks.ArchPkgUninstallHandlerUninstallExpectation
 		hasErr bool
 	}{
 		{
 			name: "success",
 			data: `test(name="base-devel")`,
-			mock: func(m *mock_handlers.MockArchPkgUninstallHandler) {
-				m.EXPECT().Uninstall(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			mock: mocks.ArchPkgUninstallHandlerUninstallExpectation{
+				Args: mocks.ArchPkgUninstallHandlerUninstallArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.ArchPkgUninstallParams{
+						Name: "base-devel",
+					},
+				},
+				Returns: mocks.ArchPkgUninstallHandlerUninstallReturns{
+					Err: nil,
+				},
 			},
 			hasErr: false,
 		},
 		{
 			name:   "error: too many arguments",
 			data:   `test("base-devel", "yay", "too many")`,
-			mock:   func(m *mock_handlers.MockArchPkgUninstallHandler) {},
+			mock:   mocks.ArchPkgUninstallHandlerUninstallExpectation{},
 			hasErr: true,
 		},
 		{
 			name: "error: failed to uninstall",
 			data: `test(name="base-devel")`,
-			mock: func(m *mock_handlers.MockArchPkgUninstallHandler) {
-				m.EXPECT().Uninstall(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: mocks.ArchPkgUninstallHandlerUninstallExpectation{
+				Args: mocks.ArchPkgUninstallHandlerUninstallArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.ArchPkgUninstallParams{
+						Name: "base-devel",
+					},
+				},
+				Returns: mocks.ArchPkgUninstallHandlerUninstallReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
 			hasErr: true,
 		},
@@ -91,14 +123,10 @@ func TestArchPkgUninstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(mocks.ArchPkgUninstallHandler)
+			handler.ApplyUninstallExpectation(tt.mock)
 
-			m := mock_handlers.NewMockArchPkgUninstallHandler(ctrl)
-
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.ArchPkgUninstall(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.ArchPkgUninstall(handler))
 			if !tt.hasErr && err != nil {
 				t.Errorf("unexpected error: %v", err)
 			}

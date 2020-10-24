@@ -5,22 +5,23 @@ import (
 	"context"
 	"testing"
 
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
+	"golang.org/x/xerrors"
 
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/raba-jp/primus/pkg/operations/command/handlers"
-	"golang.org/x/xerrors"
 )
 
 func TestNewCommand(t *testing.T) {
 	tests := []struct {
 		name       string
 		params     *handlers.CommandParams
+		mock       []exec.InterfaceCommandContextExpectation
 		mockStdout string
 		mockErr    error
-		hasErr     bool
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
@@ -28,9 +29,33 @@ func TestNewCommand(t *testing.T) {
 				CmdName: "echo",
 				CmdArgs: []string{"hello", "world"},
 			},
-			mockStdout: "hello world",
-			mockErr:    nil,
-			hasErr:     false,
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
+								},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with user",
@@ -39,9 +64,34 @@ func TestNewCommand(t *testing.T) {
 				CmdArgs: []string{"hello", "world"},
 				User:    "root",
 			},
-			mockStdout: "hello world",
-			mockErr:    nil,
-			hasErr:     false,
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetSysProcAttrExpectation(exec.CmdSetSysProcAttrExpectation{
+								Args: exec.CmdSetSysProcAttrArgs{ProcAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with cwd",
@@ -50,9 +100,34 @@ func TestNewCommand(t *testing.T) {
 				CmdArgs: []string{"hello", "world"},
 				Cwd:     "/",
 			},
-			mockStdout: "hello world",
-			mockErr:    nil,
-			hasErr:     false,
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetDirExpectation(exec.CmdSetDirExpectation{
+								Args: exec.CmdSetDirArgs{Dir: "/"},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with user and cwd",
@@ -62,9 +137,37 @@ func TestNewCommand(t *testing.T) {
 				User:    "root",
 				Cwd:     "/",
 			},
-			mockStdout: "hello world",
-			mockErr:    nil,
-			hasErr:     false,
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetDirExpectation(exec.CmdSetDirExpectation{
+								Args: exec.CmdSetDirArgs{Dir: "/"},
+							})
+							cmd.ApplySetSysProcAttrExpectation(exec.CmdSetSysProcAttrExpectation{
+								Args: exec.CmdSetSysProcAttrArgs{ProcAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: ",
@@ -74,34 +177,49 @@ func TestNewCommand(t *testing.T) {
 				User:    "root",
 				Cwd:     "/",
 			},
-			mockStdout: "hello world",
-			mockErr:    xerrors.New("dummy"),
-			hasErr:     true,
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetDirExpectation(exec.CmdSetDirExpectation{
+								Args: exec.CmdSetDirArgs{Dir: "/"},
+							})
+							cmd.ApplySetSysProcAttrExpectation(exec.CmdSetSysProcAttrExpectation{
+								Args: exec.CmdSetSysProcAttrArgs{ProcAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: xerrors.New("dummy")},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, tt.mockErr
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
-			handler := handlers.NewCommand(execIF)
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectations(tt.mock)
+
+			handler := handlers.NewCommand(e)
 
 			err := handler.Command(context.Background(), false, tt.params)
-			if !tt.hasErr && err != nil {
-				t.Fatalf("%v", err)
-			}
+			tt.errAssert(t, err)
 		})
 	}
 }
@@ -143,12 +261,8 @@ func TestNewCommand__DryRun(t *testing.T) {
 				CmdName: tt.command,
 				CmdArgs: tt.args,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if diff := cmp.Diff(tt.want, buf.String()); diff != "" {
-				t.Fatal(diff)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, tt.want, buf.String())
 		})
 	}
 }

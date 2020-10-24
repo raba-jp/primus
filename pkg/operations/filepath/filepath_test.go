@@ -3,6 +3,8 @@ package filepath_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	lib "go.starlark.net/starlark"
 
 	"github.com/google/go-cmp/cmp"
@@ -37,54 +39,48 @@ func TestCurrent(t *testing.T) {
 				"test": lib.NewBuiltin("test", filepath.Current()),
 			}
 			globals, err := lib.ExecFile(starlark.NewThread("test"), tt.filepath, tt.data, predeclared)
-			if err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			assert.NoError(t, err)
+
 			got, _ := lib.AsString(globals["v"])
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Error(diff)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
 
 func TestDir(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		want   string
-		hasErr bool
+		name      string
+		data      string
+		want      string
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
-			name:   "success",
-			data:   `v = test(path="/test.star")`,
-			want:   "/",
-			hasErr: false,
+			name:      "success",
+			data:      `v = test(path="/test.star")`,
+			want:      "/",
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "success: has parent dir",
-			data:   `v = test(path="/sym/test.star")`,
-			want:   "/sym",
-			hasErr: false,
+			name:      "success: has parent dir",
+			data:      `v = test(path="/sym/test.star")`,
+			want:      "/sym",
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `v = test("/sym/test.star", "too many")`,
-			want:   "",
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `v = test("/sym/test.star", "too many")`,
+			want:      "",
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			globals, err := starlark.ExecForTest("test", tt.data, filepath.Dir())
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			tt.errAssert(t, err)
+
 			got, _ := lib.AsString(globals["v"])
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Error(diff)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

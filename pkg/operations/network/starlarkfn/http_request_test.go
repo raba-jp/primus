@@ -3,8 +3,10 @@ package starlarkfn_test
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/operations/network/handlers/mock"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/raba-jp/primus/pkg/operations/network/handlers"
+	"github.com/raba-jp/primus/pkg/operations/network/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/network/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -12,47 +14,62 @@ import (
 
 func TestHttpRequest(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(*mock_handlers.MockHTTPRequestHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      mocks.HTTPRequestHandlerHTTPRequestExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(url="https://example.com/", path="/sym/test.txt")`,
-			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
-				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			mock: mocks.HTTPRequestHandlerHTTPRequestExpectation{
+				Args: mocks.HTTPRequestHandlerHTTPRequestArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.HTTPRequestParams{
+						URL:  "https://example.com/",
+						Path: "/sym/test.txt",
+					},
+				},
+				Returns: mocks.HTTPRequestHandlerHTTPRequestReturns{
+					Err: nil,
+				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("https://example.com/", "/sym/test.txt", "too many")`,
-			mock:   func(m *mock_handlers.MockHTTPRequestHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("https://example.com/", "/sym/test.txt", "too many")`,
+			mock:      mocks.HTTPRequestHandlerHTTPRequestExpectation{},
+			errAssert: assert.Error,
 		},
 		{
 			name: "error: http request failed",
 			data: `test("https://example.com/", "/sym/test.txt")`,
-			mock: func(m *mock_handlers.MockHTTPRequestHandler) {
-				m.EXPECT().HTTPRequest(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: mocks.HTTPRequestHandlerHTTPRequestExpectation{
+				Args: mocks.HTTPRequestHandlerHTTPRequestArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.HTTPRequestParams{
+						URL:  "https://example.com/",
+						Path: "/sym/test.txt",
+					},
+				},
+				Returns: mocks.HTTPRequestHandlerHTTPRequestReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(mocks.HTTPRequestHandler)
+			handler.ApplyHTTPRequestExpectation(tt.mock)
 
-			m := mock_handlers.NewMockHTTPRequestHandler(ctrl)
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(m))
-			if !tt.hasErr && err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(handler))
+			tt.errAssert(t, err)
 		})
 	}
 }

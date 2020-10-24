@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
+
 	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
@@ -51,15 +53,13 @@ func TestNewSymlink(t *testing.T) {
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
+			assert.NoError(t, err)
 
 			lst, _ := fs.(afero.Lstater)
 			_, ok, err := lst.LstatIfPossible(tt.dest)
 			if !ok {
 				if err != nil {
-					t.Fatalf("Error calling lstat: %v", err)
+					t.Fatalf(": %v", err)
 				} else {
 					t.Fatal("Error calling lstat(not link)")
 				}
@@ -76,9 +76,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 	fs := afero.NewOsFs()
 
 	workDir, err := afero.TempDir(fs, "", "symlink_iac")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	defer func() {
 		_ = fs.RemoveAll(workDir)
@@ -107,9 +105,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 			})
 
 			_, err = fs.Stat(tt.dest)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
+			assert.NoError(t, err)
 		})
 	}
 }
@@ -122,9 +118,7 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 	fs := afero.NewOsFs()
 
 	workDir, err := afero.TempDir(fs, "", "symlink_iac")
-	if err != nil {
-		t.Fatal(err)
-	}
+	assert.NoError(t, err)
 
 	defer func() {
 		_ = fs.RemoveAll(workDir)
@@ -154,12 +148,8 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 				Dest: tt.dest,
 			})
 			data, err := afero.ReadFile(fs, tt.dest)
-			if err != nil {
-				t.Fatalf("%v", err)
-			}
-			if string(data) != "another test file" {
-				t.Fatal("unexpected symlink")
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, "another test file", string(data))
 		})
 	}
 }

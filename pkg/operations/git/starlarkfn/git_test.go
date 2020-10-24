@@ -3,8 +3,10 @@ package starlarkfn_test
 import (
 	"testing"
 
-	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/operations/git/handlers/mock"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/raba-jp/primus/pkg/operations/git/handlers"
+	"github.com/raba-jp/primus/pkg/operations/git/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/git/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -12,47 +14,64 @@ import (
 
 func TestClone(t *testing.T) {
 	tests := []struct {
-		name   string
-		data   string
-		mock   func(m *mock_handlers.MockCloneHandler)
-		hasErr bool
+		name      string
+		data      string
+		mock      mocks.CloneHandlerCloneExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success:",
 			data: `test(url="https://example.com", path="/sym", branch="main")`,
-			mock: func(m *mock_handlers.MockCloneHandler) {
-				m.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(nil)
+			mock: mocks.CloneHandlerCloneExpectation{
+				Args: mocks.CloneHandlerCloneArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.CloneParams{
+						URL:    "https://example.com",
+						Path:   "/sym",
+						Branch: "main",
+					},
+				},
+				Returns: mocks.CloneHandlerCloneReturns{
+					Err: nil,
+				},
 			},
-			hasErr: false,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: failed to git clone",
 			data: `test("https://example.com", "/sym", "main")`,
-			mock: func(m *mock_handlers.MockCloneHandler) {
-				m.EXPECT().Clone(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: mocks.CloneHandlerCloneExpectation{
+				Args: mocks.CloneHandlerCloneArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					P: &handlers.CloneParams{
+						URL:    "https://example.com",
+						Path:   "/sym",
+						Branch: "main",
+					},
+				},
+				Returns: mocks.CloneHandlerCloneReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
-			hasErr: true,
+			errAssert: assert.Error,
 		},
 		{
-			name:   "error: too many arguments",
-			data:   `test("https://example.com", "/sym", "main", "too many")`,
-			mock:   func(m *mock_handlers.MockCloneHandler) {},
-			hasErr: true,
+			name:      "error: too many arguments",
+			data:      `test("https://example.com", "/sym", "main", "too many")`,
+			mock:      mocks.CloneHandlerCloneExpectation{},
+			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(mocks.CloneHandler)
+			handler.ApplyCloneExpectation(tt.mock)
 
-			m := mock_handlers.NewMockCloneHandler(ctrl)
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(m))
-			if !tt.hasErr && err != nil {
-				t.Errorf("Unexpected error: %v", err)
-			}
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(handler))
+			tt.errAssert(t, err)
 		})
 	}
 }

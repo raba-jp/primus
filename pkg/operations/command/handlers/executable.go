@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/executable.go . ExecutableHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=ExecutableHandler
 
 package handlers
 
@@ -19,7 +19,7 @@ const (
 )
 
 type ExecutableHandler interface {
-	Executable(ctx context.Context, name string) bool
+	Executable(ctx context.Context, name string) (ok bool)
 }
 
 type ExecutableHandlerFunc func(ctx context.Context, name string) bool

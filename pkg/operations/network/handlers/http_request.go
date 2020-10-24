@@ -1,4 +1,4 @@
-//go:generate mockgen -destination mock/handler.go . HTTPRequestHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=HTTPRequestHandler
 
 package handlers
 
@@ -29,7 +29,7 @@ func (p *HTTPRequestParams) String() string {
 }
 
 type HTTPRequestHandler interface {
-	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
+	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) (err error)
 }
 
 type HTTPRequestHandlerFunc func(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
