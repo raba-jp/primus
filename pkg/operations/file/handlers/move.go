@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/move.go . MoveHandler
-
 package handlers
 
 import (
@@ -24,7 +22,7 @@ func (p *MoveParams) String() string {
 }
 
 type MoveHandler interface {
-	Move(ctx context.Context, dryrun bool, p *MoveParams) error
+	Move(ctx context.Context, dryrun bool, p *MoveParams) (err error)
 }
 
 type MoveHandlerFunc func(ctx context.Context, dryrun bool, p *MoveParams) error

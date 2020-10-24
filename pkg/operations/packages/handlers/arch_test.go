@@ -9,32 +9,33 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
 	"golang.org/x/xerrors"
 )
 
 func TestArchLinux_CheckInstall(t *testing.T) {
 	tests := []struct {
-		name     string
-		mockExec exec.Interface
-		want     bool
+		name string
+		mock exec.InterfaceCommandContextExpectation
+		want bool
 	}{
 		{
 			name: "success",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
-								},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "pacman",
+					Args:        []string{"-Qg", "base-devel"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
 							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+						})
+						return cmd
 					},
 				},
 			},
@@ -44,7 +45,10 @@ func TestArchLinux_CheckInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectation(tt.mock)
+
+			handler := &handlers.ArchLinux{Exec: e}
 			res := handler.CheckInstall(context.Background(), "base-devel")
 			assert.Equal(t, tt.want, res)
 		})
@@ -54,36 +58,46 @@ func TestArchLinux_CheckInstall(t *testing.T) {
 func TestArchLinux_Install(t *testing.T) {
 	tests := []struct {
 		name      string
-		mockExec  exec.Interface
+		mock      []exec.InterfaceCommandContextExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, xerrors.New("not installed")
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
 					},
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("not installed"),
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-S", "--noconfirm", "options", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
+								},
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -91,19 +105,23 @@ func TestArchLinux_Install(t *testing.T) {
 		},
 		{
 			name: "success: already installed",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -111,31 +129,41 @@ func TestArchLinux_Install(t *testing.T) {
 		},
 		{
 			name: "error: install failed",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, xerrors.New("not installed")
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
 					},
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, xerrors.New("dummy")
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("not installed"),
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-S", "--noconfirm", "options", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("dummy"),
+								},
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -145,10 +173,13 @@ func TestArchLinux_Install(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectations(tt.mock)
+
+			handler := &handlers.ArchLinux{Exec: e}
 			err := handler.Install(context.Background(), false, &handlers.ArchPkgInstallParams{
 				Name:   "base-devel",
-				Option: "option",
+				Option: "options",
 			})
 			tt.errAssert(t, err)
 		})
@@ -188,36 +219,47 @@ func TestArchLinux_Install__dryrun(t *testing.T) {
 func TestArchLinux_Uninstall(t *testing.T) {
 	tests := []struct {
 		name      string
+		mock      []exec.InterfaceCommandContextExpectation
 		mockExec  exec.Interface
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
 					},
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-R", "--noconfirm", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
+								},
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -225,19 +267,23 @@ func TestArchLinux_Uninstall(t *testing.T) {
 		},
 		{
 			name: "success: not installed",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, xerrors.New("not installed")
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("not installed"),
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -245,31 +291,41 @@ func TestArchLinux_Uninstall(t *testing.T) {
 		},
 		{
 			name: "error: error occurred",
-			mockExec: &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, nil
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-Qg", "base-devel"},
 					},
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							Stdout: new(bytes.Buffer),
-							Stderr: new(bytes.Buffer),
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte{}, []byte{}, xerrors.New("dummy")
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: nil,
 								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
+							})
+							return cmd
+						},
+					},
+				},
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "pacman",
+						Args:        []string{"-R", "--noconfirm", "base-devel"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{
+									Err: xerrors.New("dummy"),
+								},
+							})
+							return cmd
+						},
 					},
 				},
 			},
@@ -279,7 +335,10 @@ func TestArchLinux_Uninstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := &handlers.ArchLinux{Exec: tt.mockExec}
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectations(tt.mock)
+
+			handler := &handlers.ArchLinux{Exec: e}
 			err := handler.Uninstall(context.Background(), false, &handlers.ArchPkgUninstallParams{Name: "base-devel"})
 			tt.errAssert(t, err)
 		})

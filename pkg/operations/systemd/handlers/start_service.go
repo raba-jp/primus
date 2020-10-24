@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/start_service.go . StartServiceHandler
-
 package handlers
 
 import (
@@ -11,7 +9,7 @@ import (
 )
 
 type StartServiceHandler interface {
-	StartService(ctx context.Context, dryrun bool, name string) error
+	StartService(ctx context.Context, dryrun bool, name string) (err error)
 }
 
 type StartServiceHandlerFunc func(ctx context.Context, dryrun bool, name string) error

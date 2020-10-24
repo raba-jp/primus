@@ -5,8 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/golang/mock/gomock"
-	mock_handlers "github.com/raba-jp/primus/pkg/operations/systemd/handlers/mock"
+	"github.com/raba-jp/primus/pkg/operations/systemd/handlers"
 	"github.com/raba-jp/primus/pkg/operations/systemd/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -16,28 +15,42 @@ func TestEnableService(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      func(*mock_handlers.MockEnableServiceHandler)
+		mock      handlers.EnableServiceHandlerEnableServiceExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="dummy.service")`,
-			mock: func(m *mock_handlers.MockEnableServiceHandler) {
-				m.EXPECT().EnableService(gomock.Any(), gomock.Any(), gomock.Eq("dummy.service")).Return(nil)
+			mock: handlers.EnableServiceHandlerEnableServiceExpectation{
+				Args: handlers.EnableServiceHandlerEnableServiceArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					Name:           "dummy.service",
+				},
+				Returns: handlers.EnableServiceHandlerEnableServiceReturns{
+					Err: nil,
+				},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name:      "error: too many arguments",
 			data:      `test("dummy.service", "too many")`,
-			mock:      func(m *mock_handlers.MockEnableServiceHandler) {},
+			mock:      handlers.EnableServiceHandlerEnableServiceExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to service enable",
 			data: `test(name="dummy.service")`,
-			mock: func(m *mock_handlers.MockEnableServiceHandler) {
-				m.EXPECT().EnableService(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: handlers.EnableServiceHandlerEnableServiceExpectation{
+				Args: handlers.EnableServiceHandlerEnableServiceArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					Name:           "dummy.service",
+				},
+				Returns: handlers.EnableServiceHandlerEnableServiceReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
 			errAssert: assert.Error,
 		},
@@ -45,14 +58,10 @@ func TestEnableService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(handlers.MockEnableServiceHandler)
+			handler.ApplyEnableServiceExpectation(tt.mock)
 
-			m := mock_handlers.NewMockEnableServiceHandler(ctrl)
-
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.EnableService(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.EnableService(handler))
 			tt.errAssert(t, err)
 		})
 	}
@@ -62,28 +71,42 @@ func TestStartService(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      func(*mock_handlers.MockStartServiceHandler)
+		mock      handlers.StartServiceHandlerStartServiceExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="dummy.service")`,
-			mock: func(m *mock_handlers.MockStartServiceHandler) {
-				m.EXPECT().StartService(gomock.Any(), gomock.Any(), gomock.Eq("dummy.service")).Return(nil)
+			mock: handlers.StartServiceHandlerStartServiceExpectation{
+				Args: handlers.StartServiceHandlerStartServiceArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					Name:           "dummy.service",
+				},
+				Returns: handlers.StartServiceHandlerStartServiceReturns{
+					Err: nil,
+				},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name:      "error: too many arguments",
 			data:      `test("dummy.service", "too many")`,
-			mock:      func(m *mock_handlers.MockStartServiceHandler) {},
+			mock:      handlers.StartServiceHandlerStartServiceExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to service start",
 			data: `test(name="dummy.service")`,
-			mock: func(m *mock_handlers.MockStartServiceHandler) {
-				m.EXPECT().StartService(gomock.Any(), gomock.Any(), gomock.Any()).Return(xerrors.New("dummy"))
+			mock: handlers.StartServiceHandlerStartServiceExpectation{
+				Args: handlers.StartServiceHandlerStartServiceArgs{
+					CtxAnything:    true,
+					DryrunAnything: true,
+					Name:           "dummy.service",
+				},
+				Returns: handlers.StartServiceHandlerStartServiceReturns{
+					Err: xerrors.New("dummy"),
+				},
 			},
 			errAssert: assert.Error,
 		},
@@ -91,13 +114,10 @@ func TestStartService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
+			handler := new(handlers.MockStartServiceHandler)
+			handler.ApplyStartServiceExpectation(tt.mock)
 
-			m := mock_handlers.NewMockStartServiceHandler(ctrl)
-			tt.mock(m)
-
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.StartService(m))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.StartService(handler))
 			tt.errAssert(t, err)
 		})
 	}

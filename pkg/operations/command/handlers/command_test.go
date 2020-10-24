@@ -1,10 +1,11 @@
 package handlers_test
 
 import (
-	"golang.org/x/xerrors"
 	"bytes"
 	"context"
 	"testing"
+
+	"golang.org/x/xerrors"
 
 	"github.com/stretchr/testify/assert"
 
@@ -103,8 +104,8 @@ func TestNewCommand(t *testing.T) {
 				{
 					Args: exec.InterfaceCommandContextArgs{
 						CtxAnything: true,
-						Cmd: "echo",
-						Args: []string{"hello", "world"},
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
 					},
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
@@ -126,7 +127,7 @@ func TestNewCommand(t *testing.T) {
 					},
 				},
 			},
-			errAssert:  assert.NoError,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with user and cwd",
@@ -140,8 +141,8 @@ func TestNewCommand(t *testing.T) {
 				{
 					Args: exec.InterfaceCommandContextArgs{
 						CtxAnything: true,
-						Cmd: "echo",
-						Args: []string{"hello", "world"},
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
 					},
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
@@ -166,7 +167,7 @@ func TestNewCommand(t *testing.T) {
 					},
 				},
 			},
-			errAssert:  assert.NoError,
+			errAssert: assert.NoError,
 		},
 		{
 			name: "error: ",
@@ -180,8 +181,8 @@ func TestNewCommand(t *testing.T) {
 				{
 					Args: exec.InterfaceCommandContextArgs{
 						CtxAnything: true,
-						Cmd: "echo",
-						Args: []string{"hello", "world"},
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
 					},
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
@@ -206,7 +207,7 @@ func TestNewCommand(t *testing.T) {
 					},
 				},
 			},
-			errAssert:  assert.Error,
+			errAssert: assert.Error,
 		},
 	}
 

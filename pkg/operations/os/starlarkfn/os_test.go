@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/operations/os/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/spf13/afero"
@@ -15,39 +14,62 @@ import (
 
 func TestIsDarwin(t *testing.T) {
 	tests := []struct {
-		name       string
-		mockStdout string
-		want       lib.Value
+		name string
+		mock exec.InterfaceCommandExpectation
+		want lib.Value
 	}{
 		{
-			name:       "success",
-			mockStdout: "Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64",
-			want:       lib.True,
+			name: "success",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Darwin myMac.local 15.3.0 Darwin Kernel Version 15.3.0: Thu Dec 10 18:40:58 PST 2015; root:xnu-3248.30.4~1/RELEASE_X86_64 x86_64"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
+			want: lib.True,
 		},
 		{
-			name:       "fail: linux",
-			mockStdout: "Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux",
-			want:       lib.False,
+			name: "fail: linux",
+			mock: exec.InterfaceCommandExpectation{
+				Args: exec.InterfaceCommandArgs{
+					CmdAnything:  true,
+					ArgsAnything: true,
+				},
+				Returns: exec.InterfaceCommandReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
+							Returns: exec.CmdOutputReturns{
+								Output: []byte("Linux HostName 5.7.19-2-MANJARO #1 SMP PREEMPT Fri Aug 28 20:22:12 UTC 2020 x86_64 GNU/Linux"),
+								Err:    nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
+			want: lib.False,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							OutputScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, nil
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
-			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsDarwin(execIF))
+			e := new(exec.MockInterface)
+			e.ApplyCommandExpectation(tt.mock)
+
+			globals, err := starlark.ExecForTest("test", `v = test()`, starlarkfn.IsDarwin(e))
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, globals["v"])

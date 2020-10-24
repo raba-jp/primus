@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/handler.go . CreateHandler
-
 package handlers
 
 import (
@@ -29,7 +27,7 @@ func (p *CreateParams) String() string {
 }
 
 type CreateHandler interface {
-	Create(ctx context.Context, dryrun bool, p *CreateParams) error
+	Create(ctx context.Context, dryrun bool, p *CreateParams) (err error)
 }
 
 type CreateHandlerFunc func(ctx context.Context, dryrun bool, p *CreateParams) error

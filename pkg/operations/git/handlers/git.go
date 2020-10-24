@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/handler.go . CloneHandler
-
 package handlers
 
 import (
@@ -28,7 +26,7 @@ type CloneParams struct {
 }
 
 type CloneHandler interface {
-	Clone(ctx context.Context, dryrun bool, p *CloneParams) error
+	Clone(ctx context.Context, dryrun bool, p *CloneParams) (err error)
 }
 
 type CloneHandlerFunc func(ctx context.Context, dryrun bool, p *CloneParams) error

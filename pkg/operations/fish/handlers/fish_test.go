@@ -9,76 +9,184 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
-	fakeexec "github.com/raba-jp/primus/pkg/exec/testing"
 	"github.com/raba-jp/primus/pkg/operations/fish/handlers"
 	"golang.org/x/xerrors"
 )
 
 func TestNewSetVariable(t *testing.T) {
 	tests := []struct {
-		name       string
-		mockStdout string
-		mockErr    error
-		params     *handlers.SetVariableParams
-		errAssert  assert.ErrorAssertionFunc
+		name      string
+		params    *handlers.SetVariableParams
+		mock      exec.InterfaceCommandContextExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
-			name:       "success: scope universal",
-			mockStdout: "dummy",
-			mockErr:    nil,
+			name: "success: scope universal",
 			params: &handlers.SetVariableParams{
 				Name:   "GOPATH",
 				Value:  "$HOME/go",
 				Scope:  handlers.UniversalScope,
 				Export: true,
 			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args:        []string{"--command", "'set --universal --export GOPATH $HOME/go'"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			errAssert: assert.NoError,
 		},
 		{
-			name:       "success: scope global",
-			mockStdout: "dummy",
-			mockErr:    nil,
+			name: "success: scope global",
 			params: &handlers.SetVariableParams{
 				Name:   "GOPATH",
 				Value:  "$HOME/go",
 				Scope:  handlers.GlobalScope,
 				Export: true,
 			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args:        []string{"--command", "'set --global --export GOPATH $HOME/go'"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			errAssert: assert.NoError,
 		},
 		{
-			name:       "success: scope local",
-			mockStdout: "dummy",
-			mockErr:    nil,
+			name: "success: scope local",
 			params: &handlers.SetVariableParams{
 				Name:   "GOPATH",
 				Value:  "$HOME/go",
 				Scope:  handlers.LocalScope,
 				Export: true,
 			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args:        []string{"--command", "'set --local --export GOPATH $HOME/go'"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			errAssert: assert.NoError,
 		},
 		{
-			name:       "success: no export",
-			mockStdout: "dummy",
-			mockErr:    nil,
+			name: "success: no export",
 			params: &handlers.SetVariableParams{
 				Name:   "GOPATH",
 				Value:  "$HOME/go",
 				Scope:  handlers.LocalScope,
 				Export: false,
 			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args:        []string{"--command", "'set --local GOPATH $HOME/go'"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
+							},
+						})
+						return cmd
+					},
+				},
+			},
 			errAssert: assert.NoError,
 		},
 		{
-			name:       "error",
-			mockStdout: "dummy",
-			mockErr:    xerrors.New("dummy"),
+			name: "error",
 			params: &handlers.SetVariableParams{
 				Name:   "GOPATH",
 				Value:  "$HOME/go",
 				Scope:  handlers.UniversalScope,
 				Export: true,
+			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args:        []string{"--command", "'set --universal --export GOPATH $HOME/go'"},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: xerrors.New("dummy"),
+							},
+						})
+						return cmd
+					},
+				},
 			},
 			errAssert: assert.Error,
 		},
@@ -86,22 +194,10 @@ func TestNewSetVariable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, tt.mockErr
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectation(tt.mock)
 
-			handler := handlers.NewSetVariable(execIF)
+			handler := handlers.NewSetVariable(e)
 			err := handler.SetVariable(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 		})
@@ -142,27 +238,76 @@ func TestNewSetVariable__DryRun(t *testing.T) {
 
 func TestBaseBackend_FishSetPath(t *testing.T) {
 	tests := []struct {
-		name       string
-		mockStdout string
-		mockErr    error
-		params     *handlers.SetPathParams
-		errAssert  assert.ErrorAssertionFunc
+		name      string
+		params    *handlers.SetPathParams
+		mock      exec.InterfaceCommandContextExpectation
+		errAssert assert.ErrorAssertionFunc
 	}{
 		{
-			name:       "success",
-			mockStdout: "dummy",
-			mockErr:    nil,
+			name: "success",
 			params: &handlers.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
+			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args: []string{
+						"--command",
+						"'set --universal fish_user_paths $GOPATH/bin $HOME/.bin'",
+					},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: nil,
+							},
+						})
+						return cmd
+					},
+				},
 			},
 			errAssert: assert.NoError,
 		},
 		{
-			name:       "error",
-			mockStdout: "dummy",
-			mockErr:    xerrors.New("dummy"),
+			name: "error",
 			params: &handlers.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
+			},
+			mock: exec.InterfaceCommandContextExpectation{
+				Args: exec.InterfaceCommandContextArgs{
+					CtxAnything: true,
+					Cmd:         "fish",
+					Args: []string{
+						"--command",
+						"'set --universal fish_user_paths $GOPATH/bin $HOME/.bin'",
+					},
+				},
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
+						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+							Returns: exec.CmdRunReturns{
+								Err: xerrors.New("dummy"),
+							},
+						})
+						return cmd
+					},
+				},
 			},
 			errAssert: assert.Error,
 		},
@@ -170,22 +315,10 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			execIF := &fakeexec.FakeExec{
-				CommandScript: []fakeexec.FakeCommandAction{
-					func(cmd string, args ...string) exec.Cmd {
-						fake := &fakeexec.FakeCmd{
-							RunScript: []fakeexec.FakeAction{
-								func() ([]byte, []byte, error) {
-									return []byte(tt.mockStdout), []byte{}, tt.mockErr
-								},
-							},
-						}
-						return fakeexec.InitFakeCmd(fake, cmd, args...)
-					},
-				},
-			}
+			e := new(exec.MockInterface)
+			e.ApplyCommandContextExpectation(tt.mock)
 
-			handler := handlers.NewSetPath(execIF)
+			handler := handlers.NewSetPath(e)
 			err := handler.SetPath(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 		})

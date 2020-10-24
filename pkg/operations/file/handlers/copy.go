@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/copy.go . CopyHandler
-
 package handlers
 
 import (
@@ -28,7 +26,7 @@ func (p *CopyParams) String() string {
 }
 
 type CopyHandler interface {
-	Copy(ctx context.Context, dryrun bool, p *CopyParams) error
+	Copy(ctx context.Context, dryrun bool, p *CopyParams) (err error)
 }
 
 type CopyHandlerFunc func(ctx context.Context, dryrun bool, p *CopyParams) error

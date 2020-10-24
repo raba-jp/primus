@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/command.go . CommandHandler
-
 package handlers
 
 import (
@@ -36,9 +34,9 @@ type CommandHandler interface {
 	Command(ctx context.Context, dryrun bool, p *CommandParams) (err error)
 }
 
-type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) (err error)
+type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error
 
-func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) (err error) {
+func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
 	return f(ctx, dryrun, p)
 }
 

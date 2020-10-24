@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/enable_service.go . EnableServiceHandler
-
 package handlers
 
 import (
@@ -11,7 +9,7 @@ import (
 )
 
 type EnableServiceHandler interface {
-	EnableService(ctx context.Context, dryrun bool, name string) error
+	EnableService(ctx context.Context, dryrun bool, name string) (err error)
 }
 
 type EnableServiceHandlerFunc func(ctx context.Context, dryrun bool, name string) error

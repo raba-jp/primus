@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/arch.go . ArchPkgCheckInstallHandler,ArchPkgInstallHandler,ArchPkgUninstallHandler
-
 package handlers
 
 import (
@@ -12,7 +10,7 @@ import (
 )
 
 type ArchPkgCheckInstallHandler interface {
-	CheckInstall(ctx context.Context, name string) bool
+	CheckInstall(ctx context.Context, name string) (ok bool)
 }
 
 type ArchPkgInstallParams struct {
@@ -26,7 +24,7 @@ func (p *ArchPkgInstallParams) String() string {
 }
 
 type ArchPkgInstallHandler interface {
-	Install(ctx context.Context, dryrun bool, p *ArchPkgInstallParams) error
+	Install(ctx context.Context, dryrun bool, p *ArchPkgInstallParams) (err error)
 }
 
 type ArchPkgUninstallParams struct {
@@ -39,7 +37,7 @@ func (p *ArchPkgUninstallParams) String() string {
 }
 
 type ArchPkgUninstallHandler interface {
-	Uninstall(ctx context.Context, dryrun bool, p *ArchPkgUninstallParams) error
+	Uninstall(ctx context.Context, dryrun bool, p *ArchPkgUninstallParams) (err error)
 }
 
 type archLinux struct {

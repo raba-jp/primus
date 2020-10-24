@@ -1,5 +1,3 @@
-//go:generate mockgen -destination mock/handler.go . HTTPRequestHandler
-
 package handlers
 
 import (
@@ -29,7 +27,7 @@ func (p *HTTPRequestParams) String() string {
 }
 
 type HTTPRequestHandler interface {
-	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
+	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) (err error)
 }
 
 type HTTPRequestHandlerFunc func(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
