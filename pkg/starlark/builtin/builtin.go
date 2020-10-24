@@ -11,7 +11,6 @@ import (
 	"github.com/raba-jp/primus/pkg/operations/os"
 	"github.com/raba-jp/primus/pkg/operations/packages"
 	"github.com/raba-jp/primus/pkg/operations/systemd"
-	"github.com/raba-jp/primus/pkg/operations/vscode"
 	lib "go.starlark.net/starlark"
 )
 
@@ -41,7 +40,6 @@ func NewBuiltinFunction() Predeclared {
 		"current_filepath":         lib.NewBuiltin("current_filepath", filepath.Current()),
 		"get_dir":                  lib.NewBuiltin("get_dir", filepath.Dir()),
 		"join_filepath":            lib.NewBuiltin("join_filepath", filepath.Join()),
-		"vscode_install_extension": lib.NewBuiltin("vscode_install_extension", vscode.InstallExtension()),
 		"git_clone":                lib.NewBuiltin("git_clone", git.Clone()),
 	}
 }
