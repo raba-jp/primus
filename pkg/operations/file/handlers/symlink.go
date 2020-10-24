@@ -5,7 +5,6 @@ package handlers
 import (
 	"context"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/spf13/afero"
 	"go.uber.org/zap"
@@ -16,10 +15,6 @@ type SymlinkParams struct {
 	Src  string
 	Dest string
 	User string
-}
-
-func (p *SymlinkParams) String() string {
-	return pp.Sprintf("%v\n", p)
 }
 
 type SymlinkHandler interface {

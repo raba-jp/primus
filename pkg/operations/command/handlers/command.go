@@ -10,26 +10,17 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
-func init() {
-	pp.ColoringEnabled = false
-}
-
 type CommandParams struct {
 	CmdName string
 	CmdArgs []string
 	Cwd     string
 	User    string
-}
-
-func (p *CommandParams) String() string {
-	return pp.Sprint(p)
 }
 
 type CommandHandler interface {

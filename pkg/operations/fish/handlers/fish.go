@@ -9,16 +9,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/k0kubun/pp"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
-
-func init() {
-	pp.ColoringEnabled = false
-}
 
 type VariableScope int
 
@@ -35,10 +30,6 @@ type SetVariableParams struct {
 	Export bool
 }
 
-func (p *SetVariableParams) String() string {
-	return pp.Sprintf("%v\n", p)
-}
-
 type SetVariableHandler interface {
 	SetVariable(ctx context.Context, dryrun bool, p *SetVariableParams) (err error)
 }
@@ -53,19 +44,11 @@ type SetPathParams struct {
 	Values []string
 }
 
-func (p *SetPathParams) String() string {
-	return pp.Sprintf("%v\n", p)
-}
-
 type SetPathHandler interface {
 	SetPath(ctx context.Context, dryrun bool, p *SetPathParams) (err error)
 }
 
 type SetPathHandlerFunc func(ctx context.Context, dryrun bool, p *SetPathParams) error
-
-func (f SetPathHandlerFunc) SetPath(ctx context.Context, dryrun bool, p *SetPathParams) error {
-	return f(ctx, dryrun, p)
-}
 
 func NewSetVariable(execIF exec.Interface) SetVariableHandler {
 	return SetVariableHandlerFunc(func(ctx context.Context, dryrun bool, p *SetVariableParams) error {
