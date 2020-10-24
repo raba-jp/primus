@@ -50,6 +50,10 @@ type SetPathHandler interface {
 
 type SetPathHandlerFunc func(ctx context.Context, dryrun bool, p *SetPathParams) error
 
+func (f SetPathHandlerFunc) SetPath(ctx context.Context, dryrun bool, p *SetPathParams) error {
+	return f(ctx, dryrun, p)
+}
+
 func NewSetVariable(execIF exec.Interface) SetVariableHandler {
 	return SetVariableHandlerFunc(func(ctx context.Context, dryrun bool, p *SetVariableParams) error {
 		var scope string
