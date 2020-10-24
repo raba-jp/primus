@@ -15,7 +15,7 @@ require (
 	github.com/mattn/go-colorable v0.1.8
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.6.1
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
 	go.uber.org/zap v1.16.0
 	golang.org/x/tools v0.0.0-20200913032122-97363e29fc9b // indirect
