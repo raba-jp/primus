@@ -7,6 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/raba-jp/primus/pkg/operations/command/handlers"
+	"github.com/raba-jp/primus/pkg/operations/command/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/command/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 )
@@ -15,14 +16,14 @@ func TestCommand(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.CommandHandlerCommandExpectation
+		mock      mocks.CommandHandlerCommandExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: string array kwargs",
 			data: `test(name="echo", args=["hello", "world"])`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -32,15 +33,15 @@ func TestCommand(t *testing.T) {
 						Cwd:     "",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{Err: nil},
+				Returns: mocks.CommandHandlerCommandReturns{Err: nil},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "success: int kwargs",
 			data: `test(name="echo", args=[1])`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -50,21 +51,21 @@ func TestCommand(t *testing.T) {
 						Cwd:     "",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{Err: nil},
+				Returns: mocks.CommandHandlerCommandReturns{Err: nil},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name:      "error: bigint kwargs",
 			data:      `test(name="echo", args=[9007199254740991])`,
-			mock:      handlers.CommandHandlerCommandExpectation{},
+			mock:      mocks.CommandHandlerCommandExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "success: bool kwargs",
 			data: `test(name="echo", args=[False, True])`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -74,21 +75,21 @@ func TestCommand(t *testing.T) {
 						Cwd:     "",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{Err: nil},
+				Returns: mocks.CommandHandlerCommandReturns{Err: nil},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name:      "success(unsupported): float kwargs",
 			data:      `test(name="echo", args=[1.111])`,
-			mock:      handlers.CommandHandlerCommandExpectation{},
+			mock:      mocks.CommandHandlerCommandExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "success: no args",
 			data: `test("echo")`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -98,15 +99,15 @@ func TestCommand(t *testing.T) {
 						Cwd:     "",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{Err: nil},
+				Returns: mocks.CommandHandlerCommandReturns{Err: nil},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "success: with user and cwd",
 			data: `test("echo", [], user="testuser", cwd="/home/testuser")`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -116,21 +117,21 @@ func TestCommand(t *testing.T) {
 						Cwd:     "/home/testuser",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{Err: nil},
+				Returns: mocks.CommandHandlerCommandReturns{Err: nil},
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name:      "error: too many arguments",
 			data:      `test("echo", [], "testuser", "/home/testuser", "too many")`,
-			mock:      handlers.CommandHandlerCommandExpectation{},
+			mock:      mocks.CommandHandlerCommandExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: execute command failed",
 			data: `test("echo")`,
-			mock: handlers.CommandHandlerCommandExpectation{
-				Args: handlers.CommandHandlerCommandArgs{
+			mock: mocks.CommandHandlerCommandExpectation{
+				Args: mocks.CommandHandlerCommandArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CommandParams{
@@ -140,7 +141,7 @@ func TestCommand(t *testing.T) {
 						Cwd:     "",
 					},
 				},
-				Returns: handlers.CommandHandlerCommandReturns{
+				Returns: mocks.CommandHandlerCommandReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -150,7 +151,7 @@ func TestCommand(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockCommandHandler)
+			handler := new(mocks.CommandHandler)
 			handler.ApplyCommandExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Command(handler))

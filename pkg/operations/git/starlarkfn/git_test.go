@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/operations/git/handlers"
+	"github.com/raba-jp/primus/pkg/operations/git/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/git/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -15,14 +16,14 @@ func TestClone(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.CloneHandlerCloneExpectation
+		mock      mocks.CloneHandlerCloneExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success:",
 			data: `test(url="https://example.com", path="/sym", branch="main")`,
-			mock: handlers.CloneHandlerCloneExpectation{
-				Args: handlers.CloneHandlerCloneArgs{
+			mock: mocks.CloneHandlerCloneExpectation{
+				Args: mocks.CloneHandlerCloneArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CloneParams{
@@ -31,7 +32,7 @@ func TestClone(t *testing.T) {
 						Branch: "main",
 					},
 				},
-				Returns: handlers.CloneHandlerCloneReturns{
+				Returns: mocks.CloneHandlerCloneReturns{
 					Err: nil,
 				},
 			},
@@ -40,8 +41,8 @@ func TestClone(t *testing.T) {
 		{
 			name: "error: failed to git clone",
 			data: `test("https://example.com", "/sym", "main")`,
-			mock: handlers.CloneHandlerCloneExpectation{
-				Args: handlers.CloneHandlerCloneArgs{
+			mock: mocks.CloneHandlerCloneExpectation{
+				Args: mocks.CloneHandlerCloneArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CloneParams{
@@ -50,7 +51,7 @@ func TestClone(t *testing.T) {
 						Branch: "main",
 					},
 				},
-				Returns: handlers.CloneHandlerCloneReturns{
+				Returns: mocks.CloneHandlerCloneReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -59,14 +60,14 @@ func TestClone(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("https://example.com", "/sym", "main", "too many")`,
-			mock:      handlers.CloneHandlerCloneExpectation{},
+			mock:      mocks.CloneHandlerCloneExpectation{},
 			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockCloneHandler)
+			handler := new(mocks.CloneHandler)
 			handler.ApplyCloneExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(handler))

@@ -3,7 +3,7 @@ package starlarkfn_test
 import (
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/operations/command/handlers"
+	"github.com/raba-jp/primus/pkg/operations/command/handlers/mocks"
 
 	"github.com/stretchr/testify/assert"
 
@@ -16,19 +16,19 @@ func TestExecutable(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.ExecutableHandlerExecutableExpectation
+		mock      mocks.ExecutableHandlerExecutableExpectation
 		want      lib.Value
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: return true",
 			data: `v = test("data")`,
-			mock: handlers.ExecutableHandlerExecutableExpectation{
-				Args: handlers.ExecutableHandlerExecutableArgs{
+			mock: mocks.ExecutableHandlerExecutableExpectation{
+				Args: mocks.ExecutableHandlerExecutableArgs{
 					CtxAnything: true,
 					Name:        "data",
 				},
-				Returns: handlers.ExecutableHandlerExecutableReturns{Ok: true},
+				Returns: mocks.ExecutableHandlerExecutableReturns{Ok: true},
 			},
 			want:      lib.True,
 			errAssert: assert.NoError,
@@ -36,12 +36,12 @@ func TestExecutable(t *testing.T) {
 		{
 			name: "success: return false",
 			data: `v = test("data")`,
-			mock: handlers.ExecutableHandlerExecutableExpectation{
-				Args: handlers.ExecutableHandlerExecutableArgs{
+			mock: mocks.ExecutableHandlerExecutableExpectation{
+				Args: mocks.ExecutableHandlerExecutableArgs{
 					CtxAnything: true,
 					Name:        "data",
 				},
-				Returns: handlers.ExecutableHandlerExecutableReturns{
+				Returns: mocks.ExecutableHandlerExecutableReturns{
 					Ok: false,
 				},
 			},
@@ -51,7 +51,7 @@ func TestExecutable(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `v = test("data", "too many")`,
-			mock:      handlers.ExecutableHandlerExecutableExpectation{},
+			mock:      mocks.ExecutableHandlerExecutableExpectation{},
 			want:      nil,
 			errAssert: assert.Error,
 		},
@@ -59,7 +59,7 @@ func TestExecutable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockExecutableHandler)
+			handler := new(mocks.ExecutableHandler)
 			handler.ApplyExecutableExpectation(tt.mock)
 
 			globals, err := starlark.ExecForTest("test", tt.data, starlarkfn.Executable(handler))

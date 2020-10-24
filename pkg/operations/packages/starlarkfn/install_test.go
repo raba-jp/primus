@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/operations/packages/handlers"
+	"github.com/raba-jp/primus/pkg/operations/packages/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/packages/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -15,14 +16,14 @@ func TestDarwinPkgInstall(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.DarwinPkgInstallHandlerInstallExpectation
+		mock      mocks.DarwinPkgInstallHandlerInstallExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="base-devel", option="option", cask=True, cmd="brew")`,
-			mock: handlers.DarwinPkgInstallHandlerInstallExpectation{
-				Args: handlers.DarwinPkgInstallHandlerInstallArgs{
+			mock: mocks.DarwinPkgInstallHandlerInstallExpectation{
+				Args: mocks.DarwinPkgInstallHandlerInstallArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.DarwinPkgInstallParams{
@@ -32,7 +33,7 @@ func TestDarwinPkgInstall(t *testing.T) {
 						Cmd:    "brew",
 					},
 				},
-				Returns: handlers.DarwinPkgInstallHandlerInstallReturns{
+				Returns: mocks.DarwinPkgInstallHandlerInstallReturns{
 					Err: nil,
 				},
 			},
@@ -41,21 +42,21 @@ func TestDarwinPkgInstall(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("base-devel", "option", True, "brew", "too many")`,
-			mock:      handlers.DarwinPkgInstallHandlerInstallExpectation{},
+			mock:      mocks.DarwinPkgInstallHandlerInstallExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: package install failed",
 			data: `test(name="base-devel")`,
-			mock: handlers.DarwinPkgInstallHandlerInstallExpectation{
-				Args: handlers.DarwinPkgInstallHandlerInstallArgs{
+			mock: mocks.DarwinPkgInstallHandlerInstallExpectation{
+				Args: mocks.DarwinPkgInstallHandlerInstallArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.DarwinPkgInstallParams{
 						Name: "base-devel",
 					},
 				},
-				Returns: handlers.DarwinPkgInstallHandlerInstallReturns{
+				Returns: mocks.DarwinPkgInstallHandlerInstallReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -65,7 +66,7 @@ func TestDarwinPkgInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockDarwinPkgInstallHandler)
+			handler := new(mocks.DarwinPkgInstallHandler)
 			handler.ApplyInstallExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.DarwinPkgInstall(handler))
@@ -78,14 +79,14 @@ func TestArchPkgInstall(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.ArchPkgInstallHandlerInstallExpectation
+		mock      mocks.ArchPkgInstallHandlerInstallExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="base-devel", option="option", cmd="yay")`,
-			mock: handlers.ArchPkgInstallHandlerInstallExpectation{
-				Args: handlers.ArchPkgInstallHandlerInstallArgs{
+			mock: mocks.ArchPkgInstallHandlerInstallExpectation{
+				Args: mocks.ArchPkgInstallHandlerInstallArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.ArchPkgInstallParams{
@@ -94,7 +95,7 @@ func TestArchPkgInstall(t *testing.T) {
 						Cmd:    "yay",
 					},
 				},
-				Returns: handlers.ArchPkgInstallHandlerInstallReturns{
+				Returns: mocks.ArchPkgInstallHandlerInstallReturns{
 					Err: nil,
 				},
 			},
@@ -103,21 +104,21 @@ func TestArchPkgInstall(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("base-devel", "option", "yay", "too many")`,
-			mock:      handlers.ArchPkgInstallHandlerInstallExpectation{},
+			mock:      mocks.ArchPkgInstallHandlerInstallExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: package install failed",
 			data: `test(name="base-devel")`,
-			mock: handlers.ArchPkgInstallHandlerInstallExpectation{
-				Args: handlers.ArchPkgInstallHandlerInstallArgs{
+			mock: mocks.ArchPkgInstallHandlerInstallExpectation{
+				Args: mocks.ArchPkgInstallHandlerInstallArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.ArchPkgInstallParams{
 						Name: "base-devel",
 					},
 				},
-				Returns: handlers.ArchPkgInstallHandlerInstallReturns{
+				Returns: mocks.ArchPkgInstallHandlerInstallReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -127,7 +128,7 @@ func TestArchPkgInstall(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockArchPkgInstallHandler)
+			handler := new(mocks.ArchPkgInstallHandler)
 			handler.ApplyInstallExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.ArchPkgInstall(handler))

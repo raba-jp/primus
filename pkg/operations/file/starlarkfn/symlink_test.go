@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
+	"github.com/raba-jp/primus/pkg/operations/file/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/file/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
@@ -15,14 +16,14 @@ func TestSymlink(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.SymlinkHandlerSymlinkExpectation
+		mock      mocks.SymlinkHandlerSymlinkExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
-			mock: handlers.SymlinkHandlerSymlinkExpectation{
-				Args: handlers.SymlinkHandlerSymlinkArgs{
+			mock: mocks.SymlinkHandlerSymlinkExpectation{
+				Args: mocks.SymlinkHandlerSymlinkArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SymlinkParams{
@@ -30,7 +31,7 @@ func TestSymlink(t *testing.T) {
 						Dest: "/sym/dest.txt",
 					},
 				},
-				Returns: handlers.SymlinkHandlerSymlinkReturns{
+				Returns: mocks.SymlinkHandlerSymlinkReturns{
 					Err: nil,
 				},
 			},
@@ -39,14 +40,14 @@ func TestSymlink(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("/sym/src.txt", "/sym/dest.txt", "too many")`,
-			mock:      handlers.SymlinkHandlerSymlinkExpectation{},
+			mock:      mocks.SymlinkHandlerSymlinkExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: create symlink failed ",
 			data: `test("/sym/src.txt", "/sym/dest.txt")`,
-			mock: handlers.SymlinkHandlerSymlinkExpectation{
-				Args: handlers.SymlinkHandlerSymlinkArgs{
+			mock: mocks.SymlinkHandlerSymlinkExpectation{
+				Args: mocks.SymlinkHandlerSymlinkArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SymlinkParams{
@@ -54,7 +55,7 @@ func TestSymlink(t *testing.T) {
 						Dest: "/sym/dest.txt",
 					},
 				},
-				Returns: handlers.SymlinkHandlerSymlinkReturns{
+				Returns: mocks.SymlinkHandlerSymlinkReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -64,7 +65,7 @@ func TestSymlink(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockSymlinkHandler)
+			handler := new(mocks.SymlinkHandler)
 			handler.ApplySymlinkExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Symlink(handler))

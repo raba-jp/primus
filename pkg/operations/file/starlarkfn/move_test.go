@@ -7,6 +7,7 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/raba-jp/primus/pkg/operations/file/handlers"
+	"github.com/raba-jp/primus/pkg/operations/file/handlers/mocks"
 	"github.com/raba-jp/primus/pkg/operations/file/starlarkfn"
 	"github.com/raba-jp/primus/pkg/starlark"
 )
@@ -15,14 +16,14 @@ func TestFileMove(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      handlers.MoveHandlerMoveExpectation
+		mock      mocks.MoveHandlerMoveExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
-			mock: handlers.MoveHandlerMoveExpectation{
-				Args: handlers.MoveHandlerMoveArgs{
+			mock: mocks.MoveHandlerMoveExpectation{
+				Args: mocks.MoveHandlerMoveArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.MoveParams{
@@ -31,7 +32,7 @@ func TestFileMove(t *testing.T) {
 						Cwd:  "/sym",
 					},
 				},
-				Returns: handlers.MoveHandlerMoveReturns{
+				Returns: mocks.MoveHandlerMoveReturns{
 					Err: nil,
 				},
 			},
@@ -40,14 +41,14 @@ func TestFileMove(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("src.txt", "dest.txt", "too many")`,
-			mock:      handlers.MoveHandlerMoveExpectation{},
+			mock:      mocks.MoveHandlerMoveExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: file move failed",
 			data: `test("src.txt", "dest.txt")`,
-			mock: handlers.MoveHandlerMoveExpectation{
-				Args: handlers.MoveHandlerMoveArgs{
+			mock: mocks.MoveHandlerMoveExpectation{
+				Args: mocks.MoveHandlerMoveArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.MoveParams{
@@ -56,7 +57,7 @@ func TestFileMove(t *testing.T) {
 						Cwd:  "/sym",
 					},
 				},
-				Returns: handlers.MoveHandlerMoveReturns{
+				Returns: mocks.MoveHandlerMoveReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -66,7 +67,7 @@ func TestFileMove(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(handlers.MockMoveHandler)
+			handler := new(mocks.MoveHandler)
 			handler.ApplyMoveExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Move(handler))

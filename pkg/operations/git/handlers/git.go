@@ -1,3 +1,5 @@
+//go:generate mockery -outpkg=mocks -case=snake -name=CloneHandler
+
 package handlers
 
 import (

@@ -1,4 +1,5 @@
-//go:generate mockgen -destination mock/handler.go . SetVariableHandler,SetPathHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=SetVariableHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=SetPathHandler
 
 package handlers
 

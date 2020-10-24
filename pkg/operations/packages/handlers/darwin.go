@@ -1,3 +1,7 @@
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgCheckInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=DarwinPkgUninstallHandler
+
 package handlers
 
 import (

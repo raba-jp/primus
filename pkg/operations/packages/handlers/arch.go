@@ -1,3 +1,7 @@
+//go:generate mockery -outpkg=mocks -case=snake -name=ArchPkgCheckInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=ArchPkgInstallHandler
+//go:generate mockery -outpkg=mocks -case=snake -name=ArchPkgUninstallHandler
+
 package handlers
 
 import (

@@ -1,3 +1,5 @@
+//go:generate mockery -outpkg=mocks -case=snake -name=EnableServiceHandler
+
 package handlers
 
 import (
