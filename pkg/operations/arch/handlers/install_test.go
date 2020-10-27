@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestArchLinux_Install(t *testing.T) {
+func TestNewInstall(t *testing.T) {
 	checkInstallArgs := mocks.CheckInstallHandlerRunArgs{
 		CtxAnything:  true,
 		NameAnything: true,
@@ -30,7 +30,7 @@ func TestArchLinux_Install(t *testing.T) {
 			name: "success",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
 			mock: exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
@@ -56,16 +56,22 @@ func TestArchLinux_Install(t *testing.T) {
 			name: "success: already installed",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
 			},
-			mock:      exec.InterfaceCommandContextExpectation{},
+			mock: exec.InterfaceCommandContextExpectation{
+				Returns: exec.InterfaceCommandContextReturns{
+					Cmd: func() exec.Cmd {
+						return new(exec.MockCmd)
+					},
+				},
+			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "error: install failed",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
 			mock: exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
@@ -107,7 +113,7 @@ func TestArchLinux_Install(t *testing.T) {
 	}
 }
 
-func TestArchLinux_Install__dryrun(t *testing.T) {
+func TestNewInstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
 		params *handlers.InstallParams

@@ -2,8 +2,9 @@ package exec
 
 import (
 	"context"
-	"syscall"
 	"io"
+	"syscall"
+
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -83,7 +84,7 @@ type InterfaceCommandContextArgs struct {
 }
 
 type InterfaceCommandContextReturns struct {
-	Cmd func()Cmd
+	Cmd func() Cmd
 }
 
 type InterfaceCommandContextExpectation struct {
@@ -148,7 +149,7 @@ type InterfaceLookPathArgs struct {
 
 type InterfaceLookPathReturns struct {
 	Path string
-	Err error
+	Err  error
 }
 
 type InterfaceLookPathExpectation struct {
@@ -199,7 +200,7 @@ type MockCmd struct {
 
 type CmdCombinedOutputReturns struct {
 	Output []byte
-	Err error
+	Err    error
 }
 
 type CmdCombinedOutputExpectation struct {
@@ -241,7 +242,7 @@ func (_m *MockCmd) CombinedOutput() ([]byte, error) {
 
 type CmdOutputReturns struct {
 	Output []byte
-	Err error
+	Err    error
 }
 
 type CmdOutputExpectation struct {
@@ -521,7 +522,7 @@ func (_m *MockCmd) Start() error {
 
 type CmdStderrPipeReturns struct {
 	Output io.ReadCloser
-	Err error
+	Err    error
 }
 
 type CmdStderrPipeExpectation struct {
@@ -564,7 +565,7 @@ func (_m *MockCmd) StderrPipe() (io.ReadCloser, error) {
 
 type CmdStdoutPipeReturns struct {
 	Output io.ReadCloser
-	Err error
+	Err    error
 }
 
 type CmdStdoutPipeExpectation struct {

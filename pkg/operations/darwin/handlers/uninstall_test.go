@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestDarwin_Uninstall(t *testing.T) {
+func TestNewUninstall(t *testing.T) {
 	checkInstallArgs := mocks.CheckInstallHandlerRunArgs{
 		CtxAnything:  true,
 		NameAnything: true,
@@ -124,7 +124,7 @@ func TestDarwin_Uninstall(t *testing.T) {
 	}
 }
 
-func TestDarwin_Uninstall__dryrun(t *testing.T) {
+func TestNewUninstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
 		params *handlers.UninstallParams

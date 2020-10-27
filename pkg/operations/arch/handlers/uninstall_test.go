@@ -14,7 +14,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func TestUninstall(t *testing.T) {
+func TestNewUninstall(t *testing.T) {
 	checkInstallArgs := mocks.CheckInstallHandlerRunArgs{
 		CtxAnything:  true,
 		NameAnything: true,
@@ -104,7 +104,7 @@ func TestUninstall(t *testing.T) {
 	}
 }
 
-func TestArchLinux_Uninstall__dryrun(t *testing.T) {
+func TestNewUninstall__dryrun(t *testing.T) {
 	tests := []struct {
 		name   string
 		params *handlers.UninstallParams
