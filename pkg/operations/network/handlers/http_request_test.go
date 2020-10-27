@@ -55,8 +55,8 @@ func TestNewHTTPRequest(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := afero.NewMemMapFs()
-			handler := handlers.NewHTTPRequest(MockHttpClient(tt.httpMock), fs)
-			err := handler.HTTPRequest(context.Background(), false, &handlers.HTTPRequestParams{
+			httpRequest := handlers.NewHTTPRequest(MockHttpClient(tt.httpMock), fs)
+			err := httpRequest.Run(context.Background(), false, &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})
@@ -89,8 +89,8 @@ func TestNewHTTPRequest__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewHTTPRequest(nil, nil)
-			err := handler.HTTPRequest(context.Background(), true, &handlers.HTTPRequestParams{
+			httpRequest := handlers.NewHTTPRequest(nil, nil)
+			err := httpRequest.Run(context.Background(), true, &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})

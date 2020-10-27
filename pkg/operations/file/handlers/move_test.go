@@ -97,8 +97,8 @@ func TestNewMove(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.setup()
 
-			handler := handlers.NewMove(fs)
-			err := handler.Move(context.Background(), false, tt.params)
+			move := handlers.NewMove(fs)
+			err := move.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 
 			data, _ := afero.ReadFile(fs, tt.params.Dest)
@@ -130,8 +130,8 @@ func TestNewMove__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewMove(nil)
-			err := handler.Move(context.Background(), true, &handlers.MoveParams{
+			move := handlers.NewMove(nil)
+			err := move.Run(context.Background(), true, &handlers.MoveParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

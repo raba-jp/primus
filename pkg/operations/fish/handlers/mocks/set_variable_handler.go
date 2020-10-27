@@ -14,7 +14,7 @@ type SetVariableHandler struct {
 	mock.Mock
 }
 
-type SetVariableHandlerSetVariableArgs struct {
+type SetVariableHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type SetVariableHandlerSetVariableArgs struct {
 	PAnything      bool
 }
 
-type SetVariableHandlerSetVariableReturns struct {
+type SetVariableHandlerRunReturns struct {
 	Err error
 }
 
-type SetVariableHandlerSetVariableExpectation struct {
-	Args    SetVariableHandlerSetVariableArgs
-	Returns SetVariableHandlerSetVariableReturns
+type SetVariableHandlerRunExpectation struct {
+	Args    SetVariableHandlerRunArgs
+	Returns SetVariableHandlerRunReturns
 }
 
-func (_m *SetVariableHandler) ApplySetVariableExpectation(e SetVariableHandlerSetVariableExpectation) {
+func (_m *SetVariableHandler) ApplyRunExpectation(e SetVariableHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *SetVariableHandler) ApplySetVariableExpectation(e SetVariableHandlerSe
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("SetVariable", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *SetVariableHandler) ApplySetVariableExpectations(expectations []SetVariableHandlerSetVariableExpectation) {
+func (_m *SetVariableHandler) ApplyRunExpectations(expectations []SetVariableHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplySetVariableExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// SetVariable provides a mock function with given fields: ctx, dryrun, p
-func (_m *SetVariableHandler) SetVariable(ctx context.Context, dryrun bool, p *handlers.SetVariableParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *SetVariableHandler) Run(ctx context.Context, dryrun bool, p *handlers.SetVariableParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

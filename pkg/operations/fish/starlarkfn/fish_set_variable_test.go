@@ -16,14 +16,14 @@ func TestSetVariable(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.SetVariableHandlerSetVariableExpectation
+		mock      mocks.SetVariableHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="GOPATH", value="$HOME/go", scope="universal", export=True)`,
-			mock: mocks.SetVariableHandlerSetVariableExpectation{
-				Args: mocks.SetVariableHandlerSetVariableArgs{
+			mock: mocks.SetVariableHandlerRunExpectation{
+				Args: mocks.SetVariableHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetVariableParams{
@@ -33,7 +33,7 @@ func TestSetVariable(t *testing.T) {
 						Export: true,
 					},
 				},
-				Returns: mocks.SetVariableHandlerSetVariableReturns{
+				Returns: mocks.SetVariableHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -42,8 +42,8 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: args",
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
-			mock: mocks.SetVariableHandlerSetVariableExpectation{
-				Args: mocks.SetVariableHandlerSetVariableArgs{
+			mock: mocks.SetVariableHandlerRunExpectation{
+				Args: mocks.SetVariableHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetVariableParams{
@@ -53,7 +53,7 @@ func TestSetVariable(t *testing.T) {
 						Export: true,
 					},
 				},
-				Returns: mocks.SetVariableHandlerSetVariableReturns{
+				Returns: mocks.SetVariableHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -62,8 +62,8 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: global scope",
 			data: `test("GOPATH", "$HOME/go", "global", True)`,
-			mock: mocks.SetVariableHandlerSetVariableExpectation{
-				Args: mocks.SetVariableHandlerSetVariableArgs{
+			mock: mocks.SetVariableHandlerRunExpectation{
+				Args: mocks.SetVariableHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetVariableParams{
@@ -73,7 +73,7 @@ func TestSetVariable(t *testing.T) {
 						Export: true,
 					},
 				},
-				Returns: mocks.SetVariableHandlerSetVariableReturns{
+				Returns: mocks.SetVariableHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -82,8 +82,8 @@ func TestSetVariable(t *testing.T) {
 		{
 			name: "success: local scope",
 			data: `test("GOPATH", "$HOME/go", "local", True)`,
-			mock: mocks.SetVariableHandlerSetVariableExpectation{
-				Args: mocks.SetVariableHandlerSetVariableArgs{
+			mock: mocks.SetVariableHandlerRunExpectation{
+				Args: mocks.SetVariableHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetVariableParams{
@@ -93,7 +93,7 @@ func TestSetVariable(t *testing.T) {
 						Export: true,
 					},
 				},
-				Returns: mocks.SetVariableHandlerSetVariableReturns{
+				Returns: mocks.SetVariableHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -102,20 +102,20 @@ func TestSetVariable(t *testing.T) {
 		{
 			name:      "error: unexpected scope",
 			data:      `test(name="GOPATH", value="$HOME/go", scope="dummy", export=True)`,
-			mock:      mocks.SetVariableHandlerSetVariableExpectation{},
+			mock:      mocks.SetVariableHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name:      "error: too many arguments",
 			data:      `test("GOPATH", "$HOME/go", "universal", True, "too many")`,
-			mock:      mocks.SetVariableHandlerSetVariableExpectation{},
+			mock:      mocks.SetVariableHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: return handler error",
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
-			mock: mocks.SetVariableHandlerSetVariableExpectation{
-				Args: mocks.SetVariableHandlerSetVariableArgs{
+			mock: mocks.SetVariableHandlerRunExpectation{
+				Args: mocks.SetVariableHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetVariableParams{
@@ -125,7 +125,7 @@ func TestSetVariable(t *testing.T) {
 						Export: true,
 					},
 				},
-				Returns: mocks.SetVariableHandlerSetVariableReturns{
+				Returns: mocks.SetVariableHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -135,10 +135,10 @@ func TestSetVariable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.SetVariableHandler)
-			handler.ApplySetVariableExpectation(tt.mock)
+			setVariable := new(mocks.SetVariableHandler)
+			setVariable.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetVariable(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetVariable(setVariable))
 			tt.errAssert(t, err)
 		})
 	}

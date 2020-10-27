@@ -15,19 +15,19 @@ func TestEnableService(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.EnableServiceHandlerEnableServiceExpectation
+		mock      mocks.EnableServiceHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="dummy.service")`,
-			mock: mocks.EnableServiceHandlerEnableServiceExpectation{
-				Args: mocks.EnableServiceHandlerEnableServiceArgs{
+			mock: mocks.EnableServiceHandlerRunExpectation{
+				Args: mocks.EnableServiceHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					Name:           "dummy.service",
 				},
-				Returns: mocks.EnableServiceHandlerEnableServiceReturns{
+				Returns: mocks.EnableServiceHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -36,19 +36,19 @@ func TestEnableService(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("dummy.service", "too many")`,
-			mock:      mocks.EnableServiceHandlerEnableServiceExpectation{},
+			mock:      mocks.EnableServiceHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to service enable",
 			data: `test(name="dummy.service")`,
-			mock: mocks.EnableServiceHandlerEnableServiceExpectation{
-				Args: mocks.EnableServiceHandlerEnableServiceArgs{
+			mock: mocks.EnableServiceHandlerRunExpectation{
+				Args: mocks.EnableServiceHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					Name:           "dummy.service",
 				},
-				Returns: mocks.EnableServiceHandlerEnableServiceReturns{
+				Returns: mocks.EnableServiceHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -58,10 +58,10 @@ func TestEnableService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.EnableServiceHandler)
-			handler.ApplyEnableServiceExpectation(tt.mock)
+			enableService := new(mocks.EnableServiceHandler)
+			enableService.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.EnableService(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.EnableService(enableService))
 			tt.errAssert(t, err)
 		})
 	}
@@ -71,19 +71,19 @@ func TestStartService(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.StartServiceHandlerStartServiceExpectation
+		mock      mocks.StartServiceHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(name="dummy.service")`,
-			mock: mocks.StartServiceHandlerStartServiceExpectation{
-				Args: mocks.StartServiceHandlerStartServiceArgs{
+			mock: mocks.StartServiceHandlerRunExpectation{
+				Args: mocks.StartServiceHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					Name:           "dummy.service",
 				},
-				Returns: mocks.StartServiceHandlerStartServiceReturns{
+				Returns: mocks.StartServiceHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -92,19 +92,19 @@ func TestStartService(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("dummy.service", "too many")`,
-			mock:      mocks.StartServiceHandlerStartServiceExpectation{},
+			mock:      mocks.StartServiceHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to service start",
 			data: `test(name="dummy.service")`,
-			mock: mocks.StartServiceHandlerStartServiceExpectation{
-				Args: mocks.StartServiceHandlerStartServiceArgs{
+			mock: mocks.StartServiceHandlerRunExpectation{
+				Args: mocks.StartServiceHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					Name:           "dummy.service",
 				},
-				Returns: mocks.StartServiceHandlerStartServiceReturns{
+				Returns: mocks.StartServiceHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -114,10 +114,10 @@ func TestStartService(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.StartServiceHandler)
-			handler.ApplyStartServiceExpectation(tt.mock)
+			startService := new(mocks.StartServiceHandler)
+			startService.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.StartService(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.StartService(startService))
 			tt.errAssert(t, err)
 		})
 	}

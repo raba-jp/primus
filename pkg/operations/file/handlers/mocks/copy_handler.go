@@ -14,7 +14,7 @@ type CopyHandler struct {
 	mock.Mock
 }
 
-type CopyHandlerCopyArgs struct {
+type CopyHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type CopyHandlerCopyArgs struct {
 	PAnything      bool
 }
 
-type CopyHandlerCopyReturns struct {
+type CopyHandlerRunReturns struct {
 	Err error
 }
 
-type CopyHandlerCopyExpectation struct {
-	Args    CopyHandlerCopyArgs
-	Returns CopyHandlerCopyReturns
+type CopyHandlerRunExpectation struct {
+	Args    CopyHandlerRunArgs
+	Returns CopyHandlerRunReturns
 }
 
-func (_m *CopyHandler) ApplyCopyExpectation(e CopyHandlerCopyExpectation) {
+func (_m *CopyHandler) ApplyRunExpectation(e CopyHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *CopyHandler) ApplyCopyExpectation(e CopyHandlerCopyExpectation) {
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Copy", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *CopyHandler) ApplyCopyExpectations(expectations []CopyHandlerCopyExpectation) {
+func (_m *CopyHandler) ApplyRunExpectations(expectations []CopyHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyCopyExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Copy provides a mock function with given fields: ctx, dryrun, p
-func (_m *CopyHandler) Copy(ctx context.Context, dryrun bool, p *handlers.CopyParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *CopyHandler) Run(ctx context.Context, dryrun bool, p *handlers.CopyParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

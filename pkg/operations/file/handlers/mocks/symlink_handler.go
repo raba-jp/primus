@@ -14,7 +14,7 @@ type SymlinkHandler struct {
 	mock.Mock
 }
 
-type SymlinkHandlerSymlinkArgs struct {
+type SymlinkHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type SymlinkHandlerSymlinkArgs struct {
 	PAnything      bool
 }
 
-type SymlinkHandlerSymlinkReturns struct {
+type SymlinkHandlerRunReturns struct {
 	Err error
 }
 
-type SymlinkHandlerSymlinkExpectation struct {
-	Args    SymlinkHandlerSymlinkArgs
-	Returns SymlinkHandlerSymlinkReturns
+type SymlinkHandlerRunExpectation struct {
+	Args    SymlinkHandlerRunArgs
+	Returns SymlinkHandlerRunReturns
 }
 
-func (_m *SymlinkHandler) ApplySymlinkExpectation(e SymlinkHandlerSymlinkExpectation) {
+func (_m *SymlinkHandler) ApplyRunExpectation(e SymlinkHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *SymlinkHandler) ApplySymlinkExpectation(e SymlinkHandlerSymlinkExpecta
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Symlink", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *SymlinkHandler) ApplySymlinkExpectations(expectations []SymlinkHandlerSymlinkExpectation) {
+func (_m *SymlinkHandler) ApplyRunExpectations(expectations []SymlinkHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplySymlinkExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Symlink provides a mock function with given fields: ctx, dryrun, p
-func (_m *SymlinkHandler) Symlink(ctx context.Context, dryrun bool, p *handlers.SymlinkParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *SymlinkHandler) Run(ctx context.Context, dryrun bool, p *handlers.SymlinkParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

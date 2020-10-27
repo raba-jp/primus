@@ -216,9 +216,9 @@ func TestNewCommand(t *testing.T) {
 			e := new(exec.MockInterface)
 			e.ApplyCommandContextExpectations(tt.mock)
 
-			handler := handlers.NewCommand(e)
+			command := handlers.NewCommand(e)
 
-			err := handler.Command(context.Background(), false, tt.params)
+			err := command.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -256,8 +256,8 @@ func TestNewCommand__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewCommand(nil)
-			err := handler.Command(context.Background(), true, &handlers.CommandParams{
+			command := handlers.NewCommand(nil)
+			err := command.Run(context.Background(), true, &handlers.CommandParams{
 				CmdName: tt.command,
 				CmdArgs: tt.args,
 			})

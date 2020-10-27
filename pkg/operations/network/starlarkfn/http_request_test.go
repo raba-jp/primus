@@ -16,14 +16,14 @@ func TestHttpRequest(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.HTTPRequestHandlerHTTPRequestExpectation
+		mock      mocks.HTTPRequestHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(url="https://example.com/", path="/sym/test.txt")`,
-			mock: mocks.HTTPRequestHandlerHTTPRequestExpectation{
-				Args: mocks.HTTPRequestHandlerHTTPRequestArgs{
+			mock: mocks.HTTPRequestHandlerRunExpectation{
+				Args: mocks.HTTPRequestHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.HTTPRequestParams{
@@ -31,7 +31,7 @@ func TestHttpRequest(t *testing.T) {
 						Path: "/sym/test.txt",
 					},
 				},
-				Returns: mocks.HTTPRequestHandlerHTTPRequestReturns{
+				Returns: mocks.HTTPRequestHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -40,14 +40,14 @@ func TestHttpRequest(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("https://example.com/", "/sym/test.txt", "too many")`,
-			mock:      mocks.HTTPRequestHandlerHTTPRequestExpectation{},
+			mock:      mocks.HTTPRequestHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: http request failed",
 			data: `test("https://example.com/", "/sym/test.txt")`,
-			mock: mocks.HTTPRequestHandlerHTTPRequestExpectation{
-				Args: mocks.HTTPRequestHandlerHTTPRequestArgs{
+			mock: mocks.HTTPRequestHandlerRunExpectation{
+				Args: mocks.HTTPRequestHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.HTTPRequestParams{
@@ -55,7 +55,7 @@ func TestHttpRequest(t *testing.T) {
 						Path: "/sym/test.txt",
 					},
 				},
-				Returns: mocks.HTTPRequestHandlerHTTPRequestReturns{
+				Returns: mocks.HTTPRequestHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -65,10 +65,10 @@ func TestHttpRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.HTTPRequestHandler)
-			handler.ApplyHTTPRequestExpectation(tt.mock)
+			httpRequest := new(mocks.HTTPRequestHandler)
+			httpRequest.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.HTTPRequest(httpRequest))
 			tt.errAssert(t, err)
 		})
 	}

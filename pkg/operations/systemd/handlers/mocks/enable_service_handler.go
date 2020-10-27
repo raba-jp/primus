@@ -13,7 +13,7 @@ type EnableServiceHandler struct {
 	mock.Mock
 }
 
-type EnableServiceHandlerEnableServiceArgs struct {
+type EnableServiceHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -22,16 +22,16 @@ type EnableServiceHandlerEnableServiceArgs struct {
 	NameAnything   bool
 }
 
-type EnableServiceHandlerEnableServiceReturns struct {
+type EnableServiceHandlerRunReturns struct {
 	Err error
 }
 
-type EnableServiceHandlerEnableServiceExpectation struct {
-	Args    EnableServiceHandlerEnableServiceArgs
-	Returns EnableServiceHandlerEnableServiceReturns
+type EnableServiceHandlerRunExpectation struct {
+	Args    EnableServiceHandlerRunArgs
+	Returns EnableServiceHandlerRunReturns
 }
 
-func (_m *EnableServiceHandler) ApplyEnableServiceExpectation(e EnableServiceHandlerEnableServiceExpectation) {
+func (_m *EnableServiceHandler) ApplyRunExpectation(e EnableServiceHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -48,17 +48,17 @@ func (_m *EnableServiceHandler) ApplyEnableServiceExpectation(e EnableServiceHan
 	} else {
 		args = append(args, e.Args.Name)
 	}
-	_m.On("EnableService", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *EnableServiceHandler) ApplyEnableServiceExpectations(expectations []EnableServiceHandlerEnableServiceExpectation) {
+func (_m *EnableServiceHandler) ApplyRunExpectations(expectations []EnableServiceHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyEnableServiceExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// EnableService provides a mock function with given fields: ctx, dryrun, name
-func (_m *EnableServiceHandler) EnableService(ctx context.Context, dryrun bool, name string) error {
+// Run provides a mock function with given fields: ctx, dryrun, name
+func (_m *EnableServiceHandler) Run(ctx context.Context, dryrun bool, name string) error {
 	ret := _m.Called(ctx, dryrun, name)
 
 	var r0 error

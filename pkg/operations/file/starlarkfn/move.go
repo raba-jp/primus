@@ -11,7 +11,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func Move(handler handlers.MoveHandler) starlark.Fn {
+func Move(move handlers.MoveHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -28,7 +28,7 @@ func Move(handler handlers.MoveHandler) starlark.Fn {
 			zap.String("destination", params.Dest),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s\n", params.Src, params.Dest)
-		if err := handler.Move(ctx, dryrun, params); err != nil {
+		if err := move.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

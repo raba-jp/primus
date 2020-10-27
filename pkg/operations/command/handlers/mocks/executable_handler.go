@@ -13,23 +13,23 @@ type ExecutableHandler struct {
 	mock.Mock
 }
 
-type ExecutableHandlerExecutableArgs struct {
+type ExecutableHandlerRunArgs struct {
 	Ctx          context.Context
 	CtxAnything  bool
 	Name         string
 	NameAnything bool
 }
 
-type ExecutableHandlerExecutableReturns struct {
+type ExecutableHandlerRunReturns struct {
 	Ok bool
 }
 
-type ExecutableHandlerExecutableExpectation struct {
-	Args    ExecutableHandlerExecutableArgs
-	Returns ExecutableHandlerExecutableReturns
+type ExecutableHandlerRunExpectation struct {
+	Args    ExecutableHandlerRunArgs
+	Returns ExecutableHandlerRunReturns
 }
 
-func (_m *ExecutableHandler) ApplyExecutableExpectation(e ExecutableHandlerExecutableExpectation) {
+func (_m *ExecutableHandler) ApplyRunExpectation(e ExecutableHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -41,17 +41,17 @@ func (_m *ExecutableHandler) ApplyExecutableExpectation(e ExecutableHandlerExecu
 	} else {
 		args = append(args, e.Args.Name)
 	}
-	_m.On("Executable", args...).Return(e.Returns.Ok)
+	_m.On("Run", args...).Return(e.Returns.Ok)
 }
 
-func (_m *ExecutableHandler) ApplyExecutableExpectations(expectations []ExecutableHandlerExecutableExpectation) {
+func (_m *ExecutableHandler) ApplyRunExpectations(expectations []ExecutableHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyExecutableExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Executable provides a mock function with given fields: ctx, name
-func (_m *ExecutableHandler) Executable(ctx context.Context, name string) bool {
+// Run provides a mock function with given fields: ctx, name
+func (_m *ExecutableHandler) Run(ctx context.Context, name string) bool {
 	ret := _m.Called(ctx, name)
 
 	var r0 bool

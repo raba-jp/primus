@@ -14,7 +14,7 @@ type MoveHandler struct {
 	mock.Mock
 }
 
-type MoveHandlerMoveArgs struct {
+type MoveHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type MoveHandlerMoveArgs struct {
 	PAnything      bool
 }
 
-type MoveHandlerMoveReturns struct {
+type MoveHandlerRunReturns struct {
 	Err error
 }
 
-type MoveHandlerMoveExpectation struct {
-	Args    MoveHandlerMoveArgs
-	Returns MoveHandlerMoveReturns
+type MoveHandlerRunExpectation struct {
+	Args    MoveHandlerRunArgs
+	Returns MoveHandlerRunReturns
 }
 
-func (_m *MoveHandler) ApplyMoveExpectation(e MoveHandlerMoveExpectation) {
+func (_m *MoveHandler) ApplyRunExpectation(e MoveHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *MoveHandler) ApplyMoveExpectation(e MoveHandlerMoveExpectation) {
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Move", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *MoveHandler) ApplyMoveExpectations(expectations []MoveHandlerMoveExpectation) {
+func (_m *MoveHandler) ApplyRunExpectations(expectations []MoveHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyMoveExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Move provides a mock function with given fields: ctx, dryrun, p
-func (_m *MoveHandler) Move(ctx context.Context, dryrun bool, p *handlers.MoveParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *MoveHandler) Run(ctx context.Context, dryrun bool, p *handlers.MoveParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

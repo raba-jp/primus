@@ -105,8 +105,8 @@ func TestNewExecutable(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			env.SetFakeEnv(tt.env)
-			handler := handlers.NewExecutable(tt.fs())
-			ret := handler.Executable(context.Background(), tt.data)
+			executable := handlers.NewExecutable(tt.fs())
+			ret := executable.Run(context.Background(), tt.data)
 			assert.Equal(t, tt.want, ret)
 		})
 	}

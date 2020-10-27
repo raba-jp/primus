@@ -194,11 +194,11 @@ func TestNewSetVariable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := new(exec.MockInterface)
-			e.ApplyCommandContextExpectation(tt.mock)
+			exc := new(exec.MockInterface)
+			exc.ApplyCommandContextExpectation(tt.mock)
 
-			handler := handlers.NewSetVariable(e)
-			err := handler.SetVariable(context.Background(), false, tt.params)
+			setVariable := handlers.NewSetVariable(exc)
+			err := setVariable.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -227,8 +227,8 @@ func TestNewSetVariable__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewSetVariable(nil)
-			err := handler.SetVariable(context.Background(), true, tt.params)
+			setVariable := handlers.NewSetVariable(nil)
+			err := setVariable.Run(context.Background(), true, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())
@@ -318,8 +318,8 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 			e := new(exec.MockInterface)
 			e.ApplyCommandContextExpectation(tt.mock)
 
-			handler := handlers.NewSetPath(e)
-			err := handler.SetPath(context.Background(), false, tt.params)
+			setPath := handlers.NewSetPath(e)
+			err := setPath.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -346,8 +346,8 @@ func TestNewSetPath__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewSetPath(nil)
-			err := handler.SetPath(context.Background(), true, tt.params)
+			setPath := handlers.NewSetPath(nil)
+			err := setPath.Run(context.Background(), true, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())

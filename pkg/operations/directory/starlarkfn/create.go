@@ -12,7 +12,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func Create(handler handlers.CreateHandler) starlark.Fn {
+func Create(create handlers.CreateHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -32,7 +32,7 @@ func Create(handler handlers.CreateHandler) starlark.Fn {
 		)
 
 		ui.Infof("Creating directories: %s\n", params.Path)
-		if err := handler.Create(ctx, dryrun, params); err != nil {
+		if err := create.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

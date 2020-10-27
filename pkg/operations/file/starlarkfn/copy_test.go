@@ -16,14 +16,14 @@ func TestCopy(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.CopyHandlerCopyExpectation
+		mock      mocks.CopyHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
-			mock: mocks.CopyHandlerCopyExpectation{
-				Args: mocks.CopyHandlerCopyArgs{
+			mock: mocks.CopyHandlerRunExpectation{
+				Args: mocks.CopyHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CopyParams{
@@ -33,7 +33,7 @@ func TestCopy(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CopyHandlerCopyReturns{
+				Returns: mocks.CopyHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -42,8 +42,8 @@ func TestCopy(t *testing.T) {
 		{
 			name: "success: with permission",
 			data: `test("/sym/src.txt", "/sym/dest.txt", 0o644)`,
-			mock: mocks.CopyHandlerCopyExpectation{
-				Args: mocks.CopyHandlerCopyArgs{
+			mock: mocks.CopyHandlerRunExpectation{
+				Args: mocks.CopyHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CopyParams{
@@ -53,7 +53,7 @@ func TestCopy(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CopyHandlerCopyReturns{
+				Returns: mocks.CopyHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -62,14 +62,14 @@ func TestCopy(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("src.txt", "dest.txt", 0o644, "too many")`,
-			mock:      mocks.CopyHandlerCopyExpectation{},
+			mock:      mocks.CopyHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: file copy failed",
 			data: `test("src.txt", "dest.txt", 0o644, )`,
-			mock: mocks.CopyHandlerCopyExpectation{
-				Args: mocks.CopyHandlerCopyArgs{
+			mock: mocks.CopyHandlerRunExpectation{
+				Args: mocks.CopyHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CopyParams{
@@ -79,7 +79,7 @@ func TestCopy(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CopyHandlerCopyReturns{
+				Returns: mocks.CopyHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -89,10 +89,10 @@ func TestCopy(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.CopyHandler)
-			handler.ApplyCopyExpectation(tt.mock)
+			copy := new(mocks.CopyHandler)
+			copy.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Copy(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Copy(copy))
 			tt.errAssert(t, err)
 		})
 	}

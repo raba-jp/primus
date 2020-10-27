@@ -119,8 +119,8 @@ func TestNewCopy(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.setup()
-			handler := handlers.NewCopy(fs)
-			err := handler.Copy(context.Background(), false, tt.params)
+			copy := handlers.NewCopy(fs)
+			err := copy.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 
 			data, _ := afero.ReadFile(fs, tt.params.Dest)
@@ -154,8 +154,8 @@ func TestBaseBackend_FileCopy__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewCopy(nil)
-			err := handler.Copy(context.Background(), true, &handlers.CopyParams{
+			copy := handlers.NewCopy(nil)
+			err := copy.Run(context.Background(), true, &handlers.CopyParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

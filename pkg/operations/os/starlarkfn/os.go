@@ -8,9 +8,9 @@ import (
 	lib "go.starlark.net/starlark"
 )
 
-func IsDarwin(execIF exec.Interface) starlark.Fn {
+func IsDarwin(exc exec.Interface) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ret := backend.DetectDarwin(execIF)
+		ret := backend.DetectDarwin(exc)
 		if ret {
 			return lib.True, nil
 		}

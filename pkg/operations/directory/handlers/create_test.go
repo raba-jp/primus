@@ -94,8 +94,8 @@ func TestNew(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.setup()
-			handler := handlers.New(fs)
-			err := handler.Create(context.Background(), false, tt.params)
+			create := handlers.New(fs)
+			err := create.Run(context.Background(), false, tt.params)
 			tt.errAssert(t, err)
 
 			stat, err := fs.Stat(tt.got)
@@ -129,8 +129,8 @@ func TestNew__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.New(nil)
-			err := handler.Create(context.Background(), true, tt.params)
+			create := handlers.New(nil)
+			err := create.Run(context.Background(), true, tt.params)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())
 		})

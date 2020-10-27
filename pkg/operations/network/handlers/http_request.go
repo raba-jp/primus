@@ -20,12 +20,12 @@ type HTTPRequestParams struct {
 }
 
 type HTTPRequestHandler interface {
-	HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *HTTPRequestParams) (err error)
 }
 
 type HTTPRequestHandlerFunc func(ctx context.Context, dryrun bool, p *HTTPRequestParams) error
 
-func (f HTTPRequestHandlerFunc) HTTPRequest(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
+func (f HTTPRequestHandlerFunc) Run(ctx context.Context, dryrun bool, p *HTTPRequestParams) error {
 	return f(ctx, dryrun, p)
 }
 

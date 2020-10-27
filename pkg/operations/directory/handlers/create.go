@@ -20,12 +20,12 @@ type CreateParams struct {
 }
 
 type CreateHandler interface {
-	Create(ctx context.Context, dryrun bool, p *CreateParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *CreateParams) (err error)
 }
 
 type CreateHandlerFunc func(ctx context.Context, dryrun bool, p *CreateParams) error
 
-func (f CreateHandlerFunc) Create(ctx context.Context, dryrun bool, p *CreateParams) error {
+func (f CreateHandlerFunc) Run(ctx context.Context, dryrun bool, p *CreateParams) error {
 	return f(ctx, dryrun, p)
 }
 

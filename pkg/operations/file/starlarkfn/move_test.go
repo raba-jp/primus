@@ -16,14 +16,14 @@ func TestFileMove(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.MoveHandlerMoveExpectation
+		mock      mocks.MoveHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
-			mock: mocks.MoveHandlerMoveExpectation{
-				Args: mocks.MoveHandlerMoveArgs{
+			mock: mocks.MoveHandlerRunExpectation{
+				Args: mocks.MoveHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.MoveParams{
@@ -32,7 +32,7 @@ func TestFileMove(t *testing.T) {
 						Cwd:  "/sym",
 					},
 				},
-				Returns: mocks.MoveHandlerMoveReturns{
+				Returns: mocks.MoveHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -41,14 +41,14 @@ func TestFileMove(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("src.txt", "dest.txt", "too many")`,
-			mock:      mocks.MoveHandlerMoveExpectation{},
+			mock:      mocks.MoveHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: file move failed",
 			data: `test("src.txt", "dest.txt")`,
-			mock: mocks.MoveHandlerMoveExpectation{
-				Args: mocks.MoveHandlerMoveArgs{
+			mock: mocks.MoveHandlerRunExpectation{
+				Args: mocks.MoveHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.MoveParams{
@@ -57,7 +57,7 @@ func TestFileMove(t *testing.T) {
 						Cwd:  "/sym",
 					},
 				},
-				Returns: mocks.MoveHandlerMoveReturns{
+				Returns: mocks.MoveHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -68,7 +68,7 @@ func TestFileMove(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := new(mocks.MoveHandler)
-			handler.ApplyMoveExpectation(tt.mock)
+			handler.ApplyRunExpectation(tt.mock)
 
 			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Move(handler))
 			tt.errAssert(t, err)

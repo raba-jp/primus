@@ -18,12 +18,12 @@ type SymlinkParams struct {
 }
 
 type SymlinkHandler interface {
-	Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *SymlinkParams) (err error)
 }
 
 type SymlinkHandlerFunc func(ctx context.Context, dryrun bool, p *SymlinkParams) error
 
-func (f SymlinkHandlerFunc) Symlink(ctx context.Context, dryrun bool, p *SymlinkParams) error {
+func (f SymlinkHandlerFunc) Run(ctx context.Context, dryrun bool, p *SymlinkParams) error {
 	return f(ctx, dryrun, p)
 }
 

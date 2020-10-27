@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func SetPath(handler handlers.SetPathHandler) starlark.Fn {
+func SetPath(setPath handlers.SetPathHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -17,7 +17,7 @@ func SetPath(handler handlers.SetPathHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		if err := handler.SetPath(ctx, dryrun, params); err != nil {
+		if err := setPath.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

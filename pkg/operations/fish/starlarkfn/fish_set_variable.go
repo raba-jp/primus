@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func SetVariable(handler handlers.SetVariableHandler) starlark.Fn {
+func SetVariable(setVariable handlers.SetVariableHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -17,7 +17,7 @@ func SetVariable(handler handlers.SetVariableHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		if err := handler.SetVariable(ctx, dryrun, params); err != nil {
+		if err := setVariable.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

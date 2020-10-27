@@ -13,7 +13,7 @@ type StartServiceHandler struct {
 	mock.Mock
 }
 
-type StartServiceHandlerStartServiceArgs struct {
+type StartServiceHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -22,16 +22,16 @@ type StartServiceHandlerStartServiceArgs struct {
 	NameAnything   bool
 }
 
-type StartServiceHandlerStartServiceReturns struct {
+type StartServiceHandlerRunReturns struct {
 	Err error
 }
 
-type StartServiceHandlerStartServiceExpectation struct {
-	Args    StartServiceHandlerStartServiceArgs
-	Returns StartServiceHandlerStartServiceReturns
+type StartServiceHandlerRunExpectation struct {
+	Args    StartServiceHandlerRunArgs
+	Returns StartServiceHandlerRunReturns
 }
 
-func (_m *StartServiceHandler) ApplyStartServiceExpectation(e StartServiceHandlerStartServiceExpectation) {
+func (_m *StartServiceHandler) ApplyRunExpectation(e StartServiceHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -48,17 +48,17 @@ func (_m *StartServiceHandler) ApplyStartServiceExpectation(e StartServiceHandle
 	} else {
 		args = append(args, e.Args.Name)
 	}
-	_m.On("StartService", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *StartServiceHandler) ApplyStartServiceExpectations(expectations []StartServiceHandlerStartServiceExpectation) {
+func (_m *StartServiceHandler) ApplyRunExpectations(expectations []StartServiceHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyStartServiceExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// StartService provides a mock function with given fields: ctx, dryrun, name
-func (_m *StartServiceHandler) StartService(ctx context.Context, dryrun bool, name string) error {
+// Run provides a mock function with given fields: ctx, dryrun, name
+func (_m *StartServiceHandler) Run(ctx context.Context, dryrun bool, name string) error {
 	ret := _m.Called(ctx, dryrun, name)
 
 	var r0 error
