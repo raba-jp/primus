@@ -23,7 +23,7 @@ func TestNewInstall(t *testing.T) {
 	tests := []struct {
 		name         string
 		checkInstall mocks.CheckInstallHandlerRunExpectation
-		mock         exec.InterfaceCommandContextExpectation
+		mock         *exec.InterfaceCommandContextExpectation
 		errAssert    assert.ErrorAssertionFunc
 	}{
 		{
@@ -32,7 +32,7 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
-			mock: exec.InterfaceCommandContextExpectation{
+			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
 					Cmd:         "pacman",
@@ -58,13 +58,7 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
 			},
-			mock: exec.InterfaceCommandContextExpectation{
-				Returns: exec.InterfaceCommandContextReturns{
-					Cmd: func() exec.Cmd {
-						return new(exec.MockCmd)
-					},
-				},
-			},
+			mock:      nil,
 			errAssert: assert.NoError,
 		},
 		{
@@ -73,7 +67,7 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
-			mock: exec.InterfaceCommandContextExpectation{
+			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
 					Cmd:         "pacman",
@@ -98,7 +92,9 @@ func TestNewInstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exc := new(exec.MockInterface)
-			exc.ApplyCommandContextExpectation(tt.mock)
+			if tt.mock != nil {
+				exc.ApplyCommandContextExpectation(*tt.mock)
+			}
 
 			handler := new(mocks.CheckInstallHandler)
 			handler.ApplyRunExpectation(tt.checkInstall)

@@ -22,17 +22,16 @@ func TestNewUninstall(t *testing.T) {
 	tests := []struct {
 		name         string
 		checkInstall mocks.CheckInstallHandlerRunExpectation
-		mock         exec.InterfaceCommandContextExpectation
-		mockExec     exec.Interface
+		mock         *exec.InterfaceCommandContextExpectation
 		errAssert    assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
 			},
-			mock: exec.InterfaceCommandContextExpectation{
+			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
 					Cmd:         "pacman",
@@ -56,18 +55,18 @@ func TestNewUninstall(t *testing.T) {
 			name: "success: not installed",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
-			mock:      exec.InterfaceCommandContextExpectation{},
+			mock:      nil,
 			errAssert: assert.NoError,
 		},
 		{
 			name: "error: error occurred",
 			checkInstall: mocks.CheckInstallHandlerRunExpectation{
 				Args:    checkInstallArgs,
-				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
+				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
 			},
-			mock: exec.InterfaceCommandContextExpectation{
+			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
 					Cmd:         "pacman",
@@ -92,7 +91,9 @@ func TestNewUninstall(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			exc := new(exec.MockInterface)
-			exc.ApplyCommandContextExpectation(tt.mock)
+			if tt.mock != nil {
+				exc.ApplyCommandContextExpectation(*tt.mock)
+			}
 
 			handler := new(mocks.CheckInstallHandler)
 			handler.ApplyRunExpectation(tt.checkInstall)
