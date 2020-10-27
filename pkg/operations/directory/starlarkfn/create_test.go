@@ -16,14 +16,14 @@ func TestCreateDirectory(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.CreateHandlerCreateExpectation
+		mock      mocks.CreateHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(path="/sym/test", permission=0o777)`,
-			mock: mocks.CreateHandlerCreateExpectation{
-				Args: mocks.CreateHandlerCreateArgs{
+			mock: mocks.CreateHandlerRunExpectation{
+				Args: mocks.CreateHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CreateParams{
@@ -32,7 +32,7 @@ func TestCreateDirectory(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CreateHandlerCreateReturns{
+				Returns: mocks.CreateHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -41,8 +41,8 @@ func TestCreateDirectory(t *testing.T) {
 		{
 			name: "success: relative path",
 			data: `test(path="test", permission=0o777)`,
-			mock: mocks.CreateHandlerCreateExpectation{
-				Args: mocks.CreateHandlerCreateArgs{
+			mock: mocks.CreateHandlerRunExpectation{
+				Args: mocks.CreateHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CreateParams{
@@ -51,7 +51,7 @@ func TestCreateDirectory(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CreateHandlerCreateReturns{
+				Returns: mocks.CreateHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -60,8 +60,8 @@ func TestCreateDirectory(t *testing.T) {
 		{
 			name: "success: without permission",
 			data: `test(path="/sym/test")`,
-			mock: mocks.CreateHandlerCreateExpectation{
-				Args: mocks.CreateHandlerCreateArgs{
+			mock: mocks.CreateHandlerRunExpectation{
+				Args: mocks.CreateHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CreateParams{
@@ -70,7 +70,7 @@ func TestCreateDirectory(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CreateHandlerCreateReturns{
+				Returns: mocks.CreateHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -79,14 +79,14 @@ func TestCreateDirectory(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("/sym/test", 0o644, "too many")`,
-			mock:      mocks.CreateHandlerCreateExpectation{},
+			mock:      mocks.CreateHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: failed to create directory",
 			data: `test("/sym/test", 0o644)`,
-			mock: mocks.CreateHandlerCreateExpectation{
-				Args: mocks.CreateHandlerCreateArgs{
+			mock: mocks.CreateHandlerRunExpectation{
+				Args: mocks.CreateHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CreateParams{
@@ -95,7 +95,7 @@ func TestCreateDirectory(t *testing.T) {
 						Cwd:        "/sym",
 					},
 				},
-				Returns: mocks.CreateHandlerCreateReturns{
+				Returns: mocks.CreateHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -105,10 +105,10 @@ func TestCreateDirectory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.CreateHandler)
-			handler.ApplyCreateExpectation(tt.mock)
+			create := new(mocks.CreateHandler)
+			create.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Create(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Create(create))
 			tt.errAssert(t, err)
 		})
 	}

@@ -28,12 +28,12 @@ type CloneParams struct {
 }
 
 type CloneHandler interface {
-	Clone(ctx context.Context, dryrun bool, p *CloneParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *CloneParams) (err error)
 }
 
 type CloneHandlerFunc func(ctx context.Context, dryrun bool, p *CloneParams) error
 
-func (f CloneHandlerFunc) Clone(ctx context.Context, dryrun bool, p *CloneParams) error {
+func (f CloneHandlerFunc) Run(ctx context.Context, dryrun bool, p *CloneParams) error {
 	return f(ctx, dryrun, p)
 }
 

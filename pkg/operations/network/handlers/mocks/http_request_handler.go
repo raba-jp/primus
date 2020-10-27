@@ -14,7 +14,7 @@ type HTTPRequestHandler struct {
 	mock.Mock
 }
 
-type HTTPRequestHandlerHTTPRequestArgs struct {
+type HTTPRequestHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type HTTPRequestHandlerHTTPRequestArgs struct {
 	PAnything      bool
 }
 
-type HTTPRequestHandlerHTTPRequestReturns struct {
+type HTTPRequestHandlerRunReturns struct {
 	Err error
 }
 
-type HTTPRequestHandlerHTTPRequestExpectation struct {
-	Args    HTTPRequestHandlerHTTPRequestArgs
-	Returns HTTPRequestHandlerHTTPRequestReturns
+type HTTPRequestHandlerRunExpectation struct {
+	Args    HTTPRequestHandlerRunArgs
+	Returns HTTPRequestHandlerRunReturns
 }
 
-func (_m *HTTPRequestHandler) ApplyHTTPRequestExpectation(e HTTPRequestHandlerHTTPRequestExpectation) {
+func (_m *HTTPRequestHandler) ApplyRunExpectation(e HTTPRequestHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *HTTPRequestHandler) ApplyHTTPRequestExpectation(e HTTPRequestHandlerHT
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("HTTPRequest", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *HTTPRequestHandler) ApplyHTTPRequestExpectations(expectations []HTTPRequestHandlerHTTPRequestExpectation) {
+func (_m *HTTPRequestHandler) ApplyRunExpectations(expectations []HTTPRequestHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyHTTPRequestExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// HTTPRequest provides a mock function with given fields: ctx, dryrun, p
-func (_m *HTTPRequestHandler) HTTPRequest(ctx context.Context, dryrun bool, p *handlers.HTTPRequestParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *HTTPRequestHandler) Run(ctx context.Context, dryrun bool, p *handlers.HTTPRequestParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

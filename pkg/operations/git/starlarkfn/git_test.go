@@ -16,14 +16,14 @@ func TestClone(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.CloneHandlerCloneExpectation
+		mock      mocks.CloneHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success:",
 			data: `test(url="https://example.com", path="/sym", branch="main")`,
-			mock: mocks.CloneHandlerCloneExpectation{
-				Args: mocks.CloneHandlerCloneArgs{
+			mock: mocks.CloneHandlerRunExpectation{
+				Args: mocks.CloneHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CloneParams{
@@ -32,7 +32,7 @@ func TestClone(t *testing.T) {
 						Branch: "main",
 					},
 				},
-				Returns: mocks.CloneHandlerCloneReturns{
+				Returns: mocks.CloneHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -41,8 +41,8 @@ func TestClone(t *testing.T) {
 		{
 			name: "error: failed to git clone",
 			data: `test("https://example.com", "/sym", "main")`,
-			mock: mocks.CloneHandlerCloneExpectation{
-				Args: mocks.CloneHandlerCloneArgs{
+			mock: mocks.CloneHandlerRunExpectation{
+				Args: mocks.CloneHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.CloneParams{
@@ -51,7 +51,7 @@ func TestClone(t *testing.T) {
 						Branch: "main",
 					},
 				},
-				Returns: mocks.CloneHandlerCloneReturns{
+				Returns: mocks.CloneHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -60,17 +60,17 @@ func TestClone(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test("https://example.com", "/sym", "main", "too many")`,
-			mock:      mocks.CloneHandlerCloneExpectation{},
+			mock:      mocks.CloneHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.CloneHandler)
-			handler.ApplyCloneExpectation(tt.mock)
+			clone := new(mocks.CloneHandler)
+			clone.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.Clone(clone))
 			tt.errAssert(t, err)
 		})
 	}

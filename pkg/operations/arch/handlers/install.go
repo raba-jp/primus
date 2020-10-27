@@ -29,7 +29,7 @@ func (f InstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *InstallPara
 	return f(ctx, dryrun, p)
 }
 
-func NewInstall(checkInstall CheckInstallHandler, execIF exec.Interface) InstallHandler {
+func NewInstall(checkInstall CheckInstallHandler, exc exec.Interface) InstallHandler {
 	return InstallHandlerFunc(func(ctx context.Context, dryrun bool, p *InstallParams) error {
 		if dryrun {
 			ui.Printf("pacman -S --noconfirm %s %s\n", p.Option, p.Name)
@@ -42,7 +42,7 @@ func NewInstall(checkInstall CheckInstallHandler, execIF exec.Interface) Install
 
 		ctx, cancel := context.WithTimeout(ctx, installTimeout)
 		defer cancel()
-		if err := execIF.CommandContext(ctx, "pacman", "-S", "--noconfirm", p.Option, p.Name).Run(); err != nil {
+		if err := exc.CommandContext(ctx, "pacman", "-S", "--noconfirm", p.Option, p.Name).Run(); err != nil {
 			return xerrors.Errorf("Install package failed: %s: %w", p.Name, err)
 		}
 		return nil

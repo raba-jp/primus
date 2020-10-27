@@ -180,8 +180,8 @@ func TestNewStartService(t *testing.T) {
 			e := new(exec.MockInterface)
 			e.ApplyCommandContextExpectations(tt.mock)
 
-			handler := handlers.NewStartService(e)
-			err := handler.StartService(context.Background(), false, "dummy.service")
+			startService := handlers.NewStartService(e)
+			err := startService.Run(context.Background(), false, "dummy.service")
 			tt.errAssert(t, err)
 		})
 	}
@@ -204,8 +204,8 @@ func TestNewStartService__DryRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
-			handler := handlers.NewStartService(nil)
-			err := handler.StartService(context.Background(), true, tt.in)
+			startService := handlers.NewStartService(nil)
+			err := startService.Run(context.Background(), true, tt.in)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.out, buf.String())
 		})

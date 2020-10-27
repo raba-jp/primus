@@ -14,7 +14,7 @@ type CommandHandler struct {
 	mock.Mock
 }
 
-type CommandHandlerCommandArgs struct {
+type CommandHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type CommandHandlerCommandArgs struct {
 	PAnything      bool
 }
 
-type CommandHandlerCommandReturns struct {
+type CommandHandlerRunReturns struct {
 	Err error
 }
 
-type CommandHandlerCommandExpectation struct {
-	Args    CommandHandlerCommandArgs
-	Returns CommandHandlerCommandReturns
+type CommandHandlerRunExpectation struct {
+	Args    CommandHandlerRunArgs
+	Returns CommandHandlerRunReturns
 }
 
-func (_m *CommandHandler) ApplyCommandExpectation(e CommandHandlerCommandExpectation) {
+func (_m *CommandHandler) ApplyRunExpectation(e CommandHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *CommandHandler) ApplyCommandExpectation(e CommandHandlerCommandExpecta
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Command", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *CommandHandler) ApplyCommandExpectations(expectations []CommandHandlerCommandExpectation) {
+func (_m *CommandHandler) ApplyRunExpectations(expectations []CommandHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyCommandExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Command provides a mock function with given fields: ctx, dryrun, p
-func (_m *CommandHandler) Command(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *CommandHandler) Run(ctx context.Context, dryrun bool, p *handlers.CommandParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

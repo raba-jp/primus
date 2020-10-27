@@ -24,16 +24,16 @@ type CommandParams struct {
 }
 
 type CommandHandler interface {
-	Command(ctx context.Context, dryrun bool, p *CommandParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *CommandParams) (err error)
 }
 
 type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error
 
-func (f CommandHandlerFunc) Command(ctx context.Context, dryrun bool, p *CommandParams) error {
+func (f CommandHandlerFunc) Run(ctx context.Context, dryrun bool, p *CommandParams) error {
 	return f(ctx, dryrun, p)
 }
 
-func NewCommand(execIF exec.Interface) CommandHandler {
+func NewCommand(exc exec.Interface) CommandHandler {
 	return CommandHandlerFunc(func(ctx context.Context, dryrun bool, p *CommandParams) error {
 		if dryrun {
 			buf := new(bytes.Buffer)
@@ -47,7 +47,7 @@ func NewCommand(execIF exec.Interface) CommandHandler {
 			return nil
 		}
 
-		cmd := execIF.CommandContext(ctx, p.CmdName, p.CmdArgs...)
+		cmd := exc.CommandContext(ctx, p.CmdName, p.CmdArgs...)
 		buf := new(bytes.Buffer)
 		errbuf := new(bytes.Buffer)
 		cmd.SetStdout(buf)

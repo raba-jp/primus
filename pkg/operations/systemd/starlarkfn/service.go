@@ -7,7 +7,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func EnableService(handler handlers.EnableServiceHandler) starlark.Fn {
+func EnableService(enableService handlers.EnableServiceHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -15,14 +15,14 @@ func EnableService(handler handlers.EnableServiceHandler) starlark.Fn {
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		if err := handler.EnableService(ctx, dryrun, name); err != nil {
+		if err := enableService.Run(ctx, dryrun, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil
 	}
 }
 
-func StartService(handler handlers.StartServiceHandler) starlark.Fn {
+func StartService(startService handlers.StartServiceHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -30,7 +30,7 @@ func StartService(handler handlers.StartServiceHandler) starlark.Fn {
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		if err := handler.StartService(ctx, dryrun, name); err != nil {
+		if err := startService.Run(ctx, dryrun, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

@@ -48,8 +48,8 @@ func TestNewSymlink(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 
-			handler := handlers.NewSymlink(fs)
-			err := handler.Symlink(context.Background(), false, &handlers.SymlinkParams{
+			symlink := handlers.NewSymlink(fs)
+			err := symlink.Run(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -98,8 +98,8 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 			_ = afero.WriteFile(fs, tt.dest, []byte("test file"), 0777)
 
-			handler := handlers.NewSymlink(fs)
-			_ = handler.Symlink(context.Background(), false, &handlers.SymlinkParams{
+			symlink := handlers.NewSymlink(fs)
+			_ = symlink.Run(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -142,8 +142,8 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 			l, _ := fs.(afero.Linker)
 			_ = l.SymlinkIfPossible(another, tt.dest)
 
-			handler := handlers.NewSymlink(fs)
-			_ = handler.Symlink(context.Background(), false, &handlers.SymlinkParams{
+			symlink := handlers.NewSymlink(fs)
+			_ = symlink.Run(context.Background(), false, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -174,8 +174,8 @@ func TestBaseBackend_Symlink__DryRun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewSymlink(nil)
-			err := handler.Symlink(context.Background(), true, &handlers.SymlinkParams{
+			symlink := handlers.NewSymlink(nil)
+			err := symlink.Run(context.Background(), true, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

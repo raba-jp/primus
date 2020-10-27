@@ -15,8 +15,8 @@ const (
 	Arch
 )
 
-func DetectOS(execIF exec.Interface, fs afero.Fs) OS {
-	if darwin := DetectDarwin(execIF); darwin {
+func DetectOS(exc exec.Interface, fs afero.Fs) OS {
+	if darwin := DetectDarwin(exc); darwin {
 		return Darwin
 	}
 	if manjaro := DetectArchLinux(fs); manjaro {
@@ -25,8 +25,8 @@ func DetectOS(execIF exec.Interface, fs afero.Fs) OS {
 	return Unknown
 }
 
-func DetectDarwin(execIF exec.Interface) bool {
-	out, err := execIF.Command("uname", "-a").Output()
+func DetectDarwin(exc exec.Interface) bool {
+	out, err := exc.Command("uname", "-a").Output()
 	if err != nil {
 		return false
 	}

@@ -25,7 +25,7 @@ func (f UninstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *Uninstall
 	return f(ctx, dryrun, p)
 }
 
-func NewUninstall(checkInstall CheckInstallHandler, execIF exec.Interface) UninstallHandler {
+func NewUninstall(checkInstall CheckInstallHandler, exc exec.Interface) UninstallHandler {
 	return UninstallHandlerFunc(func(ctx context.Context, dryrun bool, p *UninstallParams) error {
 		if dryrun {
 			ui.Printf("pacman -R --noconfirm %s\n", p.Name)
@@ -38,7 +38,7 @@ func NewUninstall(checkInstall CheckInstallHandler, execIF exec.Interface) Unins
 
 		ctx, cancel := context.WithTimeout(ctx, installTimeout)
 		defer cancel()
-		if err := execIF.CommandContext(ctx, "pacman", "-R", "--noconfirm", p.Name).Run(); err != nil {
+		if err := exc.CommandContext(ctx, "pacman", "-R", "--noconfirm", p.Name).Run(); err != nil {
 			return xerrors.Errorf("Remove package failed: %s: %w", p.Name, err)
 		}
 		return nil

@@ -14,7 +14,7 @@ type CreateHandler struct {
 	mock.Mock
 }
 
-type CreateHandlerCreateArgs struct {
+type CreateHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type CreateHandlerCreateArgs struct {
 	PAnything      bool
 }
 
-type CreateHandlerCreateReturns struct {
+type CreateHandlerRunReturns struct {
 	Err error
 }
 
-type CreateHandlerCreateExpectation struct {
-	Args    CreateHandlerCreateArgs
-	Returns CreateHandlerCreateReturns
+type CreateHandlerRunExpectation struct {
+	Args    CreateHandlerRunArgs
+	Returns CreateHandlerRunReturns
 }
 
-func (_m *CreateHandler) ApplyCreateExpectation(e CreateHandlerCreateExpectation) {
+func (_m *CreateHandler) ApplyRunExpectation(e CreateHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *CreateHandler) ApplyCreateExpectation(e CreateHandlerCreateExpectation
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Create", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *CreateHandler) ApplyCreateExpectations(expectations []CreateHandlerCreateExpectation) {
+func (_m *CreateHandler) ApplyRunExpectations(expectations []CreateHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyCreateExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Create provides a mock function with given fields: ctx, dryrun, p
-func (_m *CreateHandler) Create(ctx context.Context, dryrun bool, p *handlers.CreateParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *CreateHandler) Run(ctx context.Context, dryrun bool, p *handlers.CreateParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

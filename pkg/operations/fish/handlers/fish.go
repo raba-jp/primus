@@ -31,12 +31,12 @@ type SetVariableParams struct {
 }
 
 type SetVariableHandler interface {
-	SetVariable(ctx context.Context, dryrun bool, p *SetVariableParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *SetVariableParams) (err error)
 }
 
 type SetVariableHandlerFunc func(ctx context.Context, dryrun bool, p *SetVariableParams) error
 
-func (f SetVariableHandlerFunc) SetVariable(ctx context.Context, dryrun bool, p *SetVariableParams) error {
+func (f SetVariableHandlerFunc) Run(ctx context.Context, dryrun bool, p *SetVariableParams) error {
 	return f(ctx, dryrun, p)
 }
 
@@ -45,16 +45,16 @@ type SetPathParams struct {
 }
 
 type SetPathHandler interface {
-	SetPath(ctx context.Context, dryrun bool, p *SetPathParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *SetPathParams) (err error)
 }
 
 type SetPathHandlerFunc func(ctx context.Context, dryrun bool, p *SetPathParams) error
 
-func (f SetPathHandlerFunc) SetPath(ctx context.Context, dryrun bool, p *SetPathParams) error {
+func (f SetPathHandlerFunc) Run(ctx context.Context, dryrun bool, p *SetPathParams) error {
 	return f(ctx, dryrun, p)
 }
 
-func NewSetVariable(execIF exec.Interface) SetVariableHandler {
+func NewSetVariable(exc exec.Interface) SetVariableHandler {
 	return SetVariableHandlerFunc(func(ctx context.Context, dryrun bool, p *SetVariableParams) error {
 		var scope string
 		switch p.Scope {
@@ -78,7 +78,7 @@ func NewSetVariable(execIF exec.Interface) SetVariableHandler {
 			return nil
 		}
 
-		cmd := execIF.CommandContext(ctx, "fish", "--command", arg)
+		cmd := exc.CommandContext(ctx, "fish", "--command", arg)
 		buf := new(bytes.Buffer)
 		errbuf := new(bytes.Buffer)
 		cmd.SetStdout(buf)
@@ -99,7 +99,7 @@ func NewSetVariable(execIF exec.Interface) SetVariableHandler {
 	})
 }
 
-func NewSetPath(execIF exec.Interface) SetPathHandler {
+func NewSetPath(exc exec.Interface) SetPathHandler {
 	return SetPathHandlerFunc(func(ctx context.Context, dryrun bool, p *SetPathParams) error {
 		path := fmt.Sprintf("'set --universal fish_user_paths %s'", strings.Join(p.Values, " "))
 
@@ -108,7 +108,7 @@ func NewSetPath(execIF exec.Interface) SetPathHandler {
 			return nil
 		}
 
-		cmd := execIF.CommandContext(ctx, "fish", "--command", path)
+		cmd := exc.CommandContext(ctx, "fish", "--command", path)
 		buf := new(bytes.Buffer)
 		errbuf := new(bytes.Buffer)
 		cmd.SetStdout(buf)

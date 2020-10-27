@@ -9,7 +9,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func HTTPRequest(handler handlers.HTTPRequestHandler) starlark.Fn {
+func HTTPRequest(httpRequest handlers.HTTPRequestHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
@@ -24,7 +24,7 @@ func HTTPRequest(handler handlers.HTTPRequestHandler) starlark.Fn {
 			zap.String("path", params.Path),
 		)
 		ui.Infof("HTTP requesting. URL: %s, Path: %s", params.URL, params.Path)
-		if err := handler.HTTPRequest(ctx, dryrun, params); err != nil {
+		if err := httpRequest.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

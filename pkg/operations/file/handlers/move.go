@@ -19,12 +19,12 @@ type MoveParams struct {
 }
 
 type MoveHandler interface {
-	Move(ctx context.Context, dryrun bool, p *MoveParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *MoveParams) (err error)
 }
 
 type MoveHandlerFunc func(ctx context.Context, dryrun bool, p *MoveParams) error
 
-func (f MoveHandlerFunc) Move(ctx context.Context, dryrun bool, p *MoveParams) error {
+func (f MoveHandlerFunc) Run(ctx context.Context, dryrun bool, p *MoveParams) error {
 	return f(ctx, dryrun, p)
 }
 

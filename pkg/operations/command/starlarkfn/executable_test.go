@@ -16,19 +16,19 @@ func TestExecutable(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.ExecutableHandlerExecutableExpectation
+		mock      mocks.ExecutableHandlerRunExpectation
 		want      lib.Value
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success: return true",
 			data: `v = test("data")`,
-			mock: mocks.ExecutableHandlerExecutableExpectation{
-				Args: mocks.ExecutableHandlerExecutableArgs{
+			mock: mocks.ExecutableHandlerRunExpectation{
+				Args: mocks.ExecutableHandlerRunArgs{
 					CtxAnything: true,
 					Name:        "data",
 				},
-				Returns: mocks.ExecutableHandlerExecutableReturns{Ok: true},
+				Returns: mocks.ExecutableHandlerRunReturns{Ok: true},
 			},
 			want:      lib.True,
 			errAssert: assert.NoError,
@@ -36,12 +36,12 @@ func TestExecutable(t *testing.T) {
 		{
 			name: "success: return false",
 			data: `v = test("data")`,
-			mock: mocks.ExecutableHandlerExecutableExpectation{
-				Args: mocks.ExecutableHandlerExecutableArgs{
+			mock: mocks.ExecutableHandlerRunExpectation{
+				Args: mocks.ExecutableHandlerRunArgs{
 					CtxAnything: true,
 					Name:        "data",
 				},
-				Returns: mocks.ExecutableHandlerExecutableReturns{
+				Returns: mocks.ExecutableHandlerRunReturns{
 					Ok: false,
 				},
 			},
@@ -51,7 +51,7 @@ func TestExecutable(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `v = test("data", "too many")`,
-			mock:      mocks.ExecutableHandlerExecutableExpectation{},
+			mock:      mocks.ExecutableHandlerRunExpectation{},
 			want:      nil,
 			errAssert: assert.Error,
 		},
@@ -59,10 +59,10 @@ func TestExecutable(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.ExecutableHandler)
-			handler.ApplyExecutableExpectation(tt.mock)
+			executable := new(mocks.ExecutableHandler)
+			executable.ApplyRunExpectation(tt.mock)
 
-			globals, err := starlark.ExecForTest("test", tt.data, starlarkfn.Executable(handler))
+			globals, err := starlark.ExecForTest("test", tt.data, starlarkfn.Executable(executable))
 			tt.errAssert(t, err)
 			assert.Equal(t, globals["v"], tt.want)
 		})

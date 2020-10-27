@@ -16,21 +16,21 @@ func TestSetPath(t *testing.T) {
 	tests := []struct {
 		name      string
 		data      string
-		mock      mocks.SetPathHandlerSetPathExpectation
+		mock      mocks.SetPathHandlerRunExpectation
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
 			data: `test(values=["$GOPATH/bin", "$HOME/.bin"])`,
-			mock: mocks.SetPathHandlerSetPathExpectation{
-				Args: mocks.SetPathHandlerSetPathArgs{
+			mock: mocks.SetPathHandlerRunExpectation{
+				Args: mocks.SetPathHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
 				},
-				Returns: mocks.SetPathHandlerSetPathReturns{
+				Returns: mocks.SetPathHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -39,15 +39,15 @@ func TestSetPath(t *testing.T) {
 		{
 			name: "success: args",
 			data: `test(["$GOPATH/bin", "$HOME/.bin"])`,
-			mock: mocks.SetPathHandlerSetPathExpectation{
-				Args: mocks.SetPathHandlerSetPathArgs{
+			mock: mocks.SetPathHandlerRunExpectation{
+				Args: mocks.SetPathHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
 				},
-				Returns: mocks.SetPathHandlerSetPathReturns{
+				Returns: mocks.SetPathHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -56,15 +56,15 @@ func TestSetPath(t *testing.T) {
 		{
 			name: "success: include int and bool",
 			data: `test(["$GOPATH/bin", 1, True, "$HOME/.bin"])`,
-			mock: mocks.SetPathHandlerSetPathExpectation{
-				Args: mocks.SetPathHandlerSetPathArgs{
+			mock: mocks.SetPathHandlerRunExpectation{
+				Args: mocks.SetPathHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
 				},
-				Returns: mocks.SetPathHandlerSetPathReturns{
+				Returns: mocks.SetPathHandlerRunReturns{
 					Err: nil,
 				},
 			},
@@ -73,21 +73,21 @@ func TestSetPath(t *testing.T) {
 		{
 			name:      "error: too many arguments",
 			data:      `test(["$GOPATH/bin", "$HOME/.bin"], "too many")`,
-			mock:      mocks.SetPathHandlerSetPathExpectation{},
+			mock:      mocks.SetPathHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},
 		{
 			name: "error: return handler error",
 			data: `test(["$GOPATH/bin", "$HOME/.bin"])`,
-			mock: mocks.SetPathHandlerSetPathExpectation{
-				Args: mocks.SetPathHandlerSetPathArgs{
+			mock: mocks.SetPathHandlerRunExpectation{
+				Args: mocks.SetPathHandlerRunArgs{
 					CtxAnything:    true,
 					DryrunAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
 				},
-				Returns: mocks.SetPathHandlerSetPathReturns{
+				Returns: mocks.SetPathHandlerRunReturns{
 					Err: xerrors.New("dummy"),
 				},
 			},
@@ -97,10 +97,10 @@ func TestSetPath(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := new(mocks.SetPathHandler)
-			handler.ApplySetPathExpectation(tt.mock)
+			setPath := new(mocks.SetPathHandler)
+			setPath.ApplyRunExpectation(tt.mock)
 
-			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetPath(handler))
+			_, err := starlark.ExecForTest("test", tt.data, starlarkfn.SetPath(setPath))
 			tt.errAssert(t, err)
 		})
 	}

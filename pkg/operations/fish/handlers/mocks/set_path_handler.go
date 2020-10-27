@@ -14,7 +14,7 @@ type SetPathHandler struct {
 	mock.Mock
 }
 
-type SetPathHandlerSetPathArgs struct {
+type SetPathHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type SetPathHandlerSetPathArgs struct {
 	PAnything      bool
 }
 
-type SetPathHandlerSetPathReturns struct {
+type SetPathHandlerRunReturns struct {
 	Err error
 }
 
-type SetPathHandlerSetPathExpectation struct {
-	Args    SetPathHandlerSetPathArgs
-	Returns SetPathHandlerSetPathReturns
+type SetPathHandlerRunExpectation struct {
+	Args    SetPathHandlerRunArgs
+	Returns SetPathHandlerRunReturns
 }
 
-func (_m *SetPathHandler) ApplySetPathExpectation(e SetPathHandlerSetPathExpectation) {
+func (_m *SetPathHandler) ApplyRunExpectation(e SetPathHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *SetPathHandler) ApplySetPathExpectation(e SetPathHandlerSetPathExpecta
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("SetPath", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *SetPathHandler) ApplySetPathExpectations(expectations []SetPathHandlerSetPathExpectation) {
+func (_m *SetPathHandler) ApplyRunExpectations(expectations []SetPathHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplySetPathExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// SetPath provides a mock function with given fields: ctx, dryrun, p
-func (_m *SetPathHandler) SetPath(ctx context.Context, dryrun bool, p *handlers.SetPathParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *SetPathHandler) Run(ctx context.Context, dryrun bool, p *handlers.SetPathParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

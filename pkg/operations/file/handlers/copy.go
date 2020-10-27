@@ -23,12 +23,12 @@ type CopyParams struct {
 }
 
 type CopyHandler interface {
-	Copy(ctx context.Context, dryrun bool, p *CopyParams) (err error)
+	Run(ctx context.Context, dryrun bool, p *CopyParams) (err error)
 }
 
 type CopyHandlerFunc func(ctx context.Context, dryrun bool, p *CopyParams) error
 
-func (f CopyHandlerFunc) Copy(ctx context.Context, dryrun bool, p *CopyParams) error {
+func (f CopyHandlerFunc) Run(ctx context.Context, dryrun bool, p *CopyParams) error {
 	return f(ctx, dryrun, p)
 }
 

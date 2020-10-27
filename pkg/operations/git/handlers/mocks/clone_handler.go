@@ -14,7 +14,7 @@ type CloneHandler struct {
 	mock.Mock
 }
 
-type CloneHandlerCloneArgs struct {
+type CloneHandlerRunArgs struct {
 	Ctx            context.Context
 	CtxAnything    bool
 	Dryrun         bool
@@ -23,16 +23,16 @@ type CloneHandlerCloneArgs struct {
 	PAnything      bool
 }
 
-type CloneHandlerCloneReturns struct {
+type CloneHandlerRunReturns struct {
 	Err error
 }
 
-type CloneHandlerCloneExpectation struct {
-	Args    CloneHandlerCloneArgs
-	Returns CloneHandlerCloneReturns
+type CloneHandlerRunExpectation struct {
+	Args    CloneHandlerRunArgs
+	Returns CloneHandlerRunReturns
 }
 
-func (_m *CloneHandler) ApplyCloneExpectation(e CloneHandlerCloneExpectation) {
+func (_m *CloneHandler) ApplyRunExpectation(e CloneHandlerRunExpectation) {
 	var args []interface{}
 	if e.Args.CtxAnything {
 		args = append(args, mock.Anything)
@@ -49,17 +49,17 @@ func (_m *CloneHandler) ApplyCloneExpectation(e CloneHandlerCloneExpectation) {
 	} else {
 		args = append(args, e.Args.P)
 	}
-	_m.On("Clone", args...).Return(e.Returns.Err)
+	_m.On("Run", args...).Return(e.Returns.Err)
 }
 
-func (_m *CloneHandler) ApplyCloneExpectations(expectations []CloneHandlerCloneExpectation) {
+func (_m *CloneHandler) ApplyRunExpectations(expectations []CloneHandlerRunExpectation) {
 	for _, e := range expectations {
-		_m.ApplyCloneExpectation(e)
+		_m.ApplyRunExpectation(e)
 	}
 }
 
-// Clone provides a mock function with given fields: ctx, dryrun, p
-func (_m *CloneHandler) Clone(ctx context.Context, dryrun bool, p *handlers.CloneParams) error {
+// Run provides a mock function with given fields: ctx, dryrun, p
+func (_m *CloneHandler) Run(ctx context.Context, dryrun bool, p *handlers.CloneParams) error {
 	ret := _m.Called(ctx, dryrun, p)
 
 	var r0 error

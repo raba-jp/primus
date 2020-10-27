@@ -181,8 +181,8 @@ func TestNewEnableService(t *testing.T) {
 			e := new(exec.MockInterface)
 			e.ApplyCommandContextExpectations(tt.mock)
 
-			handler := handlers.NewEnableService(e)
-			err := handler.EnableService(context.Background(), false, "dummy.service")
+			enableService := handlers.NewEnableService(e)
+			err := enableService.Run(context.Background(), false, "dummy.service")
 			tt.errAssert(t, err)
 		})
 	}
@@ -205,8 +205,8 @@ func TestNewEnableService__DryRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
-			handler := handlers.NewEnableService(nil)
-			if err := handler.EnableService(context.Background(), true, tt.in); err != nil {
+			enableService := handlers.NewEnableService(nil)
+			if err := enableService.Run(context.Background(), true, tt.in); err != nil {
 				t.Errorf("Unexpected error: %v", err)
 			}
 			if diff := cmp.Diff(tt.out, buf.String()); diff != "" {
