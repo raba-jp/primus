@@ -20,7 +20,7 @@ func TestInstall(t *testing.T) {
 	}{
 		{
 			name: "success",
-			data: `test(name="base-devel", option="option", cmd="yay")`,
+			data: `test(name="base-devel", option="option")`,
 			mock: mocks.InstallHandlerRunExpectation{
 				Args: mocks.InstallHandlerRunArgs{
 					CtxAnything:    true,
@@ -28,7 +28,6 @@ func TestInstall(t *testing.T) {
 					P: &handlers.InstallParams{
 						Name:   "base-devel",
 						Option: "option",
-						Cmd:    "yay",
 					},
 				},
 				Returns: mocks.InstallHandlerRunReturns{
@@ -39,7 +38,7 @@ func TestInstall(t *testing.T) {
 		},
 		{
 			name:      "error: too many arguments",
-			data:      `test("base-devel", "option", "yay", "too many")`,
+			data:      `test("base-devel", "option", "too many")`,
 			mock:      mocks.InstallHandlerRunExpectation{},
 			errAssert: assert.Error,
 		},

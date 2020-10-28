@@ -8,6 +8,8 @@ import (
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers"
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers/mocks"
 
+	commandMock "github.com/raba-jp/primus/pkg/operations/command/handlers/mocks"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/stretchr/testify/assert"
@@ -20,9 +22,21 @@ func TestNewInstall(t *testing.T) {
 		NameAnything: true,
 	}
 
+	executableArgs := commandMock.ExecutableHandlerRunArgs{
+		CtxAnything:  true,
+		NameAnything: true,
+	}
+	executables := []commandMock.ExecutableHandlerRunExpectation{
+		{
+			Args:    executableArgs,
+			Returns: commandMock.ExecutableHandlerRunReturns{Ok: true},
+		},
+	}
+
 	tests := []struct {
 		name         string
 		checkInstall mocks.CheckInstallHandlerRunExpectation
+		executable   []commandMock.ExecutableHandlerRunExpectation
 		mock         *exec.InterfaceCommandContextExpectation
 		errAssert    assert.ErrorAssertionFunc
 	}{
@@ -32,11 +46,12 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
+			executable: executables,
 			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
-					Cmd:         "pacman",
-					Args:        []string{"-S", "--noconfirm", "options", "base-devel"},
+					Cmd:         "yay",
+					Args:        []string{"--pacman", "powerpill", "-S", "--noconfirm", "options", "base-devel"},
 				},
 				Returns: exec.InterfaceCommandContextReturns{
 					Cmd: func() exec.Cmd {
@@ -58,8 +73,9 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: true},
 			},
-			mock:      nil,
-			errAssert: assert.NoError,
+			executable: executables,
+			mock:       nil,
+			errAssert:  assert.NoError,
 		},
 		{
 			name: "error: install failed",
@@ -67,11 +83,12 @@ func TestNewInstall(t *testing.T) {
 				Args:    checkInstallArgs,
 				Returns: mocks.CheckInstallHandlerRunReturns{Ok: false},
 			},
+			executable: executables,
 			mock: &exec.InterfaceCommandContextExpectation{
 				Args: exec.InterfaceCommandContextArgs{
 					CtxAnything: true,
-					Cmd:         "pacman",
-					Args:        []string{"-S", "--noconfirm", "options", "base-devel"},
+					Cmd:         "yay",
+					Args:        []string{"--pacman", "powerpill", "-S", "--noconfirm", "options", "base-devel"},
 				},
 				Returns: exec.InterfaceCommandContextReturns{
 					Cmd: func() exec.Cmd {
@@ -96,10 +113,13 @@ func TestNewInstall(t *testing.T) {
 				exc.ApplyCommandContextExpectation(*tt.mock)
 			}
 
-			handler := new(mocks.CheckInstallHandler)
-			handler.ApplyRunExpectation(tt.checkInstall)
+			checkInstall := new(mocks.CheckInstallHandler)
+			checkInstall.ApplyRunExpectation(tt.checkInstall)
 
-			install := handlers.NewInstall(handler, exc)
+			executable := new(commandMock.ExecutableHandler)
+			executable.ApplyRunExpectations(tt.executable)
+
+			install := handlers.NewInstall(checkInstall, executable, exc)
 			err := install.Run(context.Background(), false, &handlers.InstallParams{
 				Name:   "base-devel",
 				Option: "options",
@@ -110,6 +130,21 @@ func TestNewInstall(t *testing.T) {
 }
 
 func TestNewInstall__dryrun(t *testing.T) {
+	executableArgs := commandMock.ExecutableHandlerRunArgs{
+		CtxAnything:  true,
+		NameAnything: true,
+	}
+	executables := []commandMock.ExecutableHandlerRunExpectation{
+		{
+			Args:    executableArgs,
+			Returns: commandMock.ExecutableHandlerRunReturns{Ok: true},
+		},
+		{
+			Args:    executableArgs,
+			Returns: commandMock.ExecutableHandlerRunReturns{Ok: true},
+		},
+	}
+
 	tests := []struct {
 		name   string
 		params *handlers.InstallParams
@@ -121,7 +156,7 @@ func TestNewInstall__dryrun(t *testing.T) {
 				Name:   "pkg",
 				Option: "option",
 			},
-			want: "pacman -S --noconfirm option pkg\n",
+			want: "yay --pacman powerpill -S --noconfirm option pkg\n",
 		},
 	}
 
@@ -130,8 +165,11 @@ func TestNewInstall__dryrun(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
-			handler := handlers.NewInstall(nil, nil)
-			err := handler.Run(context.Background(), true, tt.params)
+			executable := new(commandMock.ExecutableHandler)
+			executable.ApplyRunExpectations(executables)
+
+			install := handlers.NewInstall(nil, executable, nil)
+			err := install.Run(context.Background(), true, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())

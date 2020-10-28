@@ -19,7 +19,6 @@ func Install(install handlers.InstallHandler) starlark.Fn {
 			b.Name(), args, kwargs,
 			"name", &params.Name,
 			"option?", &params.Option,
-			"cmd?", &params.Cmd,
 		); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
@@ -28,9 +27,8 @@ func Install(install handlers.InstallHandler) starlark.Fn {
 			"params",
 			zap.String("name", params.Name),
 			zap.String("option", params.Option),
-			zap.String("cmd", params.Cmd),
 		)
-		ui.Infof("Installing package. Name: %s, Option: %s, Command: %s\n", params.Name, params.Option, params.Cmd)
+		ui.Infof("Installing package. Name: %s, Option: %s\n", params.Name, params.Option)
 		if err := install.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}

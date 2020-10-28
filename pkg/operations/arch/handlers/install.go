@@ -8,6 +8,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
+	command "github.com/raba-jp/primus/pkg/operations/command/handlers"
 	"golang.org/x/xerrors"
 )
 
@@ -16,7 +17,6 @@ const installTimeout = 5 * time.Minute
 type InstallParams struct {
 	Name   string
 	Option string
-	Cmd    string
 }
 
 type InstallHandler interface {
@@ -29,10 +29,13 @@ func (f InstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *InstallPara
 	return f(ctx, dryrun, p)
 }
 
-func NewInstall(checkInstall CheckInstallHandler, exc exec.Interface) InstallHandler {
+func NewInstall(checkInstall CheckInstallHandler, executable command.ExecutableHandler, exc exec.Interface) InstallHandler {
 	return InstallHandlerFunc(func(ctx context.Context, dryrun bool, p *InstallParams) error {
+		cmd, options := cmdArgs(ctx, executable, install, []string{p.Option, p.Name})
+
 		if dryrun {
-			ui.Printf("pacman -S --noconfirm %s %s\n", p.Option, p.Name)
+			cmdStr := sprintCmd(cmd, options)
+			ui.Printf("%s", cmdStr)
 			return nil
 		}
 
@@ -42,8 +45,8 @@ func NewInstall(checkInstall CheckInstallHandler, exc exec.Interface) InstallHan
 
 		ctx, cancel := context.WithTimeout(ctx, installTimeout)
 		defer cancel()
-		if err := exc.CommandContext(ctx, "pacman", "-S", "--noconfirm", p.Option, p.Name).Run(); err != nil {
-			return xerrors.Errorf("Install package failed: %s: %w", p.Name, err)
+		if err := exc.CommandContext(ctx, cmd, options...).Run(); err != nil {
+			return xerrors.Errorf("Install package failed: %w", err)
 		}
 		return nil
 	})
