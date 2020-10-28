@@ -9,27 +9,25 @@ import (
 	"golang.org/x/xerrors"
 )
 
-func Install(install handlers.InstallHandler) starlark.Fn {
+func MultipleInstall(multipleInstall handlers.MultipleInstallHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
 
-		params := &handlers.InstallParams{}
+		params := &handlers.MultipleInstallParams{}
 		if err := lib.UnpackArgs(
 			b.Name(), args, kwargs,
-			"name", &params.Name,
-			"option?", &params.Option,
+			"names", &params.Names,
 		); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
 		zap.L().Debug(
 			"params",
-			zap.String("name", params.Name),
-			zap.String("option", params.Option),
+			zap.Strings("names", params.Names),
 		)
-		ui.Infof("Installing package. Name: %s, Option: %s\n", params.Name, params.Option)
-		if err := install.Run(ctx, dryrun, params); err != nil {
+		ui.Infof("Installing package. Names: %s\n", params.Names)
+		if err := multipleInstall.Run(ctx, dryrun, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

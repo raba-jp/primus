@@ -9,6 +9,7 @@ import (
 	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers"
 	"github.com/raba-jp/primus/pkg/operations/arch/starlarkfn"
+	handlers2 "github.com/raba-jp/primus/pkg/operations/command/handlers"
 	"go.starlark.net/starlark"
 )
 
@@ -24,7 +25,9 @@ func CheckInstall() func(thread *starlark.Thread, b *starlark.Builtin, args star
 func Install() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 	execInterface := backend.NewExecInterface()
 	checkInstallHandler := handlers.NewCheckInstall(execInterface)
-	installHandler := handlers.NewInstall(checkInstallHandler, execInterface)
+	fs := backend.NewFs()
+	executableHandler := handlers2.NewExecutable(fs)
+	installHandler := handlers.NewInstall(checkInstallHandler, executableHandler, execInterface)
 	v := starlarkfn.Install(installHandler)
 	return v
 }
@@ -34,5 +37,14 @@ func Uninstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlar
 	checkInstallHandler := handlers.NewCheckInstall(execInterface)
 	uninstallHandler := handlers.NewUninstall(checkInstallHandler, execInterface)
 	v := starlarkfn.Uninstall(uninstallHandler)
+	return v
+}
+
+func MultipleInstall() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+	fs := backend.NewFs()
+	executableHandler := handlers2.NewExecutable(fs)
+	execInterface := backend.NewExecInterface()
+	multipleInstallHandler := handlers.NewMultipleInstall(executableHandler, execInterface)
+	v := starlarkfn.MultipleInstall(multipleInstallHandler)
 	return v
 }

@@ -28,7 +28,6 @@ func TestInstall(t *testing.T) {
 					P: &handlers.InstallParams{
 						Name:   "base-devel",
 						Option: "option",
-						Cmd:    "yay",
 					},
 				},
 				Returns: mocks.InstallHandlerRunReturns{
