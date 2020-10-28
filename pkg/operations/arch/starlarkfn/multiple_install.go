@@ -14,11 +14,8 @@ func MultipleInstall(multipleInstall handlers.MultipleInstallHandler) starlark.F
 		ctx := starlark.GetCtx(thread)
 		dryrun := starlark.GetDryRunMode(thread)
 
-		params := &handlers.MultipleInstallParams{}
-		if err := lib.UnpackArgs(
-			b.Name(), args, kwargs,
-			"names", &params.Names,
-		); err != nil {
+		params, err := parseMultipleInstallArgs(b, args, kwargs)
+		if err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
@@ -32,4 +29,29 @@ func MultipleInstall(multipleInstall handlers.MultipleInstallHandler) starlark.F
 		}
 		return lib.None, nil
 	}
+}
+
+func parseMultipleInstallArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*handlers.MultipleInstallParams, error) {
+	a := &handlers.MultipleInstallParams{}
+
+	list := &lib.List{}
+	if err := lib.UnpackArgs(b.Name(), args, kwargs, "names", &list); err != nil {
+		return nil, xerrors.Errorf("Failed to parse arguments: %w", err)
+	}
+
+	values := make([]string, 0, list.Len())
+
+	iter := list.Iterate()
+	defer iter.Done()
+	var item lib.Value
+	for iter.Next(&item) {
+		str, ok := lib.AsString(item)
+		if !ok {
+			continue
+		}
+		values = append(values, str)
+	}
+	a.Names = values
+
+	return a, nil
 }
