@@ -12,13 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-type shell int
-
-const (
-	posixShell shell = iota + 1
-	fishShell
-)
-
 type ExecutableHandler interface {
 	Run(ctx context.Context, name string) (ok bool)
 }
