@@ -29,10 +29,15 @@ func cmdArgs(ctx context.Context, executable command.ExecutableHandler, ct cmdTy
 			options = make([]string, 0, len(opts)+len(cmds))
 			options = append(options, opts...)
 		}
-		options = append(options, cmds...)
 	case uninstall:
 		options = []string{"-R", "--noconfirm"}
-		options = append(options, cmds...)
+	}
+
+	for _, opt := range cmds {
+		if opt == "" {
+			continue
+		}
+		options = append(options, opt)
 	}
 
 	return cmd, options
