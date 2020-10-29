@@ -9,6 +9,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/env"
 	"github.com/spf13/afero"
+	"go.uber.org/zap"
 )
 
 type shell int
@@ -31,12 +32,8 @@ func (f ExecutableHandlerFunc) Run(ctx context.Context, name string) bool {
 func NewExecutable(fs afero.Fs) ExecutableHandler {
 	return ExecutableHandlerFunc(func(ctx context.Context, name string) bool {
 		path := env.Get("PATH")
-		separator := ":"
-		if shell := detectShell(); shell == fishShell {
-			separator = " "
-		}
 
-		paths := strings.Split(path, separator)
+		paths := strings.Split(path, ":")
 		executable := false
 		walkFn := func(path string, info os.FileInfo, err error) error {
 			executable = executable || strings.HasSuffix(path, name)
@@ -46,14 +43,13 @@ func NewExecutable(fs afero.Fs) ExecutableHandler {
 			_ = afero.Walk(fs, p, walkFn)
 		}
 
+		zap.L().Debug(
+			"check executable",
+			zap.String("name", name),
+			zap.Strings("path", paths),
+			zap.Bool("ok", executable),
+		)
+
 		return executable
 	})
-}
-
-func detectShell() shell {
-	shell := env.Get("SHELL")
-	if strings.HasSuffix(shell, "fish") {
-		return fishShell
-	}
-	return posixShell
 }
