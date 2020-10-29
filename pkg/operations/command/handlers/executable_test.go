@@ -35,65 +35,11 @@ func TestNewExecutable(t *testing.T) {
 			want: true,
 		},
 		{
-			name: "success: fish shell",
-			data: "cat",
-			env: map[string]string{
-				"SHELL": "/bin/local/bin/fish",
-				"PATH":  "/bin /usr/bin /usr/local/bin",
-			},
-			fs: func() afero.Fs {
-				fs := afero.NewMemMapFs()
-				afero.WriteFile(fs, "/bin/cat", []byte{}, 0o777)
-				return fs
-			},
-			want: true,
-		},
-		{
-			name: "success: posix shell with invalid PATH",
-			data: "cat",
-			env: map[string]string{
-				"SHELL": "/bin/bash",
-				"PATH":  "/bin /usr/bin /usr/local/bin",
-			},
-			fs: func() afero.Fs {
-				fs := afero.NewMemMapFs()
-				afero.WriteFile(fs, "/bin/cat", []byte{}, 0o777)
-				return fs
-			},
-			want: false,
-		},
-		{
-			name: "success: fish shell with invalid PATH",
-			data: "cat",
-			env: map[string]string{
-				"SHELL": "/bin/local/bin/fish",
-				"PATH":  "/bin:/usr/bin:/usr/local/bin",
-			},
-			fs: func() afero.Fs {
-				fs := afero.NewMemMapFs()
-				afero.WriteFile(fs, "/bin/cat", []byte{}, 0o777)
-				return fs
-			},
-			want: false,
-		},
-		{
-			name: "success: posix shell, not found",
+			name: "success: not found",
 			data: "cat",
 			env: map[string]string{
 				"SHELL": "/bin/bash",
 				"PATH":  "/bin:/usr/bin:/usr/local/bin",
-			},
-			fs: func() afero.Fs {
-				return afero.NewMemMapFs()
-			},
-			want: false,
-		},
-		{
-			name: "success: fish shell, not found",
-			data: "cat",
-			env: map[string]string{
-				"SHELL": "/bin/local/bin/fish",
-				"PATH":  "/bin /usr/bin /usr/local/bin",
 			},
 			fs: func() afero.Fs {
 				return afero.NewMemMapFs()
