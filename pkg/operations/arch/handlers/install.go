@@ -9,6 +9,7 @@ import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	command "github.com/raba-jp/primus/pkg/operations/command/handlers"
+	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -43,6 +44,7 @@ func NewInstall(checkInstall CheckInstallHandler, executable command.ExecutableH
 			return nil
 		}
 
+		zap.L().Debug("execute command", zap.String("cmd", cmd), zap.Strings("args", options))
 		ctx, cancel := context.WithTimeout(ctx, installTimeout)
 		defer cancel()
 		if err := exc.CommandContext(ctx, cmd, options...).Run(); err != nil {
