@@ -11,8 +11,7 @@ import (
 
 func Install(install handlers.InstallHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 
 		params := &handlers.InstallParams{}
 		if err := lib.UnpackArgs(
@@ -29,7 +28,7 @@ func Install(install handlers.InstallHandler) starlark.Fn {
 			zap.String("option", params.Option),
 		)
 		ui.Infof("Installing package. Name: %s, Option: %s\n", params.Name, params.Option)
-		if err := install.Run(ctx, dryrun, params); err != nil {
+		if err := install.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

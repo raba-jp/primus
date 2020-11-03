@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/google/go-cmp/cmp"
@@ -49,7 +51,7 @@ func TestNewSymlink(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 
 			symlink := handlers.NewSymlink(fs)
-			err := symlink.Run(context.Background(), false, &handlers.SymlinkParams{
+			err := symlink.Run(context.Background(), &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -99,7 +101,7 @@ func TestSymlink_AlreadyExistsFile(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.dest, []byte("test file"), 0777)
 
 			symlink := handlers.NewSymlink(fs)
-			_ = symlink.Run(context.Background(), false, &handlers.SymlinkParams{
+			_ = symlink.Run(context.Background(), &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -143,7 +145,7 @@ func TestSymlink_AlreadyExistsSymlink(t *testing.T) {
 			_ = l.SymlinkIfPossible(another, tt.dest)
 
 			symlink := handlers.NewSymlink(fs)
-			_ = symlink.Run(context.Background(), false, &handlers.SymlinkParams{
+			_ = symlink.Run(context.Background(), &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})
@@ -175,7 +177,8 @@ func TestBaseBackend_Symlink__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			symlink := handlers.NewSymlink(nil)
-			err := symlink.Run(context.Background(), true, &handlers.SymlinkParams{
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := symlink.Run(ctx, &handlers.SymlinkParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

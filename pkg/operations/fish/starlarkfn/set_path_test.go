@@ -24,8 +24,7 @@ func TestSetPath(t *testing.T) {
 			data: `test(values=["$GOPATH/bin", "$HOME/.bin"])`,
 			mock: mocks.SetPathHandlerRunExpectation{
 				Args: mocks.SetPathHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
@@ -41,8 +40,7 @@ func TestSetPath(t *testing.T) {
 			data: `test(["$GOPATH/bin", "$HOME/.bin"])`,
 			mock: mocks.SetPathHandlerRunExpectation{
 				Args: mocks.SetPathHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
@@ -58,8 +56,7 @@ func TestSetPath(t *testing.T) {
 			data: `test(["$GOPATH/bin", 1, True, "$HOME/.bin"])`,
 			mock: mocks.SetPathHandlerRunExpectation{
 				Args: mocks.SetPathHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},
@@ -81,8 +78,7 @@ func TestSetPath(t *testing.T) {
 			data: `test(["$GOPATH/bin", "$HOME/.bin"])`,
 			mock: mocks.SetPathHandlerRunExpectation{
 				Args: mocks.SetPathHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetPathParams{
 						Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 					},

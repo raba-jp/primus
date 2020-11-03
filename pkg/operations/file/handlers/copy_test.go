@@ -6,6 +6,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/google/go-cmp/cmp"
@@ -120,7 +122,7 @@ func TestNewCopy(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.setup()
 			copy := handlers.NewCopy(fs)
-			err := copy.Run(context.Background(), false, tt.params)
+			err := copy.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 
 			data, _ := afero.ReadFile(fs, tt.params.Dest)
@@ -155,7 +157,8 @@ func TestBaseBackend_FileCopy__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			copy := handlers.NewCopy(nil)
-			err := copy.Run(context.Background(), true, &handlers.CopyParams{
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := copy.Run(ctx, &handlers.CopyParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

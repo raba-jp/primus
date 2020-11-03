@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -99,7 +101,7 @@ func TestNewUninstall(t *testing.T) {
 			handler.ApplyRunExpectation(tt.checkInstall)
 
 			uninstall := handlers.NewUninstall(handler, exc)
-			err := uninstall.Run(context.Background(), false, &handlers.UninstallParams{Name: "base-devel"})
+			err := uninstall.Run(context.Background(), &handlers.UninstallParams{Name: "base-devel"})
 			tt.errAssert(t, err)
 		})
 	}
@@ -126,7 +128,8 @@ func TestNewUninstall__dryrun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			uninstall := handlers.NewUninstall(nil, nil)
-			err := uninstall.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := uninstall.Run(ctx, tt.params)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())
 		})

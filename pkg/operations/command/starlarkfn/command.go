@@ -15,8 +15,8 @@ import (
 // Command execute external command
 func Command(command handlers.CommandHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
+
 		params, err := parseArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
@@ -35,7 +35,7 @@ func Command(command handlers.CommandHandler) starlark.Fn {
 		}
 		fmt.Fprint(buf, "\n")
 		ui.Infof("Executing command: %s%s", params.CmdName, buf.String())
-		if err := command.Run(ctx, dryrun, params); err != nil {
+		if err := command.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

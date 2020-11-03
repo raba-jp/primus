@@ -9,13 +9,12 @@ import (
 
 func EnableService(enableService handlers.EnableServiceHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 		name, err := parseArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		if err := enableService.Run(ctx, dryrun, name); err != nil {
+		if err := enableService.Run(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil
@@ -24,13 +23,13 @@ func EnableService(enableService handlers.EnableServiceHandler) starlark.Fn {
 
 func StartService(startService handlers.StartServiceHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
+
 		name, err := parseArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		if err := startService.Run(ctx, dryrun, name); err != nil {
+		if err := startService.Run(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

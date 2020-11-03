@@ -24,8 +24,7 @@ func TestCopy(t *testing.T) {
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			mock: mocks.CopyHandlerRunExpectation{
 				Args: mocks.CopyHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CopyParams{
 						Src:        "/sym/src.txt",
 						Dest:       "/sym/dest.txt",
@@ -44,8 +43,7 @@ func TestCopy(t *testing.T) {
 			data: `test("/sym/src.txt", "/sym/dest.txt", 0o644)`,
 			mock: mocks.CopyHandlerRunExpectation{
 				Args: mocks.CopyHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CopyParams{
 						Src:        "/sym/src.txt",
 						Dest:       "/sym/dest.txt",
@@ -70,8 +68,7 @@ func TestCopy(t *testing.T) {
 			data: `test("src.txt", "dest.txt", 0o644, )`,
 			mock: mocks.CopyHandlerRunExpectation{
 				Args: mocks.CopyHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CopyParams{
 						Src:        "src.txt",
 						Dest:       "dest.txt",

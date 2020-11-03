@@ -8,6 +8,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	command "github.com/raba-jp/primus/pkg/operations/command/handlers"
@@ -23,20 +25,20 @@ type InstallParams struct {
 }
 
 type InstallHandler interface {
-	Run(ctx context.Context, dryrun bool, p *InstallParams) (err error)
+	Run(ctx context.Context, p *InstallParams) (err error)
 }
 
-type InstallHandlerFunc func(ctx context.Context, dryrun bool, p *InstallParams) error
+type InstallHandlerFunc func(ctx context.Context, p *InstallParams) error
 
-func (f InstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *InstallParams) error {
-	return f(ctx, dryrun, p)
+func (f InstallHandlerFunc) Run(ctx context.Context, p *InstallParams) error {
+	return f(ctx, p)
 }
 
 func NewInstall(checkInstall CheckInstallHandler, executable command.ExecutableHandler, exc exec.Interface) InstallHandler {
-	return InstallHandlerFunc(func(ctx context.Context, dryrun bool, p *InstallParams) error {
+	return InstallHandlerFunc(func(ctx context.Context, p *InstallParams) error {
 		cmd, options := cmdArgs(ctx, executable, install, []string{p.Option, p.Name})
 
-		if dryrun {
+		if dryrun := ctxlib.DryRun(ctx); dryrun {
 			cmdStr := sprintCmd(cmd, options)
 			ui.Printf("%s", cmdStr)
 			return nil

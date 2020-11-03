@@ -23,8 +23,7 @@ func TestInstall(t *testing.T) {
 			data: `test(name="base-devel", option="option")`,
 			mock: mocks.InstallHandlerRunExpectation{
 				Args: mocks.InstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.InstallParams{
 						Name:   "base-devel",
 						Option: "option",
@@ -47,8 +46,7 @@ func TestInstall(t *testing.T) {
 			data: `test(name="base-devel")`,
 			mock: mocks.InstallHandlerRunExpectation{
 				Args: mocks.InstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.InstallParams{
 						Name: "base-devel",
 					},

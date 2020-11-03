@@ -24,8 +24,7 @@ func TestCreateDirectory(t *testing.T) {
 			data: `test(path="/sym/test", permission=0o777)`,
 			mock: mocks.CreateHandlerRunExpectation{
 				Args: mocks.CreateHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CreateParams{
 						Path:       "/sym/test",
 						Permission: 0o777,
@@ -43,8 +42,7 @@ func TestCreateDirectory(t *testing.T) {
 			data: `test(path="test", permission=0o777)`,
 			mock: mocks.CreateHandlerRunExpectation{
 				Args: mocks.CreateHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CreateParams{
 						Path:       "test",
 						Permission: 0o777,
@@ -62,8 +60,7 @@ func TestCreateDirectory(t *testing.T) {
 			data: `test(path="/sym/test")`,
 			mock: mocks.CreateHandlerRunExpectation{
 				Args: mocks.CreateHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CreateParams{
 						Path:       "/sym/test",
 						Permission: 0o644,
@@ -87,8 +84,7 @@ func TestCreateDirectory(t *testing.T) {
 			data: `test("/sym/test", 0o644)`,
 			mock: mocks.CreateHandlerRunExpectation{
 				Args: mocks.CreateHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CreateParams{
 						Path:       "/sym/test",
 						Permission: 0o644,

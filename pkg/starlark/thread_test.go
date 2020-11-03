@@ -16,6 +16,7 @@ func TestThreadOptions(t *testing.T) {
 		"test",
 		starlark.WithContext(ctx),
 		starlark.WithDryRunMode(true),
+		starlark.WithLogger(nil),
 		starlark.WithLoad(func(thread *lib.Thread, module string) (lib.StringDict, error) {
 			return nil, nil
 		}),

@@ -24,8 +24,7 @@ func TestClone(t *testing.T) {
 			data: `test(url="https://example.com", path="/sym", branch="main")`,
 			mock: mocks.CloneHandlerRunExpectation{
 				Args: mocks.CloneHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CloneParams{
 						URL:    "https://example.com",
 						Path:   "/sym",
@@ -43,8 +42,7 @@ func TestClone(t *testing.T) {
 			data: `test("https://example.com", "/sym", "main")`,
 			mock: mocks.CloneHandlerRunExpectation{
 				Args: mocks.CloneHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CloneParams{
 						URL:    "https://example.com",
 						Path:   "/sym",

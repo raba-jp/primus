@@ -6,6 +6,9 @@ import (
 	"context"
 	"path/filepath"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+	"go.uber.org/zap"
+
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -28,13 +31,13 @@ type CloneParams struct {
 }
 
 type CloneHandler interface {
-	Run(ctx context.Context, dryrun bool, p *CloneParams) (err error)
+	Run(ctx context.Context, p *CloneParams) (err error)
 }
 
-type CloneHandlerFunc func(ctx context.Context, dryrun bool, p *CloneParams) error
+type CloneHandlerFunc func(ctx context.Context, p *CloneParams) error
 
-func (f CloneHandlerFunc) Run(ctx context.Context, dryrun bool, p *CloneParams) error {
-	return f(ctx, dryrun, p)
+func (f CloneHandlerFunc) Run(ctx context.Context, p *CloneParams) error {
+	return f(ctx, p)
 }
 
 type StorerInitializer func(string) (storage.Storer, billy.Filesystem)
@@ -51,32 +54,51 @@ func SetFileSystemStore() StorerInitializer {
 }
 
 func NewClone(init StorerInitializer) CloneHandler {
-	return CloneHandlerFunc(func(ctx context.Context, dryrun bool, p *CloneParams) error {
-		if dryrun {
-			if p.Branch != "" {
-				ui.Printf("git clone -b %s %s %s\n", p.Branch, p.URL, p.Path)
-			} else {
-				ui.Printf("git clone %s %s\n", p.URL, p.Path)
-			}
+	return CloneHandlerFunc(func(ctx context.Context, p *CloneParams) error {
+		if dryrun := ctxlib.DryRun(ctx); dryrun {
+			cloneDryRun(p)
 			return nil
 		}
-
-		base := p.Path
-		if !filepath.IsAbs(p.Path) {
-			base = filepath.Join(p.Cwd, p.Path)
-		}
-
-		storage, fs := init(base)
-		if _, err := git.Clone(storage, fs, &git.CloneOptions{
-			URL:           p.URL,
-			ReferenceName: plumbing.ReferenceName("refs/heads/" + p.Branch),
-			Progress:      &writer.NopWriter{},
-			SingleBranch:  true,
-			Depth:         1,
-		}); err != nil {
-			return xerrors.Errorf("Failed to git clone: %w", err)
-		}
-
-		return nil
+		return clone(ctx, init, p)
 	})
+}
+
+func clone(ctx context.Context, init StorerInitializer, p *CloneParams) error {
+	ctx, logger := ctxlib.LoggerWithNamespace(ctx, "git_clone")
+	base := p.Path
+	if !filepath.IsAbs(p.Path) {
+		base = filepath.Join(p.Cwd, p.Path)
+	}
+
+	storage, fs := init(base)
+	if _, err := git.CloneContext(ctx, storage, fs, &git.CloneOptions{
+		URL:           p.URL,
+		ReferenceName: plumbing.ReferenceName("refs/heads/" + p.Branch),
+		Progress:      &writer.NopWriter{},
+		SingleBranch:  true,
+		Depth:         1,
+	}); err != nil {
+		logger.Error(
+			"Failed to git clone",
+			zap.String("url", p.URL),
+			zap.String("path", base),
+			zap.String("branch", p.Branch),
+		)
+		return xerrors.Errorf("Failed to git clone: %w", err)
+	}
+
+	logger.Info("Finish git clone",
+		zap.String("url", p.URL),
+		zap.String("path", base),
+		zap.String("branch", p.Branch),
+	)
+	return nil
+}
+
+func cloneDryRun(p *CloneParams) {
+	if p.Branch != "" {
+		ui.Printf("git clone -b %s %s %s\n", p.Branch, p.URL, p.Path)
+	} else {
+		ui.Printf("git clone %s %s\n", p.URL, p.Path)
+	}
 }

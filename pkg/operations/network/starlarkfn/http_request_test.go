@@ -24,8 +24,7 @@ func TestHttpRequest(t *testing.T) {
 			data: `test(url="https://example.com/", path="/sym/test.txt")`,
 			mock: mocks.HTTPRequestHandlerRunExpectation{
 				Args: mocks.HTTPRequestHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.HTTPRequestParams{
 						URL:  "https://example.com/",
 						Path: "/sym/test.txt",
@@ -48,8 +47,7 @@ func TestHttpRequest(t *testing.T) {
 			data: `test("https://example.com/", "/sym/test.txt")`,
 			mock: mocks.HTTPRequestHandlerRunExpectation{
 				Args: mocks.HTTPRequestHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.HTTPRequestParams{
 						URL:  "https://example.com/",
 						Path: "/sym/test.txt",

@@ -24,8 +24,7 @@ func TestFileMove(t *testing.T) {
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			mock: mocks.MoveHandlerRunExpectation{
 				Args: mocks.MoveHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.MoveParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
@@ -49,8 +48,7 @@ func TestFileMove(t *testing.T) {
 			data: `test("src.txt", "dest.txt")`,
 			mock: mocks.MoveHandlerRunExpectation{
 				Args: mocks.MoveHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.MoveParams{
 						Src:  "src.txt",
 						Dest: "dest.txt",

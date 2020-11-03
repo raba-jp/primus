@@ -5,6 +5,8 @@ package handlers
 import (
 	"context"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	command "github.com/raba-jp/primus/pkg/operations/command/handlers"
 	"golang.org/x/xerrors"
 
@@ -24,20 +26,20 @@ type MultipleInstallParams struct {
 }
 
 type MultipleInstallHandler interface {
-	Run(ctx context.Context, dryrun bool, p *MultipleInstallParams) (err error)
+	Run(ctx context.Context, p *MultipleInstallParams) (err error)
 }
 
-type MultipleInstallHandlerFunc func(ctx context.Context, dryrun bool, p *MultipleInstallParams) error
+type MultipleInstallHandlerFunc func(ctx context.Context, p *MultipleInstallParams) error
 
-func (f MultipleInstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *MultipleInstallParams) error {
-	return f(ctx, dryrun, p)
+func (f MultipleInstallHandlerFunc) Run(ctx context.Context, p *MultipleInstallParams) error {
+	return f(ctx, p)
 }
 
 func NewMultipleInstall(executable command.ExecutableHandler, exc exec.Interface) MultipleInstallHandler {
-	return MultipleInstallHandlerFunc(func(ctx context.Context, dryrun bool, p *MultipleInstallParams) error {
+	return MultipleInstallHandlerFunc(func(ctx context.Context, p *MultipleInstallParams) error {
 		cmd, options := cmdArgs(ctx, executable, install, p.Names)
 
-		if dryrun {
+		if dryrun := ctxlib.DryRun(ctx); dryrun {
 			cmdStr := sprintCmd(cmd, options)
 			ui.Printf("%s", cmdStr)
 			return nil
