@@ -56,6 +56,12 @@ func TestNewInstall(t *testing.T) {
 				Returns: exec.InterfaceCommandContextReturns{
 					Cmd: func() exec.Cmd {
 						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
 						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 							Returns: exec.CmdRunReturns{
 								Err: nil,
@@ -93,6 +99,12 @@ func TestNewInstall(t *testing.T) {
 				Returns: exec.InterfaceCommandContextReturns{
 					Cmd: func() exec.Cmd {
 						cmd := new(exec.MockCmd)
+						cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+							Args: exec.CmdSetStdoutArgs{OutAnything: true},
+						})
+						cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+							Args: exec.CmdSetStderrArgs{OutAnything: true},
+						})
 						cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 							Returns: exec.CmdRunReturns{
 								Err: xerrors.New("dummy"),
