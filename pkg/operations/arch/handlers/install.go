@@ -58,9 +58,12 @@ func NewInstall(checkInstall CheckInstallHandler, executable command.ExecutableH
 		command.SetStdout(bufout)
 		command.SetStderr(buferr)
 
-		command.SetSysProcAttr(&syscall.SysProcAttr{
-			Credential: &syscall.Credential{Uid: 0, Gid: 0},
-		})
+		if cmd == "pacman" {
+			// pacman command requires root permission
+			command.SetSysProcAttr(&syscall.SysProcAttr{
+				Credential: &syscall.Credential{Uid: 0, Gid: 0},
+			})
+		}
 		zap.L().Debug("execute command output", zap.String("stdout", bufout.String()), zap.String("stderr", buferr.String()))
 		if err := command.Run(); err != nil {
 			return xerrors.Errorf("Install package failed: Stderr: %s %w", buferr.String(), err)
