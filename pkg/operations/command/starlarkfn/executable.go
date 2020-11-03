@@ -9,7 +9,8 @@ import (
 
 func Executable(executable handlers.ExecutableHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
+		ctx := starlark.ToContext(thread)
+
 		name := ""
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)

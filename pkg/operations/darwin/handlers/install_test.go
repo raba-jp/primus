@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/raba-jp/primus/pkg/operations/darwin/handlers"
@@ -126,7 +128,7 @@ func TestNewInstall(t *testing.T) {
 			handler.ApplyRunExpectation(tt.checkInstall)
 
 			install := handlers.NewInstall(handler, exc)
-			err := install.Run(context.Background(), false, tt.params)
+			err := install.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -154,7 +156,8 @@ func TestNewInstall__dryrun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			install := handlers.NewInstall(nil, nil)
-			err := install.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := install.Run(ctx, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())

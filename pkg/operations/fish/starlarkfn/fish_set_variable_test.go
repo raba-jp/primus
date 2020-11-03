@@ -24,8 +24,7 @@ func TestSetVariable(t *testing.T) {
 			data: `test(name="GOPATH", value="$HOME/go", scope="universal", export=True)`,
 			mock: mocks.SetVariableHandlerRunExpectation{
 				Args: mocks.SetVariableHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
@@ -44,8 +43,7 @@ func TestSetVariable(t *testing.T) {
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
 			mock: mocks.SetVariableHandlerRunExpectation{
 				Args: mocks.SetVariableHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
@@ -64,8 +62,7 @@ func TestSetVariable(t *testing.T) {
 			data: `test("GOPATH", "$HOME/go", "global", True)`,
 			mock: mocks.SetVariableHandlerRunExpectation{
 				Args: mocks.SetVariableHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
@@ -84,8 +81,7 @@ func TestSetVariable(t *testing.T) {
 			data: `test("GOPATH", "$HOME/go", "local", True)`,
 			mock: mocks.SetVariableHandlerRunExpectation{
 				Args: mocks.SetVariableHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",
@@ -116,8 +112,7 @@ func TestSetVariable(t *testing.T) {
 			data: `test("GOPATH", "$HOME/go", "universal", True)`,
 			mock: mocks.SetVariableHandlerRunExpectation{
 				Args: mocks.SetVariableHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SetVariableParams{
 						Name:   "GOPATH",
 						Value:  "$HOME/go",

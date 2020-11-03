@@ -1,8 +1,6 @@
 package starlarkfn
 
 import (
-	"context"
-
 	"golang.org/x/xerrors"
 
 	lib "go.starlark.net/starlark"
@@ -13,6 +11,7 @@ import (
 
 func Clone(clone handlers.CloneHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
+		ctx := starlark.ToContext(thread)
 		params := &handlers.CloneParams{}
 		if err := lib.UnpackArgs(
 			b.Name(), args, kwargs,
@@ -23,7 +22,7 @@ func Clone(clone handlers.CloneHandler) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse argumetns: %w", err)
 		}
 
-		if err := clone.Run(context.Background(), false, params); err != nil {
+		if err := clone.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 

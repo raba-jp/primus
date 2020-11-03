@@ -15,12 +15,10 @@ type CopyHandler struct {
 }
 
 type CopyHandlerRunArgs struct {
-	Ctx            context.Context
-	CtxAnything    bool
-	Dryrun         bool
-	DryrunAnything bool
-	P              *handlers.CopyParams
-	PAnything      bool
+	Ctx         context.Context
+	CtxAnything bool
+	P           *handlers.CopyParams
+	PAnything   bool
 }
 
 type CopyHandlerRunReturns struct {
@@ -39,11 +37,6 @@ func (_m *CopyHandler) ApplyRunExpectation(e CopyHandlerRunExpectation) {
 	} else {
 		args = append(args, e.Args.Ctx)
 	}
-	if e.Args.DryrunAnything {
-		args = append(args, mock.Anything)
-	} else {
-		args = append(args, e.Args.Dryrun)
-	}
 	if e.Args.PAnything {
 		args = append(args, mock.Anything)
 	} else {
@@ -58,13 +51,13 @@ func (_m *CopyHandler) ApplyRunExpectations(expectations []CopyHandlerRunExpecta
 	}
 }
 
-// Run provides a mock function with given fields: ctx, dryrun, p
-func (_m *CopyHandler) Run(ctx context.Context, dryrun bool, p *handlers.CopyParams) error {
-	ret := _m.Called(ctx, dryrun, p)
+// Run provides a mock function with given fields: ctx, p
+func (_m *CopyHandler) Run(ctx context.Context, p *handlers.CopyParams) error {
+	ret := _m.Called(ctx, p)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, bool, *handlers.CopyParams) error); ok {
-		r0 = rf(ctx, dryrun, p)
+	if rf, ok := ret.Get(0).(func(context.Context, *handlers.CopyParams) error); ok {
+		r0 = rf(ctx, p)
 	} else {
 		r0 = ret.Error(0)
 	}

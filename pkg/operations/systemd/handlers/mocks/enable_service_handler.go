@@ -14,12 +14,10 @@ type EnableServiceHandler struct {
 }
 
 type EnableServiceHandlerRunArgs struct {
-	Ctx            context.Context
-	CtxAnything    bool
-	Dryrun         bool
-	DryrunAnything bool
-	Name           string
-	NameAnything   bool
+	Ctx          context.Context
+	CtxAnything  bool
+	Name         string
+	NameAnything bool
 }
 
 type EnableServiceHandlerRunReturns struct {
@@ -38,11 +36,6 @@ func (_m *EnableServiceHandler) ApplyRunExpectation(e EnableServiceHandlerRunExp
 	} else {
 		args = append(args, e.Args.Ctx)
 	}
-	if e.Args.DryrunAnything {
-		args = append(args, mock.Anything)
-	} else {
-		args = append(args, e.Args.Dryrun)
-	}
 	if e.Args.NameAnything {
 		args = append(args, mock.Anything)
 	} else {
@@ -57,13 +50,13 @@ func (_m *EnableServiceHandler) ApplyRunExpectations(expectations []EnableServic
 	}
 }
 
-// Run provides a mock function with given fields: ctx, dryrun, name
-func (_m *EnableServiceHandler) Run(ctx context.Context, dryrun bool, name string) error {
-	ret := _m.Called(ctx, dryrun, name)
+// Run provides a mock function with given fields: ctx, name
+func (_m *EnableServiceHandler) Run(ctx context.Context, name string) error {
+	ret := _m.Called(ctx, name)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, bool, string) error); ok {
-		r0 = rf(ctx, dryrun, name)
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, name)
 	} else {
 		r0 = ret.Error(0)
 	}

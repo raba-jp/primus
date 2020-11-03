@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/xerrors"
 
@@ -80,7 +82,7 @@ func TestNewMultipleInstall(t *testing.T) {
 		exc.ApplyCommandContextExpectation(tt.mock)
 
 		multipleInstall := handlers.NewMultipleInstall(executable, exc)
-		err := multipleInstall.Run(context.Background(), false, &handlers.MultipleInstallParams{
+		err := multipleInstall.Run(context.Background(), &handlers.MultipleInstallParams{
 			Names: []string{"arg1", "arg2"},
 		})
 		tt.errAssert(t, err)
@@ -101,7 +103,8 @@ func TestNewMultipleInstall__dryrun(t *testing.T) {
 	})
 
 	multipleInstall := handlers.NewMultipleInstall(executable, nil)
-	err := multipleInstall.Run(context.Background(), true, &handlers.MultipleInstallParams{
+	ctx := ctxlib.SetDryRun(context.Background(), true)
+	err := multipleInstall.Run(ctx, &handlers.MultipleInstallParams{
 		Names: []string{"arg1", "arg2"},
 	})
 	assert.NoError(t, err)

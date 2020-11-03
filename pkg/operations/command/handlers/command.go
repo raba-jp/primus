@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"go.uber.org/zap"
@@ -24,18 +26,18 @@ type CommandParams struct {
 }
 
 type CommandHandler interface {
-	Run(ctx context.Context, dryrun bool, p *CommandParams) (err error)
+	Run(ctx context.Context, p *CommandParams) (err error)
 }
 
-type CommandHandlerFunc func(ctx context.Context, dryrun bool, p *CommandParams) error
+type CommandHandlerFunc func(ctx context.Context, p *CommandParams) error
 
-func (f CommandHandlerFunc) Run(ctx context.Context, dryrun bool, p *CommandParams) error {
-	return f(ctx, dryrun, p)
+func (f CommandHandlerFunc) Run(ctx context.Context, p *CommandParams) error {
+	return f(ctx, p)
 }
 
 func NewCommand(exc exec.Interface) CommandHandler {
-	return CommandHandlerFunc(func(ctx context.Context, dryrun bool, p *CommandParams) error {
-		if dryrun {
+	return CommandHandlerFunc(func(ctx context.Context, p *CommandParams) error {
+		if dryrun := ctxlib.DryRun(ctx); dryrun {
 			buf := new(bytes.Buffer)
 			fmt.Fprintf(buf, "%s ", p.CmdName)
 			for _, arg := range p.CmdArgs {

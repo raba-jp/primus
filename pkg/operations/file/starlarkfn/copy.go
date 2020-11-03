@@ -14,8 +14,7 @@ import (
 
 func Copy(copy handlers.CopyHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 
 		params, err := parseCopyArgs(b, args, kwargs)
 		if err != nil {
@@ -31,7 +30,7 @@ func Copy(copy handlers.CopyHandler) starlark.Fn {
 			zap.String("permission", params.Permission.String()),
 		)
 		ui.Infof("Coping file. Source: %s, Destination: %s, Permission: %v\n", params.Src, params.Dest, params.Permission.String())
-		if err := copy.Run(ctx, dryrun, params); err != nil {
+		if err := copy.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

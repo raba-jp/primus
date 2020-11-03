@@ -15,12 +15,10 @@ type SetVariableHandler struct {
 }
 
 type SetVariableHandlerRunArgs struct {
-	Ctx            context.Context
-	CtxAnything    bool
-	Dryrun         bool
-	DryrunAnything bool
-	P              *handlers.SetVariableParams
-	PAnything      bool
+	Ctx         context.Context
+	CtxAnything bool
+	P           *handlers.SetVariableParams
+	PAnything   bool
 }
 
 type SetVariableHandlerRunReturns struct {
@@ -39,11 +37,6 @@ func (_m *SetVariableHandler) ApplyRunExpectation(e SetVariableHandlerRunExpecta
 	} else {
 		args = append(args, e.Args.Ctx)
 	}
-	if e.Args.DryrunAnything {
-		args = append(args, mock.Anything)
-	} else {
-		args = append(args, e.Args.Dryrun)
-	}
 	if e.Args.PAnything {
 		args = append(args, mock.Anything)
 	} else {
@@ -58,13 +51,13 @@ func (_m *SetVariableHandler) ApplyRunExpectations(expectations []SetVariableHan
 	}
 }
 
-// Run provides a mock function with given fields: ctx, dryrun, p
-func (_m *SetVariableHandler) Run(ctx context.Context, dryrun bool, p *handlers.SetVariableParams) error {
-	ret := _m.Called(ctx, dryrun, p)
+// Run provides a mock function with given fields: ctx, p
+func (_m *SetVariableHandler) Run(ctx context.Context, p *handlers.SetVariableParams) error {
+	ret := _m.Called(ctx, p)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, bool, *handlers.SetVariableParams) error); ok {
-		r0 = rf(ctx, dryrun, p)
+	if rf, ok := ret.Get(0).(func(context.Context, *handlers.SetVariableParams) error); ok {
+		r0 = rf(ctx, p)
 	} else {
 		r0 = ret.Error(0)
 	}

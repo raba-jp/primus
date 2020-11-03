@@ -1,7 +1,7 @@
 package starlarkfn
 
 import (
-	"github.com/raba-jp/primus/pkg/cli/ui"
+	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/operations/network/handlers"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
@@ -11,22 +11,26 @@ import (
 
 func HTTPRequest(httpRequest handlers.HTTPRequestHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
+		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "http_request")
 		params, err := parseHTTPRequestArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		zap.L().Debug(
-			"params",
+		logger.Debug(
+			"http_request Params",
 			zap.String("url", params.URL),
 			zap.String("path", params.Path),
 		)
-		ui.Infof("HTTP requesting. URL: %s, Path: %s", params.URL, params.Path)
-		if err := httpRequest.Run(ctx, dryrun, params); err != nil {
+		if err := httpRequest.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		logger.Info(
+			"Finish HTTP request",
+			zap.String("url", params.URL),
+			zap.String("path", params.Path),
+		)
 		return lib.None, nil
 	}
 }

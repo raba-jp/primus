@@ -9,15 +9,14 @@ import (
 
 func SetPath(setPath handlers.SetPathHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 
 		params, err := parseSetPathArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		if err := setPath.Run(ctx, dryrun, params); err != nil {
+		if err := setPath.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

@@ -23,8 +23,7 @@ func TestMultipleInstall(t *testing.T) {
 			data: `test(names=["arg1", "arg2"])`,
 			mock: mocks.MultipleInstallHandlerRunExpectation{
 				Args: mocks.MultipleInstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.MultipleInstallParams{
 						Names: []string{"arg1", "arg2"},
 					},
@@ -40,8 +39,7 @@ func TestMultipleInstall(t *testing.T) {
 			data: `test(names=["arg1", 1, "arg2"])`,
 			mock: mocks.MultipleInstallHandlerRunExpectation{
 				Args: mocks.MultipleInstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.MultipleInstallParams{
 						Names: []string{"arg1", "arg2"},
 					},
@@ -63,8 +61,7 @@ func TestMultipleInstall(t *testing.T) {
 			data: `test(names=["arg1", "arg2"])`,
 			mock: mocks.MultipleInstallHandlerRunExpectation{
 				Args: mocks.MultipleInstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.MultipleInstallParams{
 						Names: []string{"arg1", "arg2"},
 					},

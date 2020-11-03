@@ -10,8 +10,7 @@ import (
 
 func Uninstall(uninstall handlers.UninstallHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 
 		params := &handlers.UninstallParams{}
 		if err := lib.UnpackArgs(
@@ -23,7 +22,7 @@ func Uninstall(uninstall handlers.UninstallHandler) starlark.Fn {
 		}
 
 		ui.Printf("Uninstalling package. Name: %s\n", params.Name)
-		if err := uninstall.Run(ctx, dryrun, params); err != nil {
+		if err := uninstall.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

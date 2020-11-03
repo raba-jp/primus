@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers"
 	"github.com/raba-jp/primus/pkg/operations/arch/handlers/mocks"
 
@@ -132,7 +134,7 @@ func TestNewInstall(t *testing.T) {
 			executable.ApplyRunExpectations(tt.executable)
 
 			install := handlers.NewInstall(checkInstall, executable, exc)
-			err := install.Run(context.Background(), false, &handlers.InstallParams{
+			err := install.Run(context.Background(), &handlers.InstallParams{
 				Name:   "base-devel",
 				Option: "options",
 			})
@@ -181,7 +183,8 @@ func TestNewInstall__dryrun(t *testing.T) {
 			executable.ApplyRunExpectations(executables)
 
 			install := handlers.NewInstall(nil, executable, nil)
-			err := install.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := install.Run(ctx, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())

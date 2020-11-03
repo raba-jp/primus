@@ -23,8 +23,7 @@ func TestUninstall(t *testing.T) {
 			data: `test(name="base-devel")`,
 			mock: mocks.UninstallHandlerRunExpectation{
 				Args: mocks.UninstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.UninstallParams{
 						Name: "base-devel",
 					},
@@ -46,8 +45,7 @@ func TestUninstall(t *testing.T) {
 			data: `test(name="base-devel")`,
 			mock: mocks.UninstallHandlerRunExpectation{
 				Args: mocks.UninstallHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.UninstallParams{
 						Name: "base-devel",
 					},

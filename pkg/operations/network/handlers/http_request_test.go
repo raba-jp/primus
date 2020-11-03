@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -56,7 +58,7 @@ func TestNewHTTPRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := afero.NewMemMapFs()
 			httpRequest := handlers.NewHTTPRequest(MockHttpClient(tt.httpMock), fs)
-			err := httpRequest.Run(context.Background(), false, &handlers.HTTPRequestParams{
+			err := httpRequest.Run(context.Background(), &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})
@@ -90,7 +92,9 @@ func TestNewHTTPRequest__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			httpRequest := handlers.NewHTTPRequest(nil, nil)
-			err := httpRequest.Run(context.Background(), true, &handlers.HTTPRequestParams{
+
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := httpRequest.Run(ctx, &handlers.HTTPRequestParams{
 				URL:  tt.url,
 				Path: tt.path,
 			})

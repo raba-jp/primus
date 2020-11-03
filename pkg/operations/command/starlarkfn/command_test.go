@@ -24,8 +24,7 @@ func TestCommand(t *testing.T) {
 			data: `test(name="echo", args=["hello", "world"])`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{"hello", "world"},
@@ -42,8 +41,7 @@ func TestCommand(t *testing.T) {
 			data: `test(name="echo", args=[1])`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{"1"},
@@ -66,8 +64,7 @@ func TestCommand(t *testing.T) {
 			data: `test(name="echo", args=[False, True])`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{"false", "true"},
@@ -90,8 +87,7 @@ func TestCommand(t *testing.T) {
 			data: `test("echo")`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{},
@@ -108,8 +104,7 @@ func TestCommand(t *testing.T) {
 			data: `test("echo", [], user="testuser", cwd="/home/testuser")`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{},
@@ -132,8 +127,7 @@ func TestCommand(t *testing.T) {
 			data: `test("echo")`,
 			mock: mocks.CommandHandlerRunExpectation{
 				Args: mocks.CommandHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.CommandParams{
 						CmdName: "echo",
 						CmdArgs: []string{},

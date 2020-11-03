@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"golang.org/x/xerrors"
 
 	"github.com/stretchr/testify/assert"
@@ -218,7 +220,7 @@ func TestNewCommand(t *testing.T) {
 
 			command := handlers.NewCommand(e)
 
-			err := command.Run(context.Background(), false, tt.params)
+			err := command.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -257,7 +259,8 @@ func TestNewCommand__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			command := handlers.NewCommand(nil)
-			err := command.Run(context.Background(), true, &handlers.CommandParams{
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := command.Run(ctx, &handlers.CommandParams{
 				CmdName: tt.command,
 				CmdArgs: tt.args,
 			})

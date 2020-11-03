@@ -5,6 +5,8 @@ package handlers
 import (
 	"context"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"golang.org/x/xerrors"
@@ -16,18 +18,18 @@ type UninstallParams struct {
 }
 
 type UninstallHandler interface {
-	Run(ctx context.Context, dryrun bool, p *UninstallParams) (err error)
+	Run(ctx context.Context, p *UninstallParams) (err error)
 }
 
-type UninstallHandlerFunc func(ctx context.Context, dryrun bool, p *UninstallParams) error
+type UninstallHandlerFunc func(ctx context.Context, p *UninstallParams) error
 
-func (f UninstallHandlerFunc) Run(ctx context.Context, dryrun bool, p *UninstallParams) error {
-	return f(ctx, dryrun, p)
+func (f UninstallHandlerFunc) Run(ctx context.Context, p *UninstallParams) error {
+	return f(ctx, p)
 }
 
 func NewUninstall(checkInstall CheckInstallHandler, exc exec.Interface) UninstallHandler {
-	return UninstallHandlerFunc(func(ctx context.Context, dryrun bool, p *UninstallParams) error {
-		if dryrun {
+	return UninstallHandlerFunc(func(ctx context.Context, p *UninstallParams) error {
+		if dryrun := ctxlib.DryRun(ctx); dryrun {
 			ui.Printf("pacman -R --noconfirm %s\n", p.Name)
 			return nil
 		}

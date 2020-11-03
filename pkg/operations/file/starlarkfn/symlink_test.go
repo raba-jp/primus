@@ -24,8 +24,7 @@ func TestSymlink(t *testing.T) {
 			data: `test(src="/sym/src.txt", dest="/sym/dest.txt")`,
 			mock: mocks.SymlinkHandlerRunExpectation{
 				Args: mocks.SymlinkHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SymlinkParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",
@@ -48,8 +47,7 @@ func TestSymlink(t *testing.T) {
 			data: `test("/sym/src.txt", "/sym/dest.txt")`,
 			mock: mocks.SymlinkHandlerRunExpectation{
 				Args: mocks.SymlinkHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
+					CtxAnything: true,
 					P: &handlers.SymlinkParams{
 						Src:  "/sym/src.txt",
 						Dest: "/sym/dest.txt",

@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/exec"
 	"go.uber.org/zap"
@@ -31,13 +33,13 @@ type SetVariableParams struct {
 }
 
 type SetVariableHandler interface {
-	Run(ctx context.Context, dryrun bool, p *SetVariableParams) (err error)
+	Run(ctx context.Context, p *SetVariableParams) (err error)
 }
 
-type SetVariableHandlerFunc func(ctx context.Context, dryrun bool, p *SetVariableParams) error
+type SetVariableHandlerFunc func(ctx context.Context, p *SetVariableParams) error
 
-func (f SetVariableHandlerFunc) Run(ctx context.Context, dryrun bool, p *SetVariableParams) error {
-	return f(ctx, dryrun, p)
+func (f SetVariableHandlerFunc) Run(ctx context.Context, p *SetVariableParams) error {
+	return f(ctx, p)
 }
 
 type SetPathParams struct {
@@ -45,17 +47,20 @@ type SetPathParams struct {
 }
 
 type SetPathHandler interface {
-	Run(ctx context.Context, dryrun bool, p *SetPathParams) (err error)
+	Run(ctx context.Context, p *SetPathParams) (err error)
 }
 
-type SetPathHandlerFunc func(ctx context.Context, dryrun bool, p *SetPathParams) error
+type SetPathHandlerFunc func(ctx context.Context, p *SetPathParams) error
 
-func (f SetPathHandlerFunc) Run(ctx context.Context, dryrun bool, p *SetPathParams) error {
-	return f(ctx, dryrun, p)
+func (f SetPathHandlerFunc) Run(ctx context.Context, p *SetPathParams) error {
+	return f(ctx, p)
 }
 
 func NewSetVariable(exc exec.Interface) SetVariableHandler {
-	return SetVariableHandlerFunc(func(ctx context.Context, dryrun bool, p *SetVariableParams) error {
+	return SetVariableHandlerFunc(func(ctx context.Context, p *SetVariableParams) error {
+		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "fish_set_variable")
+		dryrun := ctxlib.DryRun(ctx)
+
 		var scope string
 		switch p.Scope {
 		case UniversalScope:
@@ -86,7 +91,7 @@ func NewSetVariable(exc exec.Interface) SetVariableHandler {
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("failed to set variable: fish --command %s: %w", arg, err)
 		}
-		zap.L().Info(
+		logger.Info(
 			"set fish variable",
 			zap.String("name", p.Name),
 			zap.String("value", p.Value),
@@ -100,7 +105,9 @@ func NewSetVariable(exc exec.Interface) SetVariableHandler {
 }
 
 func NewSetPath(exc exec.Interface) SetPathHandler {
-	return SetPathHandlerFunc(func(ctx context.Context, dryrun bool, p *SetPathParams) error {
+	return SetPathHandlerFunc(func(ctx context.Context, p *SetPathParams) error {
+		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "fish_set_path")
+		dryrun := ctxlib.DryRun(ctx)
 		path := fmt.Sprintf("'set --universal fish_user_paths %s'", strings.Join(p.Values, " "))
 
 		if dryrun {
@@ -116,7 +123,7 @@ func NewSetPath(exc exec.Interface) SetPathHandler {
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("failed to set path: fish --command 'set --universal fish_user_path %s': %w", path, err)
 		}
-		zap.L().Info("set fish path", zap.Strings("values", p.Values))
+		logger.Info("set fish path", zap.Strings("values", p.Values))
 		return nil
 	})
 }

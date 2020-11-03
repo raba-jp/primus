@@ -23,9 +23,8 @@ func TestEnableService(t *testing.T) {
 			data: `test(name="dummy.service")`,
 			mock: mocks.EnableServiceHandlerRunExpectation{
 				Args: mocks.EnableServiceHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
-					Name:           "dummy.service",
+					CtxAnything: true,
+					Name:        "dummy.service",
 				},
 				Returns: mocks.EnableServiceHandlerRunReturns{
 					Err: nil,
@@ -44,9 +43,8 @@ func TestEnableService(t *testing.T) {
 			data: `test(name="dummy.service")`,
 			mock: mocks.EnableServiceHandlerRunExpectation{
 				Args: mocks.EnableServiceHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
-					Name:           "dummy.service",
+					CtxAnything: true,
+					Name:        "dummy.service",
 				},
 				Returns: mocks.EnableServiceHandlerRunReturns{
 					Err: xerrors.New("dummy"),
@@ -79,9 +77,8 @@ func TestStartService(t *testing.T) {
 			data: `test(name="dummy.service")`,
 			mock: mocks.StartServiceHandlerRunExpectation{
 				Args: mocks.StartServiceHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
-					Name:           "dummy.service",
+					CtxAnything: true,
+					Name:        "dummy.service",
 				},
 				Returns: mocks.StartServiceHandlerRunReturns{
 					Err: nil,
@@ -100,9 +97,8 @@ func TestStartService(t *testing.T) {
 			data: `test(name="dummy.service")`,
 			mock: mocks.StartServiceHandlerRunExpectation{
 				Args: mocks.StartServiceHandlerRunArgs{
-					CtxAnything:    true,
-					DryrunAnything: true,
-					Name:           "dummy.service",
+					CtxAnything: true,
+					Name:        "dummy.service",
 				},
 				Returns: mocks.StartServiceHandlerRunReturns{
 					Err: xerrors.New("dummy"),

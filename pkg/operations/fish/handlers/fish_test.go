@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -198,7 +200,7 @@ func TestNewSetVariable(t *testing.T) {
 			exc.ApplyCommandContextExpectation(tt.mock)
 
 			setVariable := handlers.NewSetVariable(exc)
-			err := setVariable.Run(context.Background(), false, tt.params)
+			err := setVariable.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -228,7 +230,8 @@ func TestNewSetVariable__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			setVariable := handlers.NewSetVariable(nil)
-			err := setVariable.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := setVariable.Run(ctx, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())
@@ -319,7 +322,7 @@ func TestBaseBackend_FishSetPath(t *testing.T) {
 			e.ApplyCommandContextExpectation(tt.mock)
 
 			setPath := handlers.NewSetPath(e)
-			err := setPath.Run(context.Background(), false, tt.params)
+			err := setPath.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 		})
 	}
@@ -347,7 +350,8 @@ func TestNewSetPath__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			setPath := handlers.NewSetPath(nil)
-			err := setPath.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := setPath.Run(ctx, tt.params)
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())

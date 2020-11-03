@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/xerrors"
 
@@ -32,6 +34,9 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
 							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
 								Returns: exec.CmdOutputReturns{
 									Output: []byte{},
@@ -51,6 +56,12 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
 							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 								Returns: exec.CmdRunReturns{
 									Err: nil,
@@ -75,9 +86,12 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
 							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
 								Returns: exec.CmdOutputReturns{
-									Output: []byte("enabled"),
+									Output: []byte("enabled\n"),
 									Err:    nil,
 								},
 							})
@@ -94,6 +108,12 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
 							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 								Returns: exec.CmdRunReturns{
 									Err: nil,
@@ -107,31 +127,6 @@ func TestNewEnableService(t *testing.T) {
 			errAssert: assert.NoError,
 		},
 		{
-			name: "error: check fail",
-			mock: []exec.InterfaceCommandContextExpectation{
-				{
-					Args: exec.InterfaceCommandContextArgs{
-						CtxAnything: true,
-						Cmd:         "systemctl",
-						Args:        []string{"is-enabled", "dummy.service"},
-					},
-					Returns: exec.InterfaceCommandContextReturns{
-						Cmd: func() exec.Cmd {
-							cmd := new(exec.MockCmd)
-							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
-								Returns: exec.CmdOutputReturns{
-									Output: []byte{},
-									Err:    xerrors.New("dummy"),
-								},
-							})
-							return cmd
-						},
-					},
-				},
-			},
-			errAssert: assert.Error,
-		},
-		{
 			name: "error: enabled fail",
 			mock: []exec.InterfaceCommandContextExpectation{
 				{
@@ -143,6 +138,9 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
 							cmd.ApplyOutputExpectation(exec.CmdOutputExpectation{
 								Returns: exec.CmdOutputReturns{
 									Output: []byte{},
@@ -162,6 +160,12 @@ func TestNewEnableService(t *testing.T) {
 					Returns: exec.InterfaceCommandContextReturns{
 						Cmd: func() exec.Cmd {
 							cmd := new(exec.MockCmd)
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
 							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 								Returns: exec.CmdRunReturns{
 									Err: xerrors.New("dummy"),
@@ -182,7 +186,7 @@ func TestNewEnableService(t *testing.T) {
 			e.ApplyCommandContextExpectations(tt.mock)
 
 			enableService := handlers.NewEnableService(e)
-			err := enableService.Run(context.Background(), false, "dummy.service")
+			err := enableService.Run(context.Background(), "dummy.service")
 			tt.errAssert(t, err)
 		})
 	}
@@ -205,8 +209,13 @@ func TestNewEnableService__DryRun(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			buf := new(bytes.Buffer)
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
+
 			enableService := handlers.NewEnableService(nil)
-			if err := enableService.Run(context.Background(), true, tt.in); err != nil {
+
+			ctx := context.Background()
+			ctx = ctxlib.SetDryRun(ctx, true)
+
+			if err := enableService.Run(ctx, tt.in); err != nil {
 				t.Errorf("Unexpected error: %v", err)
 			}
 			if diff := cmp.Diff(tt.out, buf.String()); diff != "" {

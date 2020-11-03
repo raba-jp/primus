@@ -14,8 +14,7 @@ import (
 
 func Create(create handlers.CreateHandler) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
-		ctx := starlark.GetCtx(thread)
-		dryrun := starlark.GetDryRunMode(thread)
+		ctx := starlark.ToContext(thread)
 
 		params, err := parseCreateArgs(b, args, kwargs)
 		if err != nil {
@@ -32,7 +31,7 @@ func Create(create handlers.CreateHandler) starlark.Fn {
 		)
 
 		ui.Infof("Creating directories: %s\n", params.Path)
-		if err := create.Run(ctx, dryrun, params); err != nil {
+		if err := create.Run(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		return lib.None, nil

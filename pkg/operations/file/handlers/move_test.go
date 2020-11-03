@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -98,7 +100,7 @@ func TestNewMove(t *testing.T) {
 			fs := tt.setup()
 
 			move := handlers.NewMove(fs)
-			err := move.Run(context.Background(), false, tt.params)
+			err := move.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 
 			data, _ := afero.ReadFile(fs, tt.params.Dest)
@@ -131,7 +133,8 @@ func TestNewMove__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			move := handlers.NewMove(nil)
-			err := move.Run(context.Background(), true, &handlers.MoveParams{
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := move.Run(ctx, &handlers.MoveParams{
 				Src:  tt.src,
 				Dest: tt.dest,
 			})

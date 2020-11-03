@@ -5,6 +5,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/ctxlib"
+
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -95,7 +97,7 @@ func TestNew(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.setup()
 			create := handlers.New(fs)
-			err := create.Run(context.Background(), false, tt.params)
+			err := create.Run(context.Background(), tt.params)
 			tt.errAssert(t, err)
 
 			stat, err := fs.Stat(tt.got)
@@ -130,7 +132,8 @@ func TestNew__DryRun(t *testing.T) {
 			ui.SetDefaultUI(&ui.CommandLine{Out: buf, Errout: buf})
 
 			create := handlers.New(nil)
-			err := create.Run(context.Background(), true, tt.params)
+			ctx := ctxlib.SetDryRun(context.Background(), true)
+			err := create.Run(ctx, tt.params)
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, buf.String())
 		})
