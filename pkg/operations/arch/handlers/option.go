@@ -9,9 +9,7 @@ import (
 
 func cmdArgs(ctx context.Context, executable command.ExecutableHandler, ct cmdType, cmds []string) (string, []string) {
 	cmd := "pacman"
-	var (
-		options []string
-	)
+	options := []string{}
 	yay := usableYay(ctx, executable)
 	if yay {
 		cmd = "yay"
