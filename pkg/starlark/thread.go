@@ -57,6 +57,10 @@ func WithLoad(loadFn LoadFn) ThreadOption {
 	}
 }
 
+func SetContext(thread *lib.Thread, ctx context.Context) {
+	thread.SetLocal(ctxKey, ctx)
+}
+
 func withTakeOverParent(parent *lib.Thread) ThreadOption {
 	return func(child *lib.Thread) {
 		ctx := getCtx(parent)

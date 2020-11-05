@@ -16,6 +16,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
 	go.uber.org/zap v1.16.0
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/tools v0.0.0-20200913032122-97363e29fc9b // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	honnef.co/go/tools v0.0.1-2020.1.5 // indirect
