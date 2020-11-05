@@ -25,7 +25,7 @@ func RequirePrevilegedAccess(reader io.Reader) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		ctx = ctxlib.SetPrevilegedAccessKey(ctx, string(password))
-		starlark.SetContext(thread, ctx)
+		starlark.SetContext(ctx, thread)
 
 		logger.Debug("Set previleged access key", zap.String("key", string(password)))
 

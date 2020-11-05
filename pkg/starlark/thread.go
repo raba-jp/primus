@@ -57,7 +57,7 @@ func WithLoad(loadFn LoadFn) ThreadOption {
 	}
 }
 
-func SetContext(thread *lib.Thread, ctx context.Context) {
+func SetContext(ctx context.Context, thread *lib.Thread) {
 	thread.SetLocal(ctxKey, ctx)
 }
 
