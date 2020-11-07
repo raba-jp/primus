@@ -23,7 +23,7 @@ const timeout = 5 * time.Second
 var _ OSDetector = (*osDetector)(nil)
 
 type OSDetector interface {
-	ExecutableCommand(ctx context.Context, name string) bool
+	ExecutableCommand(ctx context.Context, name string) (ok bool)
 	Darwin(ctx context.Context) (v bool)
 	ArchLinux(ctx context.Context) (v bool)
 }
