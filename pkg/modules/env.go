@@ -1,4 +1,4 @@
-package env
+package modules
 
 import "os"
 
@@ -8,19 +8,19 @@ var (
 	defaultEnv Env = osEnv{}
 )
 
-func Get(key string) string {
-	return defaultEnv.Get(key)
+func Getenv(key string) string {
+	return defaultEnv.Getenv(key)
 }
 
 type Env interface {
-	Get(string) string
+	Getenv(string) string
 }
 
 type osEnv struct {
 	Env
 }
 
-func (osEnv) Get(key string) string {
+func (osEnv) Getenv(key string) string {
 	return os.Getenv(key)
 }
 
@@ -34,6 +34,6 @@ func SetFakeEnv(kv map[string]string) {
 	defaultEnv = f
 }
 
-func (f FakeEnv) Get(key string) string {
+func (f FakeEnv) Getenv(key string) string {
 	return f.values[key]
 }

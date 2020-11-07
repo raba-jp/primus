@@ -14,6 +14,7 @@ require (
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
+	github.com/wesovilabs/koazee v0.0.5
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
