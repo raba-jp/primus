@@ -19,14 +19,14 @@ import (
 )
 
 type Params struct {
-	Name string
+	Cmd  string
 	Args []string
 	Cwd  string
 	User string
 }
 
 func (p *Params) String() string {
-	return fmt.Sprintf("Cwd: %s, User: %s, %s %v", p.Cwd, p.Name, p.Name, p.Args)
+	return fmt.Sprintf("Cwd: %s, User: %s, %s %v", p.Cwd, p.User, p.Cmd, p.Args)
 }
 
 type ExecuteRunner func(ctx context.Context, params *Params) error
@@ -42,7 +42,7 @@ func NewExecuteFunction(exc ExecuteRunner) starlark.Fn {
 		}
 		logger.Debug(
 			"Params",
-			zap.String("cmd", params.Name),
+			zap.String("cmd", params.Cmd),
 			zap.Strings("args", params.Args),
 			zap.String("user", params.User),
 			zap.String("cwd", params.Cwd),
@@ -60,7 +60,7 @@ func parseArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*Params, err
 	a := &Params{}
 
 	cmdArgs := &lib.List{}
-	err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &a.Name, "args?", &cmdArgs, "user?", &a.User, "cwd?", &a.Cwd)
+	err := lib.UnpackArgs(b.Name(), args, kwargs, "cmd", &a.Cmd, "args?", &cmdArgs, "user?", &a.User, "cwd?", &a.Cwd)
 	if err != nil {
 		return nil, xerrors.Errorf("Failed to parse arguments: %w", err)
 	}
@@ -102,7 +102,7 @@ func Execute(exc exec.Interface) ExecuteRunner {
 	return func(ctx context.Context, params *Params) error {
 		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "execute")
 
-		cmd := exc.CommandContext(ctx, params.Name, params.Args...)
+		cmd := exc.CommandContext(ctx, params.Cmd, params.Args...)
 
 		buf := new(bytes.Buffer)
 		errbuf := new(bytes.Buffer)
@@ -146,7 +146,7 @@ func Execute(exc exec.Interface) ExecuteRunner {
 		)
 		logger.Info(
 			"Executed command",
-			zap.String("cmd", params.Name),
+			zap.String("cmd", params.Cmd),
 			zap.Strings("args", params.Args),
 			zap.String("user", params.User),
 			zap.String("cwd", params.Cwd),

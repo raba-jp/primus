@@ -112,7 +112,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "success",
 			params: &command.Params{
-				Name: "echo",
+				Cmd:  "echo",
 				Args: []string{"hello", "world"},
 			},
 			mock: []exec.InterfaceCommandContextExpectation{
@@ -146,7 +146,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "success: with user",
 			params: &command.Params{
-				Name: "echo",
+				Cmd:  "echo",
 				Args: []string{"hello", "world"},
 				User: "root",
 			},
@@ -182,7 +182,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "success: with cwd",
 			params: &command.Params{
-				Name: "echo",
+				Cmd:  "echo",
 				Args: []string{"hello", "world"},
 				Cwd:  "/",
 			},
@@ -218,7 +218,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "success: with user and cwd",
 			params: &command.Params{
-				Name: "echo",
+				Cmd:  "echo",
 				Args: []string{"hello", "world"},
 				User: "root",
 				Cwd:  "/",
@@ -258,7 +258,7 @@ func TestExecute(t *testing.T) {
 		{
 			name: "failure",
 			params: &command.Params{
-				Name: "echo",
+				Cmd:  "echo",
 				Args: []string{"hello", "world"},
 				User: "root",
 				Cwd:  "/",
