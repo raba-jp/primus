@@ -7,7 +7,7 @@ require (
 	github.com/fatih/color v1.10.0
 	github.com/go-git/go-billy/v5 v5.0.0
 	github.com/go-git/go-git/v5 v5.2.0
-	github.com/google/go-cmp v0.5.2
+	github.com/google/go-cmp v0.5.3
 	github.com/google/wire v0.4.0
 	github.com/knqyf263/mockery v0.0.0-20200531084606-6216e210d23b
 	github.com/mattn/go-colorable v0.1.8
