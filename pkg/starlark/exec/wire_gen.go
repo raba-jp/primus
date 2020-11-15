@@ -7,7 +7,7 @@ package exec
 
 import (
 	"context"
-	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark/builtin"
 )
 
@@ -15,7 +15,7 @@ import (
 
 func Initialize() func(ctx context.Context, dryrun bool, path string) error {
 	stringDict := builtin.NewBuiltinFunction()
-	fs := backend.NewFs()
+	fs := modules.NewFs()
 	v := NewExecFn(stringDict, fs)
 	return v
 }

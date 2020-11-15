@@ -4,13 +4,13 @@ package exec
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/backend"
+	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark/builtin"
 )
 
 func Initialize() Fn {
 	wire.Build(
-		backend.NewFs,
+		modules.NewFs,
 		builtin.NewBuiltinFunction,
 		NewExecFn,
 	)

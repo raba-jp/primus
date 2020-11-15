@@ -5,6 +5,7 @@ package os
 import (
 	"github.com/google/wire"
 	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/modules"
 	lib "go.starlark.net/starlark"
 )
 
@@ -34,8 +35,9 @@ func newDarwinFunctions(
 	return dict
 }
 
-func NewArchFunction() lib.Value {
+func NewArchFunctions() lib.Value {
 	wire.Build(
+		modules.NewExecInterface,
 		command.Executable,
 		command.Execute,
 		ArchInstalled,
@@ -43,6 +45,18 @@ func NewArchFunction() lib.Value {
 		ArchMultipleInstall,
 		ArchUninstall,
 		newArchFunctions,
+	)
+	return nil
+}
+
+func NewDarwinFunctions() lib.Value {
+	wire.Build(
+		modules.NewFs,
+		modules.NewExecInterface,
+		command.Execute,
+		DarwinInstalled,
+		DarwinInstall,
+		DarwinUninstall,
 		newDarwinFunctions,
 	)
 	return nil
