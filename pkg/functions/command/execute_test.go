@@ -1,6 +1,7 @@
 package command_test
 
 import (
+	"bytes"
 	"context"
 	"testing"
 
@@ -20,7 +21,7 @@ func TestNewExecuteFunction(t *testing.T) {
 	}{
 		{
 			name: "success: string array kwargs",
-			data: `test(name="echo", args=["hello", "world"])`,
+			data: `test(cmd="echo", args=["hello", "world"])`,
 			mock: func(ctx context.Context, p *command.Params) error {
 				return nil
 			},
@@ -28,7 +29,7 @@ func TestNewExecuteFunction(t *testing.T) {
 		},
 		{
 			name: "success: int kwargs",
-			data: `test(name="echo", args=[1])`,
+			data: `test(cmd="echo", args=[1])`,
 			mock: func(ctx context.Context, p *command.Params) error {
 				return nil
 			},
@@ -36,7 +37,7 @@ func TestNewExecuteFunction(t *testing.T) {
 		},
 		{
 			name: "error: bigint kwargs",
-			data: `test(name="echo", args=[9007199254740991])`,
+			data: `test(cmd="echo", args=[9007199254740991])`,
 			mock: func(ctx context.Context, p *command.Params) error {
 				return nil
 			},
@@ -44,7 +45,7 @@ func TestNewExecuteFunction(t *testing.T) {
 		},
 		{
 			name: "success: bool kwargs",
-			data: `test(name="echo", args=[False, True])`,
+			data: `test(cmd="echo", args=[False, True])`,
 			mock: func(ctx context.Context, p *command.Params) error {
 				return nil
 			},
@@ -52,7 +53,7 @@ func TestNewExecuteFunction(t *testing.T) {
 		},
 		{
 			name: "success(unsupported): float kwargs",
-			data: `test(name="echo", args=[1.111])`,
+			data: `test(cmd="echo", args=[1.111])`,
 			mock: func(ctx context.Context, p *command.Params) error {
 				return nil
 			},
@@ -244,6 +245,108 @@ func TestExecute(t *testing.T) {
 							})
 							cmd.ApplySetSysProcAttrExpectation(exec.CmdSetSysProcAttrExpectation{
 								Args: exec.CmdSetSysProcAttrArgs{ProcAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
+		},
+		{
+			name: "success: with stdin",
+			params: &command.Params{
+				Cmd:   "echo",
+				Args:  []string{"hello", "world"},
+				Stdin: new(bytes.Buffer),
+			},
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdinExpectation(exec.CmdSetStdinExpectation{
+								Args: exec.CmdSetStdinArgs{InAnything: true},
+							})
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
+		},
+		{
+			name: "success: with stdout",
+			params: &command.Params{
+				Cmd:    "echo",
+				Args:   []string{"hello", "world"},
+				Stdout: new(bytes.Buffer),
+			},
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
+							})
+							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
+								Returns: exec.CmdRunReturns{Err: nil},
+							})
+							return cmd
+						},
+					},
+				},
+			},
+			errAssert: assert.NoError,
+		},
+		{
+			name: "success: with stderr",
+			params: &command.Params{
+				Cmd:    "echo",
+				Args:   []string{"hello", "world"},
+				Stderr: new(bytes.Buffer),
+			},
+			mock: []exec.InterfaceCommandContextExpectation{
+				{
+					Args: exec.InterfaceCommandContextArgs{
+						CtxAnything: true,
+						Cmd:         "echo",
+						Args:        []string{"hello", "world"},
+					},
+					Returns: exec.InterfaceCommandContextReturns{
+						Cmd: func() exec.Cmd {
+							cmd := new(exec.MockCmd)
+							cmd.ApplySetStdoutExpectation(exec.CmdSetStdoutExpectation{
+								Args: exec.CmdSetStdoutArgs{OutAnything: true},
+							})
+							cmd.ApplySetStderrExpectation(exec.CmdSetStderrExpectation{
+								Args: exec.CmdSetStderrArgs{OutAnything: true},
 							})
 							cmd.ApplyRunExpectation(exec.CmdRunExpectation{
 								Returns: exec.CmdRunReturns{Err: nil},

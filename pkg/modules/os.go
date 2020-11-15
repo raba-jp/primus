@@ -5,11 +5,8 @@ package modules
 import (
 	"bytes"
 	"context"
-	"os"
 	"strings"
 	"time"
-
-	"github.com/wesovilabs/koazee"
 
 	"github.com/raba-jp/primus/pkg/ctxlib"
 	"go.uber.org/zap"
@@ -23,7 +20,6 @@ const timeout = 5 * time.Second
 var _ OSDetector = (*osDetector)(nil)
 
 type OSDetector interface {
-	ExecutableCommand(ctx context.Context, name string) (ok bool)
 	Darwin(ctx context.Context) (v bool)
 	ArchLinux(ctx context.Context) (v bool)
 }
@@ -67,30 +63,4 @@ func (d *osDetector) ArchLinux(ctx context.Context) bool {
 		logger.Debug("FS stats failed", zap.Error(err))
 	}
 	return err == nil
-}
-
-func (d *osDetector) ExecutableCommand(ctx context.Context, name string) bool {
-	ctx, _ = ctxlib.LoggerWithNamespace(ctx, "os_detector")
-	_, logger := ctxlib.LoggerWithNamespace(ctx, "executable_command")
-
-	path := Getenv("PATH")
-	paths := strings.Split(path, ":")
-	logger.Debug("PATH environment variable", zap.Strings("paths", paths))
-
-	executable := false
-	koazee.StreamOf(paths).RemoveDuplicates().ForEach(func(path string) {
-		_ = afero.Walk(d.fs, path, func(path string, _ os.FileInfo, _ error) error {
-			executable = executable || strings.HasSuffix(path, name)
-			return nil
-		})
-	})
-
-	zap.L().Debug(
-		"check executable",
-		zap.String("name", name),
-		zap.Strings("path", paths),
-		zap.Bool("ok", executable),
-	)
-
-	return executable
 }

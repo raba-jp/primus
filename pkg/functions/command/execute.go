@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os/user"
 	"strconv"
 	"syscall"
@@ -19,10 +20,13 @@ import (
 )
 
 type Params struct {
-	Cmd  string
-	Args []string
-	Cwd  string
-	User string
+	Cmd    string
+	Args   []string
+	Cwd    string
+	User   string
+	Stdin  io.Reader
+	Stdout io.Writer
+	Stderr io.Writer
 }
 
 func (p *Params) String() string {
@@ -104,10 +108,21 @@ func Execute(exc exec.Interface) ExecuteRunner {
 
 		cmd := exc.CommandContext(ctx, params.Cmd, params.Args...)
 
-		buf := new(bytes.Buffer)
-		errbuf := new(bytes.Buffer)
-		cmd.SetStdout(buf)
-		cmd.SetStderr(errbuf)
+		if params.Stdin != nil {
+			cmd.SetStdin(params.Stdin)
+		}
+		bufout := new(bytes.Buffer)
+		cmd.SetStdout(params.Stdout)
+		if params.Stdout != nil {
+			logger.Debug("Set stdout")
+			cmd.SetStdout(io.MultiWriter(params.Stdout, bufout))
+		}
+		buferr := new(bytes.Buffer)
+		cmd.SetStderr(params.Stderr)
+		if params.Stderr != nil {
+			logger.Debug("Set stderr")
+			cmd.SetStderr(io.MultiWriter(params.Stderr, buferr))
+		}
 
 		if params.Cwd != "" {
 			logger.Debug("Set directory", zap.String("cwd", params.Cwd))
@@ -141,8 +156,8 @@ func Execute(exc exec.Interface) ExecuteRunner {
 		}
 		logger.Debug(
 			"Command output",
-			zap.String("stdout", buf.String()),
-			zap.String("stderr", errbuf.String()),
+			zap.String("stdout", bufout.String()),
+			zap.String("stderr", buferr.String()),
 		)
 		logger.Info(
 			"Executed command",

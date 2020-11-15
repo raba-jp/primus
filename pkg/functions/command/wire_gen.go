@@ -15,17 +15,16 @@ import (
 func NewFunctions() starlark.Value {
 	execInterface := modules.NewExecInterface()
 	executeRunner := Execute(execInterface)
-	fs := modules.NewFs()
-	osDetector := modules.NewOSDetector(execInterface, fs)
-	value := newFunctions(executeRunner, osDetector)
+	executableRunner := Executable(execInterface)
+	value := newFunctions(executeRunner, executableRunner)
 	return value
 }
 
 // wire.go:
 
-func newFunctions(exc ExecuteRunner, detector modules.OSDetector) starlark.Value {
+func newFunctions(execute ExecuteRunner, executable ExecutableRunner) starlark.Value {
 	dict := starlark.NewDict(2)
-	dict.SetKey(starlark.String("execute"), starlark.NewBuiltin("execute", NewExecuteFunction(exc)))
-	dict.SetKey(starlark.String("executable"), starlark.NewBuiltin("executable", NewExecutableFunction(detector)))
+	dict.SetKey(starlark.String("execute"), starlark.NewBuiltin("execute", NewExecuteFunction(execute)))
+	dict.SetKey(starlark.String("executable"), starlark.NewBuiltin("executable", NewExecutableFunction(executable)))
 	return dict
 }
