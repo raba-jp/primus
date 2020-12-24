@@ -35,6 +35,14 @@ func newDarwinFunctions(
 	return dict
 }
 
+func newFilePathFunctions() lib.Value {
+	dict := lib.NewDict(3)
+	dict.SetKey(lib.String("get_current_path"), lib.NewBuiltin("get_current_path", GetCurrentPath()))
+	dict.SetKey(lib.String("get_dir"), lib.NewBuiltin("get_dir", GetDir()))
+	dict.SetKey(lib.String("join_path"), lib.NewBuiltin("join_path", JoinPath()))
+	return dict
+}
+
 func NewArchFunctions() lib.Value {
 	wire.Build(
 		modules.NewExecInterface,
@@ -59,5 +67,10 @@ func NewDarwinFunctions() lib.Value {
 		DarwinUninstall,
 		newDarwinFunctions,
 	)
+	return nil
+}
+
+func NewFilePathFunctions() lib.Value {
+	wire.Build(newFilePathFunctions)
 	return nil
 }

@@ -36,6 +36,11 @@ func NewDarwinFunctions() starlark.Value {
 	return value
 }
 
+func NewFilePathFunctions() starlark.Value {
+	value := newFilePathFunctions()
+	return value
+}
+
 // wire.go:
 
 func newArchFunctions(
@@ -61,5 +66,13 @@ func newDarwinFunctions(
 	dict.SetKey(starlark.String("installed"), starlark.NewBuiltin("installed", NewDarwinInstalledFunction(installed)))
 	dict.SetKey(starlark.String("install"), starlark.NewBuiltin("install", NewDarwinInstallFunction(install)))
 	dict.SetKey(starlark.String("uninstall"), starlark.NewBuiltin("uninstall", NewDarwinUninstallFunction(uninstall)))
+	return dict
+}
+
+func newFilePathFunctions() starlark.Value {
+	dict := starlark.NewDict(3)
+	dict.SetKey(starlark.String("get_current_path"), starlark.NewBuiltin("get_current_path", GetCurrentPath()))
+	dict.SetKey(starlark.String("get_dir"), starlark.NewBuiltin("get_dir", GetDir()))
+	dict.SetKey(starlark.String("join_path"), starlark.NewBuiltin("join_path", JoinPath()))
 	return dict
 }

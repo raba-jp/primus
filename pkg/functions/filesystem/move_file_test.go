@@ -60,6 +60,7 @@ func TestMoveFile(t *testing.T) {
 		params    *filesystem.MoveFileParams
 		contents  string
 		errAssert assert.ErrorAssertionFunc
+		srcAssert assert.ValueAssertionFunc
 	}{
 		{
 			name: "success",
@@ -74,6 +75,7 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "test",
 			errAssert: assert.NoError,
+			srcAssert: assert.NotNil,
 		},
 		{
 			name: "success: relative path current path",
@@ -89,6 +91,7 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "test",
 			errAssert: assert.NoError,
+			srcAssert: assert.NotNil,
 		},
 		{
 			name: "success: relative path child path",
@@ -104,6 +107,7 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "test",
 			errAssert: assert.NoError,
+			srcAssert: assert.NotNil,
 		},
 		{
 			name: "success: relative path parent path",
@@ -119,6 +123,7 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "test",
 			errAssert: assert.NoError,
+			srcAssert: assert.NotNil,
 		},
 		{
 			name: "error: source file not found",
@@ -131,6 +136,7 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "",
 			errAssert: assert.Error,
+			srcAssert: assert.NotNil,
 		},
 		{
 			name: "error: destinatino file already exists",
@@ -146,11 +152,14 @@ func TestMoveFile(t *testing.T) {
 			},
 			contents:  "test",
 			errAssert: assert.Error,
+			srcAssert: assert.Nil,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			tt := tt
+
 			fs := tt.setup()
 			err := filesystem.MoveFile(fs)(context.Background(), tt.params)
 			tt.errAssert(t, err)
@@ -159,7 +168,7 @@ func TestMoveFile(t *testing.T) {
 			assert.Equal(t, tt.contents, string(data))
 
 			_, err = fs.Stat(tt.params.Src)
-			assert.NotNil(t, err)
+			tt.srcAssert(t, err)
 		})
 	}
 }

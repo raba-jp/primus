@@ -170,8 +170,9 @@ func TestCopyFile(t *testing.T) {
 				return fs
 			},
 			params: &filesystem.CopyFileParams{
-				Src:  "/sym/src.txt",
-				Dest: "/sym/dest.txt",
+				Src:        "/sym/src.txt",
+				Dest:       "/sym/dest.txt",
+				Permission: 0o777,
 			},
 			contents:  "test",
 			errAssert: assert.Error,
