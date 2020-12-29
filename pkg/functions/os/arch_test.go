@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/modules/mocks"
 	"golang.org/x/xerrors"
 
 	"github.com/raba-jp/primus/pkg/functions/command"
@@ -21,7 +20,7 @@ func TestNewIsArchFunction(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock mocks.OSDetectorArchLinuxExpectation
+		mock 
 		want lib.Value
 	}{
 		{

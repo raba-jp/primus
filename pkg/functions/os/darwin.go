@@ -9,14 +9,12 @@ import (
 
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
-
-	"github.com/raba-jp/primus/pkg/ctxlib"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -35,7 +33,6 @@ type DarwinUninstallRunner func(ctx context.Context, name string) error
 func NewIsDarwinFunction(detector modules.OSDetector) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, _ = ctxlib.LoggerWithNamespace(ctx, "function/is_darwin")
 		return starlark.ToBool(detector.Darwin(ctx)), nil
 	}
 }
@@ -43,7 +40,6 @@ func NewIsDarwinFunction(detector modules.OSDetector) starlark.Fn {
 func NewDarwinInstalledFunction(runner DarwinInstalledRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, _ = ctxlib.LoggerWithNamespace(ctx, "function/darwin_installed")
 
 		name := ""
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
@@ -59,7 +55,6 @@ func NewDarwinInstalledFunction(runner DarwinInstalledRunner) starlark.Fn {
 func NewDarwinInstallFunction(runner DarwinInstallRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/darwin_install")
 
 		params := &DarwinInstallParams{}
 		if err := lib.UnpackArgs(
@@ -71,12 +66,12 @@ func NewDarwinInstallFunction(runner DarwinInstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		logger.Debug(
-			"Params",
-			zap.String("name", params.Name),
-			zap.String("option", params.Option),
-			zap.Bool("cask", params.Cask),
-		)
+		log.Ctx(ctx).Debug().
+			Str("name", params.Name).
+			Str("option", params.Option).
+			Bool("cask", params.Cask).
+			Msg("params")
+
 		ui.Infof("Installing package. Name: %s, Option: %s, Cask: %v\n", params.Name, params.Option, params.Cask)
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
@@ -88,7 +83,6 @@ func NewDarwinInstallFunction(runner DarwinInstallRunner) starlark.Fn {
 func NewDarwinUninstallFunction(runner DarwinUninstallRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, _ = ctxlib.LoggerWithNamespace(ctx, "function/darwin_uninstall")
 
 		name := ""
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {

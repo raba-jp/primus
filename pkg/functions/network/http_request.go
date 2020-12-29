@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/starlark"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -25,25 +24,19 @@ type HTTPRequestRunner func(ctx context.Context, p *HTTPRequestParams) error
 func NewHTTPRequestFunction(runner HTTPRequestRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "http_request")
 		params, err := parseHTTPRequestArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		logger.Debug(
-			"http_request Params",
-			zap.String("url", params.URL),
-			zap.String("path", params.Path),
-		)
+		log.Ctx(ctx).Debug().Str("url", params.URL).Str("path", params.Path).Msg("params")
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		logger.Info(
-			"Finish HTTP request",
-			zap.String("url", params.URL),
-			zap.String("path", params.Path),
-		)
+		log.Ctx(ctx).Info().
+			Str("url", params.URL).
+			Str("path", params.Path).
+			Msg("finish HTTP request")
 		return lib.None, nil
 	}
 }

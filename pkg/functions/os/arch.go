@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/wesovilabs/koazee"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -13,7 +14,6 @@ import (
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 
 	lib "go.starlark.net/starlark"
@@ -40,7 +40,6 @@ type ArchUninstallRunner func(ctx context.Context, name string) error
 func NewIsArchFunction(detector modules.OSDetector) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, _ = ctxlib.LoggerWithNamespace(ctx, "function/is_arch_linux")
 		return starlark.ToBool(detector.ArchLinux(ctx)), nil
 	}
 }
@@ -48,13 +47,12 @@ func NewIsArchFunction(detector modules.OSDetector) starlark.Fn {
 func NewArchInstalledFunction(runner ArchInstalledRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/arch_installed")
 
 		name := ""
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		logger.Debug("Params", zap.String("name", name))
+		log.Ctx(ctx).Debug().Str("name", name).Msg("params")
 		return starlark.ToBool(runner(ctx, name)), nil
 	}
 }
@@ -62,14 +60,16 @@ func NewArchInstalledFunction(runner ArchInstalledRunner) starlark.Fn {
 func NewArchInstallFunction(runner ArchInstallRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/arch_install")
 
 		params := &ArchInstallParams{}
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &params.Name, "option?", &params.Option); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		logger.Debug("Params", zap.String("name", params.Name), zap.String("option", params.Option))
+		log.Ctx(ctx).Debug().
+			Str("name", params.Name).
+			Str("option", params.Option).
+			Msg("params")
 		ui.Infof("Installing package. Name: %s, Option: %s\n", params.Name, params.Option)
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
@@ -81,7 +81,6 @@ func NewArchInstallFunction(runner ArchInstallRunner) starlark.Fn {
 func NewArchMultipleInstallFunction(runner ArchMultipleInstallRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, _ = ctxlib.LoggerWithNamespace(ctx, "function/arch_multiple_install")
 
 		params, err := parseArchMultipleInstallArgs(b, args, kwargs)
 		if err != nil {
@@ -123,7 +122,6 @@ func parseArchMultipleInstallArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.T
 func NewArchUninstallFunction(runner ArchUninstallRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/arch_uninstall")
 
 		name := ""
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
@@ -131,7 +129,7 @@ func NewArchUninstallFunction(runner ArchUninstallRunner) starlark.Fn {
 		}
 
 		ui.Printf("Uninstalling package. Name: %s\n", name)
-		logger.Debug("Params", zap.String("name", name))
+		log.Ctx(ctx).Debug().Str("name", name).Msg("params")
 		if err := runner(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
@@ -151,19 +149,18 @@ func ArchInstalled(execRunner command.ExecuteRunner) ArchInstalledRunner {
 
 func ArchInstall(executable command.ExecutableRunner, execute command.ExecuteRunner) ArchInstallRunner {
 	return func(ctx context.Context, p *ArchInstallParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "arch_install")
 		cmd, options := archCmdArgs(ctx, executable, []string{p.Option, p.Name})
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
 
 		if ArchInstalled(execute)(ctx, p.Name) {
-			logger.Info("Already installed")
+			log.Ctx(ctx).Info().Msg("already installed")
 			return nil
 		}
 
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
-		logger.Debug("Params", zap.String("cmd", cmd), zap.Strings("args", options))
+		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("args", options).Msg("params")
 		params := &command.Params{
 			Cmd:  cmd,
 			Args: options,
@@ -181,7 +178,6 @@ func ArchInstall(executable command.ExecutableRunner, execute command.ExecuteRun
 
 func ArchMultipleInstall(executable command.ExecutableRunner, execute command.ExecuteRunner) ArchMultipleInstallRunner {
 	return func(ctx context.Context, ps []*ArchInstallParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "arch_multiple_install")
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
 		ctx, cancel := context.WithTimeout(ctx, multipleInstallTimeout)
 		defer cancel()
@@ -191,7 +187,7 @@ func ArchMultipleInstall(executable command.ExecutableRunner, execute command.Ex
 		}).Do().Out().Val().([]string)
 		cmd, options := archCmdArgs(ctx, executable, names)
 
-		logger.Debug("Params", zap.String("cmd", cmd), zap.Strings("options", options))
+		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("options", options).Msg("params")
 
 		params := &command.Params{
 			Cmd:  cmd,

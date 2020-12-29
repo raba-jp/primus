@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOSDetector_Darwin(t *testing.T) {
+func TestNewDarwinChecker(t *testing.T) {
 	tests := []struct {
 		name string
 		mock exec.InterfaceCommandContextExpectation
@@ -109,14 +109,13 @@ func TestOSDetector_Darwin(t *testing.T) {
 			e := new(exec.MockInterface)
 			e.ApplyCommandContextExpectation(tt.mock)
 
-			detector := modules.NewOSDetector(e, nil)
-			result := detector.Darwin(context.Background())
+			result := modules.NewDarwinChecker(e)(context.Background())
 			assert.Equal(t, tt.want, result)
 		})
 	}
 }
 
-func TestOSDetector_ArchLinux(t *testing.T) {
+func TestNewArchLinuxChecker(t *testing.T) {
 	tests := []struct {
 		name string
 		mock func() afero.Fs
@@ -153,8 +152,7 @@ func TestOSDetector_ArchLinux(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fs := tt.mock()
 
-			detector := modules.NewOSDetector(nil, fs)
-			result := detector.ArchLinux(context.Background())
+			result := modules.NewArchLinuxChecker(fs)(context.Background())
 			assert.Equal(t, tt.want, result)
 		})
 	}

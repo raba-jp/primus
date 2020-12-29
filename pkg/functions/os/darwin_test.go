@@ -6,7 +6,7 @@ import (
 
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
-	"github.com/raba-jp/primus/pkg/modules/mocks"
+	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -19,22 +19,20 @@ func TestNewIsDarwinFunction(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock mocks.OSDetectorDarwinExpectation
+		mock modules.DarwinChecker
 		want lib.Value
 	}{
 		{
 			name: "success",
-			mock: mocks.OSDetectorDarwinExpectation{
-				Args:    mocks.OSDetectorDarwinArgs{CtxAnything: true},
-				Returns: mocks.OSDetectorDarwinReturns{V: true},
+			mock: func(context.Context) bool {
+				return true
 			},
 			want: lib.True,
 		},
 		{
-			name: "fail: linux",
-			mock: mocks.OSDetectorDarwinExpectation{
-				Args:    mocks.OSDetectorDarwinArgs{CtxAnything: true},
-				Returns: mocks.OSDetectorDarwinReturns{V: false},
+			name: "failure",
+			mock: func(context.Context) bool {
+				return false
 			},
 			want: lib.False,
 		},

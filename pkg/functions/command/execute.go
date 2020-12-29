@@ -10,9 +10,8 @@ import (
 	"syscall"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/exec"
-	"go.uber.org/zap"
+	"github.com/rs/zerolog/log"
 
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
@@ -38,19 +37,17 @@ type ExecuteRunner func(ctx context.Context, params *Params) error
 func NewExecuteFunction(exc ExecuteRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/execute")
 
 		params, err := parseArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		logger.Debug(
-			"Params",
-			zap.String("cmd", params.Cmd),
-			zap.Strings("args", params.Args),
-			zap.String("user", params.User),
-			zap.String("cwd", params.Cwd),
-		)
+		log.Ctx(ctx).Debug().
+			Str("cmd", params.Cmd).
+			Strs("args", params.Args).
+			Str("user", params.User).
+			Str("cwd", params.Cwd).
+			Msg("params")
 
 		ui.Infof("Executing command: %s\n", params)
 		if err := exc(ctx, params); err != nil {
@@ -104,9 +101,8 @@ func parseArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*Params, err
 
 func Execute(exc exec.Interface) ExecuteRunner {
 	return func(ctx context.Context, params *Params) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "execute")
-
 		cmd := exc.CommandContext(ctx, params.Cmd, params.Args...)
+		logger := log.Ctx(ctx)
 
 		if params.Stdin != nil {
 			cmd.SetStdin(params.Stdin)
@@ -114,18 +110,18 @@ func Execute(exc exec.Interface) ExecuteRunner {
 		bufout := new(bytes.Buffer)
 		cmd.SetStdout(params.Stdout)
 		if params.Stdout != nil {
-			logger.Debug("Set stdout")
+			logger.Debug().Msg("set stdout")
 			cmd.SetStdout(io.MultiWriter(params.Stdout, bufout))
 		}
 		buferr := new(bytes.Buffer)
 		cmd.SetStderr(params.Stderr)
 		if params.Stderr != nil {
-			logger.Debug("Set stderr")
+			logger.Debug().Msg("set stderr")
 			cmd.SetStderr(io.MultiWriter(params.Stderr, buferr))
 		}
 
 		if params.Cwd != "" {
-			logger.Debug("Set directory", zap.String("cwd", params.Cwd))
+			logger.Debug().Str("cwd", params.Cwd).Msg("set directory")
 			cmd.SetDir(params.Cwd)
 		}
 
@@ -145,7 +141,7 @@ func Execute(exc exec.Interface) ExecuteRunner {
 				return xerrors.Errorf("Failed to get GID: %w", err)
 			}
 
-			logger.Debug("Set UID and GID", zap.Uint32("uid", uid), zap.Uint32("gid", gid))
+			logger.Debug().Uint32("uid", uid).Uint32("gid", gid).Msg("set UID and GID")
 			proc := &syscall.SysProcAttr{}
 			proc.Credential = &syscall.Credential{Uid: uid, Gid: gid}
 			cmd.SetSysProcAttr(proc)
@@ -154,18 +150,13 @@ func Execute(exc exec.Interface) ExecuteRunner {
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("Failed to execute command '%s': %w", params, err)
 		}
-		logger.Debug(
-			"Command output",
-			zap.String("stdout", bufout.String()),
-			zap.String("stderr", buferr.String()),
-		)
-		logger.Info(
-			"Executed command",
-			zap.String("cmd", params.Cmd),
-			zap.Strings("args", params.Args),
-			zap.String("user", params.User),
-			zap.String("cwd", params.Cwd),
-		)
+		logger.Debug().Str("stdout", bufout.Strnig()).Str("stderr", buferr.String()).Msg("command output")
+		logger.Info().
+			Str("cmd", params.Cmd).
+			Str("args", params.Args).
+			Str("user", params.User).
+			Str("cwd", params.Cwd).
+			Msg("executed command")
 		return nil
 	}
 }

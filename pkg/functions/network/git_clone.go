@@ -6,10 +6,9 @@ import (
 
 	lib "go.starlark.net/starlark"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"go.uber.org/zap"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/xerrors"
 )
 
@@ -45,7 +44,6 @@ func NewGitCloneFunction(runner GitCloneRunner) starlark.Fn {
 
 func GitClone(execute command.ExecuteRunner) GitCloneRunner {
 	return func(ctx context.Context, p *GitCloneParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "git_clone")
 		base := p.Path
 		if !filepath.IsAbs(p.Path) {
 			base = filepath.Join(p.Cwd, p.Path)
@@ -60,11 +58,11 @@ func GitClone(execute command.ExecuteRunner) GitCloneRunner {
 			return xerrors.Errorf("Failed to git clone: %w", err)
 		}
 
-		logger.Info("Finish git clone",
-			zap.String("url", p.URL),
-			zap.String("path", base),
-			zap.String("branch", p.Branch),
-		)
+		log.Ctx(ctx).Info().
+			Str("url", p.URL).
+			Str("path", base).
+			Str("branch", p.Branch).
+			Msg("finish git clone")
 		return nil
 	}
 }

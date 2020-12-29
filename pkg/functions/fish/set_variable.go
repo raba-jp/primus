@@ -9,7 +9,6 @@ import (
 	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -70,8 +69,6 @@ func parseSetVariableArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*
 
 func SetVariable(execute command.ExecuteRunner) SetVariableRunner {
 	return func(ctx context.Context, p *SetVariableParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "fish_set_variable")
-
 		var scope string
 		switch p.Scope {
 		case UniversalScope:
@@ -95,13 +92,13 @@ func SetVariable(execute command.ExecuteRunner) SetVariableRunner {
 		}); err != nil {
 			return xerrors.Errorf("failed to set variable: fish --command %s: %w", arg, err)
 		}
-		logger.Info(
-			"set fish variable",
-			zap.String("name", p.Name),
-			zap.String("value", p.Value),
-			zap.String("scope", scope),
-			zap.Bool("export", p.Export),
-		)
+		log.Ctx(ctx)Info().
+			Str("name", p.Name).
+			Str("value", p.Value).
+			Str("scope", scope).
+			Bool("export", p.Export).
+			Msg("set fish variable")
+			
 		return nil
 	}
 }

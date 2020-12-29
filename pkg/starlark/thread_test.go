@@ -15,17 +15,13 @@ func TestThreadOptions(t *testing.T) {
 	thread := starlark.NewThread(
 		"test",
 		starlark.WithContext(ctx),
-		starlark.WithDryRunMode(true),
 		starlark.WithLogger(nil),
 		starlark.WithLoad(func(thread *lib.Thread, module string) (lib.StringDict, error) {
 			return nil, nil
 		}),
 	)
-	got := starlark.GetCtx(thread)
+	got := starlark.ToContext(thread)
 	assert.Equalf(t, ctx, got, "different context")
-
-	dryrun := starlark.GetDryRunMode(thread)
-	assert.True(t, dryrun)
 
 	load := thread.Load
 	assert.NotNil(t, load)

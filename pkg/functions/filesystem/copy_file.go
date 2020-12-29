@@ -7,13 +7,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -29,7 +28,6 @@ type CopyFileRunner func(ctx context.Context, p *CopyFileParams) error
 func NewCopyFileFunction(runner CopyFileRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/copy_file")
 
 		params, err := parseCopyArgs(b, args, kwargs)
 		if err != nil {
@@ -38,13 +36,12 @@ func NewCopyFileFunction(runner CopyFileRunner) starlark.Fn {
 
 		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
 
-		logger.Debug(
-			"Params",
-			zap.String("src", params.Src),
-			zap.String("dest", params.Dest),
-			zap.String("permission", params.Permission.String()),
-			zap.String("cwd", params.Cwd),
-		)
+		log.Ctx(ctx).Debug().
+			Str("src", params.Src).
+			Str("dest", params.Dest).
+			Str("permission", params.Permission.String()).
+			Str("cwd", params.Cwd).
+			Msg("params")
 		ui.Infof(
 			"Coping file. Src: %s, Dest: %s, Permission: %v, Cwd: %s\n",
 			params.Src,
@@ -73,8 +70,6 @@ func parseCopyArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*CopyFil
 
 func CopyFile(fs afero.Fs) CopyFileRunner {
 	return func(ctx context.Context, params *CopyFileParams) error {
-		_, logger := ctxlib.LoggerWithNamespace(ctx, "copy_file")
-
 		if !filepath.IsAbs(params.Src) {
 			params.Src = filepath.Join(params.Cwd, params.Src)
 		}
@@ -101,12 +96,11 @@ func CopyFile(fs afero.Fs) CopyFileRunner {
 		if _, err := io.Copy(destFile, srcFile); err != nil {
 			return xerrors.Errorf("Failed to copy src to dest: %w", err)
 		}
-		logger.Info(
-			"Copied file",
-			zap.String("source", params.Src),
-			zap.String("destination", params.Dest),
-			zap.String("permission", fmt.Sprintf("%v", params.Permission)),
-		)
+		log.Ctx(ctx).Info().
+			Str("source", params.Src).
+			Str("destination", params.Dest).
+			Str("permission", fmt.Sprintf("%v", params.Permission)).
+			Msg("copied file")
 		return nil
 	}
 }

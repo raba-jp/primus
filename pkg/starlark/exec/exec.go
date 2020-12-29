@@ -7,7 +7,6 @@ import (
 	"github.com/raba-jp/primus/pkg/starlark/builtin"
 	"github.com/spf13/afero"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -24,7 +23,6 @@ func NewExecFn(predeclared builtin.Predeclared, fs afero.Fs) Fn {
 			"main",
 			starlark.WithLoad(starlark.Load(fs, predeclared)),
 			starlark.WithContext(ctx),
-			starlark.WithLogger(zap.L()),
 			starlark.WithDryRunMode(dryrun),
 		)
 		if _, err := lib.ExecFile(thread, path, data, predeclared); err != nil {

@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/starlark"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -22,13 +21,15 @@ type CreateSymlinkRunner func(ctx context.Context, params *CreateSymlinkParams) 
 func NewCreateSymlinkFunction(runner CreateSymlinkRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "function/create_symlink")
 
 		params := &CreateSymlinkParams{}
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "src", &params.Src, "dest", &params.Dest); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		logger.Debug("Params", zap.String("src", params.Src), zap.String("dest", params.Dest))
+		log.Ctx(ctx).Debug().
+			Str("src", params.Src).
+			Str("dest", params.Dest).
+			Msg("params")
 
 		ui.Infof("Creating symbolic link. Src: %s, Dest: %s\n", params.Src, params.Dest)
 		if err := runner(ctx, params); err != nil {
@@ -40,8 +41,6 @@ func NewCreateSymlinkFunction(runner CreateSymlinkRunner) starlark.Fn {
 
 func CreateSymlink(fs afero.Fs) CreateSymlinkRunner {
 	return func(ctx context.Context, params *CreateSymlinkParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "create_symlink")
-
 		existFile := ExistsFile(fs)
 		if ret := existFile(ctx, params.Src); !ret {
 			return xerrors.New("Source file not found")
@@ -58,11 +57,10 @@ func CreateSymlink(fs afero.Fs) CreateSymlinkRunner {
 			return xerrors.Errorf("Failed to create symbolic link: %w", err)
 		}
 
-		logger.Info(
-			"Create symbolic link",
-			zap.String("source", params.Src),
-			zap.String("destination", params.Dest),
-		)
+		log.Ctx(ctx).Info().
+			Str("source", params.Src).
+			Str("destination", params.Dest).
+			Msg("Create symbolic link")
 
 		return nil
 	}

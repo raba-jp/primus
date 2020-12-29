@@ -5,13 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/starlark"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -26,19 +25,17 @@ type CreateDirectoryRunner func(ctx context.Context, p *CreateDirectoryParams) e
 func NewCreateDirectoryFunction(runner CreateDirectoryRunner) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "create_directory")
 
 		params, err := parseCreateArgs(b, args, kwargs)
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
-		logger.Debug(
-			"Params",
-			zap.String("path", params.Path),
-			zap.String("permission", params.Permission.String()),
-			zap.String("cwd", params.Cwd),
-		)
+		log.Ctx(ctx).Debug().
+			Str("path", params.Path).
+			Str("permission", params.Permission.String()).
+			Str("cwd", params.Cwd).
+			Msg("params")
 
 		ui.Infof("Creating directories: %s\n", params.Path)
 		if err := runner(ctx, params); err != nil {
@@ -60,7 +57,6 @@ func parseCreateArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*Creat
 
 func CreateDirectory(fs afero.Fs) CreateDirectoryRunner {
 	return func(ctx context.Context, params *CreateDirectoryParams) error {
-		logger := ctxlib.Logger(ctx)
 		if !filepath.IsAbs(params.Path) {
 			params.Path = filepath.Join(params.Cwd, params.Path)
 		}
@@ -68,12 +64,11 @@ func CreateDirectory(fs afero.Fs) CreateDirectoryRunner {
 		if err := fs.MkdirAll(params.Path, params.Permission); err != nil {
 			return xerrors.Errorf("Create directory fialed: %w", err)
 		}
-		logger.Info(
-			"Create directory",
-			zap.String("path", params.Path),
-			zap.String("permission", params.Permission.String()),
-			zap.String("cwd", params.Cwd),
-		)
+		log.Ctx(ctx).Info().
+			Str("path", params.Path).
+			Str("permission", params.Permission.String()).
+			Str("cwd", params.Cwd).
+			Msg("create directory")
 		return nil
 	}
 }

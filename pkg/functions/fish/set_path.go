@@ -7,10 +7,9 @@ import (
 
 	lib "go.starlark.net/starlark"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/starlark"
-	"go.uber.org/zap"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/xerrors"
 )
 
@@ -63,7 +62,6 @@ func parseSetPathArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*SetP
 
 func SetPath(execute command.ExecuteRunner) SetPathRunner {
 	return func(ctx context.Context, p *SetPathParams) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "fish_set_path")
 		arg := fmt.Sprintf("'set --universal fish_user_paths %s'", strings.Join(p.Values, " "))
 
 		if err := execute(ctx, &command.Params{
@@ -72,7 +70,7 @@ func SetPath(execute command.ExecuteRunner) SetPathRunner {
 		}); err != nil {
 			return xerrors.Errorf("failed to set path: fish --command 'set --universal fish_user_path %s': %w", arg, err)
 		}
-		logger.Info("set fish path", zap.Strings("values", p.Values))
+		log.Ctx(ctx).Info().Strs("values", p.Values).Msg("set fish path")
 		return nil
 	}
 }

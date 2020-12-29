@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/raba-jp/primus/pkg/ctxlib"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/starlark"
+	"github.com/rs/zerolog/log"
 	lib "go.starlark.net/starlark"
-	"go.uber.org/zap"
 	"golang.org/x/xerrors"
 )
 
@@ -46,8 +45,6 @@ func NewSystemdStartFunction(runner SystemdStartRunner) starlark.Fn {
 
 func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
 	return func(ctx context.Context, name string) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "enable_service")
-
 		bufout := new(bytes.Buffer)
 		buferr := new(bytes.Buffer)
 		if err := execute(ctx, &command.Params{
@@ -59,14 +56,13 @@ func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
 			return xerrors.Errorf("systemctl is-enabled %s failed", name)
 		}
 
-		logger.Debug(
-			"Command output",
-			zap.Strings("command", []string{"systemctl", "is-enabled", name}),
-			zap.String("stdout", bufout.String()),
-			zap.String("stderr", buferr.String()),
-		)
+		log.Ctx(ctx).Debug().
+			Strs("command", []string{"systemctl", "is-enabled", name}).
+			Str("stdout", bufout.String()).
+			Str("stderr", buferr.String()).
+			Msg("command output")
 		if bufout.String() == "enabled\n" {
-			logger.Info("Already enabled", zap.String("name", name))
+			log.Ctx(ctx).Info().Str("name", name).Msg("already enabled")
 			return nil
 		}
 
@@ -78,29 +74,26 @@ func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
 			Stdout: bufout,
 			Stderr: buferr,
 		}); err != nil {
-			logger.Error("systemd service enable failed",
-				zap.String("name", name),
-				zap.String("stdout", bufout.String()),
-				zap.String("stderr", buferr.String()),
-			)
+			log.Ctx(ctx).Error().
+				Str("name", name).
+				Str("stdout", bufout.String()).
+				Str("stderr", buferr.String()).
+				Msg("systemd service enable failed")
 			return xerrors.Errorf("systemd service enable failed: %w", err)
 		}
 
-		logger.Debug(
-			"Command output",
-			zap.Strings("command", []string{"systemctl", "enable", name}),
-			zap.String("stdout", bufout.String()),
-			zap.String("stderr", buferr.String()),
-		)
-		logger.Info("Finish systemd service enable", zap.String("name", name))
+		log.Ctx(ctx).Debug().
+			Strs("command", []string{"systemctl", "enable", name}).
+			Str("stdout", bufout.String()).
+			Str("stderr", buferr.String()).
+			Msg("command output")
+		log.Ctx(ctx).Info().String("name", name).Msg("finish systemd service enable")
 		return nil
 	}
 }
 
 func SystemdStart(execute command.ExecuteRunner) SystemdStartRunner {
 	return func(ctx context.Context, name string) error {
-		ctx, logger := ctxlib.LoggerWithNamespace(ctx, "start_service")
-
 		bufout := new(bytes.Buffer)
 		buferr := new(bytes.Buffer)
 		if err := execute(ctx, &command.Params{
@@ -111,15 +104,13 @@ func SystemdStart(execute command.ExecuteRunner) SystemdStartRunner {
 		}); err != nil {
 			return xerrors.Errorf("systemctl is-active %s failed", name)
 		}
-		logger.Debug(
-			"Command output",
-			zap.Strings("command", []string{"systemctl", "is-active", name}),
-			zap.String("stdout", bufout.String()),
-			zap.String("stderr", buferr.String()),
-		)
-
+		log.Ctx(ctx).Debug().
+			Strs("command", []string{"systemctl", "is-active", name}).
+			Str("stdout", bufout.String()).
+			Str("stderr", buferr.String()).
+			Msg("command output")
 		if bufout.String() == "active\n" {
-			logger.Info("Already active", zap.String("name", name))
+			log.Ctx(ctx).Info().Str("name", name).Msg("already active")
 			return nil
 		}
 
@@ -131,22 +122,22 @@ func SystemdStart(execute command.ExecuteRunner) SystemdStartRunner {
 			Stdout: bufout,
 			Stderr: buferr,
 		}); err != nil {
-			logger.Error(
-				"systemd service start failed",
-				zap.String("name", name),
-				zap.String("stdout", bufout.String()),
-				zap.String("stderr", buferr.String()),
-			)
+			log.Ctx(ctx).Error().
+				Str("name", name).
+				Str("stdout", bufout.String()).
+				Str("stderr", buferr.String()).
+				Err(err).
+				Msg("systemd service start failed")
 			return xerrors.Errorf("systemd service start failed: %w", err)
 		}
 
-		logger.Debug(
-			"Command output",
-			zap.Strings("command", []string{"systemctl", "start", name}),
-			zap.String("stdout", bufout.String()),
-			zap.String("stderr", buferr.String()),
-		)
-		logger.Info("Finish systemd service start", zap.String("name", name))
+		log.Ctx(ctx).Debug().
+			Strs("command", []string{"systemctl", "start", name}).
+			Str("stdout", bufout.String()).
+			Str("stderr", buferr.String()).
+			Msg("command output")
+
+		log.Ctx(ctx).Info().Str("name", name).Msg("finish systemd service start")
 		return nil
 	}
 }
