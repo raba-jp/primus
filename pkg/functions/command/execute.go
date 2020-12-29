@@ -150,10 +150,10 @@ func Execute(exc exec.Interface) ExecuteRunner {
 		if err := cmd.Run(); err != nil {
 			return xerrors.Errorf("Failed to execute command '%s': %w", params, err)
 		}
-		logger.Debug().Str("stdout", bufout.Strnig()).Str("stderr", buferr.String()).Msg("command output")
-		logger.Info().
+		log.Ctx(ctx).Debug().Str("stdout", bufout.String()).Str("stderr", buferr.String()).Msg("command output")
+		log.Ctx(ctx).Info().
 			Str("cmd", params.Cmd).
-			Str("args", params.Args).
+			Strs("args", params.Args).
 			Str("user", params.User).
 			Str("cwd", params.Cwd).
 			Msg("executed command")
