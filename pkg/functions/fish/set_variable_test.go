@@ -79,8 +79,8 @@ func TestNewSetVariableFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, fish.NewSetVariableFunction(tt.mock))
@@ -166,8 +166,8 @@ func TestSetVariable(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := fish.SetVariable(tt.mock)(context.Background(), tt.params)

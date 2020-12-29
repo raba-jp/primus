@@ -20,7 +20,7 @@ func TestNewIsArchFunction(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock 
+		mock
 		want lib.Value
 	}{
 		{
@@ -42,8 +42,8 @@ func TestNewIsArchFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			detector := new(mocks.OSDetector)
@@ -93,8 +93,8 @@ func TestNewArchInstalledFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewArchInstalledFunction(tt.mock))
@@ -139,8 +139,8 @@ func TestNewArchInstallFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewArchInstallFunction(tt.mock))
@@ -193,8 +193,8 @@ func TestNewArchMultipleInstallFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewArchMultipleInstallFunction(tt.mock))
@@ -239,8 +239,8 @@ func TestNewArchUninstallFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewArchUninstallFunction(tt.mock))
@@ -276,8 +276,8 @@ func TestArchInstalled(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			checkInstall := os.ArchInstalled(tt.mock)
@@ -329,8 +329,8 @@ func TestArchInstall(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			install := os.ArchInstall(tt.executable, tt.execute)
@@ -375,8 +375,8 @@ func TestNewMultipleInstall(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			multipleInstall := os.ArchMultipleInstall(tt.executable, tt.execute)
@@ -433,8 +433,8 @@ func TestArchUninstall(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			uninstall := os.ArchUninstall(tt.mock())
@@ -511,8 +511,8 @@ func TestArchCmdArgs(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			cmd, args := os.ArchCmdArgs(context.Background(), tt.mock(), tt.params)

@@ -47,8 +47,8 @@ func TestNewGitCloneFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, network.NewGitCloneFunction(tt.mock))
@@ -106,8 +106,8 @@ func TestClone(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := network.GitClone(tt.mock)(context.Background(), tt.params)

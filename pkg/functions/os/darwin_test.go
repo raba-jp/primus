@@ -39,8 +39,8 @@ func TestNewIsDarwinFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			detector := new(mocks.OSDetector)
@@ -90,8 +90,8 @@ func TestNewDarwinInstalledFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewDarwinInstalledFunction(tt.mock))
@@ -136,8 +136,8 @@ func TestNewDarwinInstallFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewDarwinInstallFunction(tt.mock))
@@ -182,8 +182,8 @@ func TestNewDarwinUninstallFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewDarwinUninstallFunction(tt.mock))
@@ -353,8 +353,8 @@ func TestDarwinInstall(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			install := os.DarwinInstall(tt.execute(), tt.fs())
@@ -421,8 +421,8 @@ func TestNewUninstall(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			uninstall := os.DarwinUninstall(tt.execute(), tt.fs())

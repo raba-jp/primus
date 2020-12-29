@@ -48,8 +48,8 @@ func TestNewSystemdEnableFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewSystemdEnableFunction(tt.mock))
@@ -94,8 +94,8 @@ func TestNewSystemdStartFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, os.NewSystemdStartFunction(tt.mock))
@@ -139,8 +139,8 @@ func TestEnableService(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := os.SystemdEnable(tt.mock)(context.Background(), "dummy.service")
@@ -184,8 +184,8 @@ func TestSystemdStart(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			tt := tt
 			t.Parallel()
 
 			err := os.SystemdStart(tt.mock)(context.Background(), "dummy.service")
