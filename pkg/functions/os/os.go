@@ -21,17 +21,19 @@ func newArchFunctions(
 	multipleInstall ArchMultipleInstallRunner,
 	uninstall ArchUninstallRunner,
 ) lib.Value {
-	dict := lib.NewDict(4)
+	fnNum := 5
+	dict := lib.NewDict(fnNum)
+	_ = dict.SetKey(lib.String("is_arch_linux"), lib.NewBuiltin("is_arch_linux", NewIsArchFunction(checker)))
 	if checker(context.Background()) {
-		dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", NewArchInstalledFunction(installed)))
-		dict.SetKey(lib.String("install"), lib.NewBuiltin("install", NewArchInstallFunction(install)))
-		dict.SetKey(lib.String("multiple_install"), lib.NewBuiltin("multiple_install", NewArchMultipleInstallFunction(multipleInstall)))
-		dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", NewArchUninstallFunction(uninstall)))
+		_ = dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", NewArchInstalledFunction(installed)))
+		_ = dict.SetKey(lib.String("install"), lib.NewBuiltin("install", NewArchInstallFunction(install)))
+		_ = dict.SetKey(lib.String("multiple_install"), lib.NewBuiltin("multiple_install", NewArchMultipleInstallFunction(multipleInstall)))
+		_ = dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", NewArchUninstallFunction(uninstall)))
 	} else {
-		dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", dummyFunction()))
-		dict.SetKey(lib.String("install"), lib.NewBuiltin("install", dummyFunction()))
-		dict.SetKey(lib.String("multiple_install"), lib.NewBuiltin("multiple_install", dummyFunction()))
-		dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", dummyFunction()))
+		_ = dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", dummyFunction()))
+		_ = dict.SetKey(lib.String("install"), lib.NewBuiltin("install", dummyFunction()))
+		_ = dict.SetKey(lib.String("multiple_install"), lib.NewBuiltin("multiple_install", dummyFunction()))
+		_ = dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", dummyFunction()))
 	}
 	return dict
 }
@@ -42,23 +44,26 @@ func newDarwinFunctions(
 	install DarwinInstallRunner,
 	uninstall DarwinUninstallRunner,
 ) lib.Value {
-	dict := lib.NewDict(3)
+	fnNum := 4
+	dict := lib.NewDict(fnNum)
+	_ = dict.SetKey(lib.String("is_darwin"), lib.NewBuiltin("is_darwin", NewIsDarwinFunction(checker)))
 	if checker(context.Background()) {
-		dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", NewDarwinInstalledFunction(installed)))
-		dict.SetKey(lib.String("install"), lib.NewBuiltin("install", NewDarwinInstallFunction(install)))
-		dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", NewDarwinUninstallFunction(uninstall)))
+		_ = dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", NewDarwinInstalledFunction(installed)))
+		_ = dict.SetKey(lib.String("install"), lib.NewBuiltin("install", NewDarwinInstallFunction(install)))
+		_ = dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", NewDarwinUninstallFunction(uninstall)))
 	} else {
-		dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", dummyFunction()))
-		dict.SetKey(lib.String("install"), lib.NewBuiltin("install", dummyFunction()))
-		dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", dummyFunction()))
+		_ = dict.SetKey(lib.String("installed"), lib.NewBuiltin("installed", dummyFunction()))
+		_ = dict.SetKey(lib.String("install"), lib.NewBuiltin("install", dummyFunction()))
+		_ = dict.SetKey(lib.String("uninstall"), lib.NewBuiltin("uninstall", dummyFunction()))
 	}
 	return dict
 }
 
 func newFilePathFunctions() lib.Value {
-	dict := lib.NewDict(3)
-	dict.SetKey(lib.String("get_current_path"), lib.NewBuiltin("get_current_path", GetCurrentPath()))
-	dict.SetKey(lib.String("get_dir"), lib.NewBuiltin("get_dir", GetDir()))
-	dict.SetKey(lib.String("join_path"), lib.NewBuiltin("join_path", JoinPath()))
+	fnNum := 3
+	dict := lib.NewDict(fnNum)
+	_ = dict.SetKey(lib.String("get_current_path"), lib.NewBuiltin("get_current_path", GetCurrentPath()))
+	_ = dict.SetKey(lib.String("get_dir"), lib.NewBuiltin("get_dir", GetDir()))
+	_ = dict.SetKey(lib.String("join_path"), lib.NewBuiltin("join_path", JoinPath()))
 	return dict
 }

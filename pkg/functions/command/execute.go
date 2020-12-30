@@ -27,10 +27,10 @@ func NewExecuteFunction(exc backend.Execute) starlark.Fn {
 			Str("cwd", params.Cwd).
 			Msg("params")
 
-		ui.Infof("Executing command: %s\n", params)
 		if err := exc(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		ui.Infof("Executed %s %v\n", params.Cmd, params.Args)
 		return lib.None, nil
 	}
 }
