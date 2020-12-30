@@ -47,6 +47,7 @@ func NewDarwinInstalledFunction(runner DarwinInstalledRunner) starlark.Fn {
 		if ret := runner(ctx, name); ret {
 			return lib.True, nil
 		}
+		ui.Infof("Already installed %s\n", name)
 		return lib.False, nil
 	}
 }
@@ -65,16 +66,11 @@ func NewDarwinInstallFunction(runner DarwinInstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		log.Debug().
-			Str("name", params.Name).
-			Str("option", params.Option).
-			Bool("cask", params.Cask).
-			Msg("params")
-
-		ui.Infof("Installing package. Name: %s, Option: %s, Cask: %v\n", params.Name, params.Option, params.Cask)
+		log.Debug().Str("name", params.Name).Str("option", params.Option).Bool("cask", params.Cask).Send()
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		ui.Infof("Installed %s\n", params.Name)
 		return lib.None, nil
 	}
 }
@@ -88,10 +84,10 @@ func NewDarwinUninstallFunction(runner DarwinUninstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		ui.Printf("Uninstalling package. Name: %s\n", name)
 		if err := runner(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		ui.Infof("Uninstalled %s\n", name)
 		return lib.None, nil
 	}
 }
@@ -132,7 +128,7 @@ func DarwinInstall(execute backend.Execute, fs afero.Fs) DarwinInstallRunner {
 
 		args := []string{"install", p.Option, p.Name}
 		if p.Cask {
-			args = []string{"cask", "install", p.Option, p.Name}
+			args = []string{"install", "--cask", p.Option, p.Name}
 		}
 
 		if err := execute(ctx, &backend.ExecuteParams{Cmd: "brew", Args: args}); err != nil {

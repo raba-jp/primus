@@ -53,7 +53,7 @@ func NewArchInstalledFunction(runner ArchInstalledRunner) starlark.Fn {
 		}
 		installed := runner(ctx, name)
 		if installed {
-			ui.Infof("Already Installed %s\n", name)
+			ui.Infof("Already installed %s\n", name)
 		} else {
 			ui.Infof("Not installed %s\n", name)
 		}
@@ -70,9 +70,7 @@ func NewArchInstallFunction(runner ArchInstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		log.Debug().
-			Str("name", params.Name).
-			Str("option", params.Option)
+		log.Debug().Str("name", params.Name).Str("option", params.Option).Send()
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
