@@ -51,7 +51,7 @@ func NewArchInstalledFunction(runner ArchInstalledRunner) starlark.Fn {
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		log.Ctx(ctx).Debug().Str("name", name).Msg("params")
+		log.Debug().Str("name", name).Msg("params")
 		return starlark.ToBool(runner(ctx, name)), nil
 	}
 }
@@ -65,7 +65,7 @@ func NewArchInstallFunction(runner ArchInstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("name", params.Name).
 			Str("option", params.Option).
 			Msg("params")
@@ -128,7 +128,7 @@ func NewArchUninstallFunction(runner ArchUninstallRunner) starlark.Fn {
 		}
 
 		ui.Printf("Uninstalling package. Name: %s\n", name)
-		log.Ctx(ctx).Debug().Str("name", name).Msg("params")
+		log.Debug().Str("name", name).Msg("params")
 		if err := runner(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
@@ -152,14 +152,14 @@ func ArchInstall(executable backend.Executable, execute backend.Execute) ArchIns
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
 
 		if ArchInstalled(execute)(ctx, p.Name) {
-			log.Ctx(ctx).Info().Msg("already installed")
+			log.Info().Msg("already installed")
 			return nil
 		}
 
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
-		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("args", options).Msg("params")
+		log.Debug().Str("cmd", cmd).Strs("args", options).Msg("params")
 		params := &backend.ExecuteParams{
 			Cmd:  cmd,
 			Args: options,
@@ -186,7 +186,7 @@ func ArchMultipleInstall(executable backend.Executable, execute backend.Execute)
 		}).Do().Out().Val().([]string)
 		cmd, options := archCmdArgs(ctx, executable, names)
 
-		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("options", options).Msg("params")
+		log.Debug().Str("cmd", cmd).Strs("options", options).Msg("params")
 
 		params := &backend.ExecuteParams{
 			Cmd:  cmd,

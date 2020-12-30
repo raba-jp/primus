@@ -91,7 +91,7 @@ func SetVariable(execute backend.Execute) SetVariableRunner {
 		}); err != nil {
 			return xerrors.Errorf("failed to set variable: fish --command %s: %w", arg, err)
 		}
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("name", p.Name).
 			Str("value", p.Value).
 			Str("scope", scope).

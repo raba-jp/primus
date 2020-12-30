@@ -70,7 +70,7 @@ func SetPath(execute backend.Execute) SetPathRunner {
 		}); err != nil {
 			return xerrors.Errorf("failed to set path: fish --command 'set --universal fish_user_path %s': %w", arg, err)
 		}
-		log.Ctx(ctx).Info().Strs("values", p.Values).Msg("set fish path")
+		log.Info().Strs("values", p.Values).Msg("set fish path")
 		return nil
 	}
 }

@@ -26,7 +26,7 @@ func NewCreateSymlinkFunction(runner CreateSymlinkRunner) starlark.Fn {
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "src", &params.Src, "dest", &params.Dest); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("src", params.Src).
 			Str("dest", params.Dest).
 			Msg("params")
@@ -57,7 +57,7 @@ func CreateSymlink(fs afero.Fs) CreateSymlinkRunner {
 			return xerrors.Errorf("Failed to create symbolic link: %w", err)
 		}
 
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("source", params.Src).
 			Str("destination", params.Dest).
 			Msg("Create symbolic link")

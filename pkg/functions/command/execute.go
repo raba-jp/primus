@@ -20,7 +20,7 @@ func NewExecuteFunction(exc backend.Execute) starlark.Fn {
 		if err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("cmd", params.Cmd).
 			Strs("args", params.Args).
 			Str("user", params.User).

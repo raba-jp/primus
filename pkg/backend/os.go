@@ -28,7 +28,7 @@ func NewDarwinChecker(execute Execute) DarwinChecker {
 			Stdout: bufout,
 			Stderr: buferr,
 		}); err != nil {
-			log.Ctx(ctx).Error().
+			log.Error().
 				Str("stdout", bufout.String()).
 				Str("stderr", buferr.String()).
 				Err(err).
@@ -45,7 +45,7 @@ func NewArchLinuxChecker(fs afero.Fs) ArchLinuxChecker {
 	return func(ctx context.Context) bool {
 		_, err := fs.Stat("/etc/arch-release")
 		if err != nil {
-			log.Ctx(ctx).Debug().Err(err).Msg("Filesystem stats failed")
+			log.Debug().Err(err).Msg("Filesystem stats failed")
 		}
 		return err == nil
 	}

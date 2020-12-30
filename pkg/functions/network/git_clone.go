@@ -58,7 +58,7 @@ func GitClone(execute backend.Execute) GitCloneRunner {
 			return xerrors.Errorf("Failed to git clone: %w", err)
 		}
 
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("url", p.URL).
 			Str("path", base).
 			Str("branch", p.Branch).

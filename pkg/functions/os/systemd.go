@@ -56,13 +56,13 @@ func SystemdEnable(execute backend.Execute) SystemdEnableRunner {
 			return xerrors.Errorf("systemctl is-enabled %s failed", name)
 		}
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Strs("command", []string{"systemctl", "is-enabled", name}).
 			Str("stdout", bufout.String()).
 			Str("stderr", buferr.String()).
 			Msg("command output")
 		if bufout.String() == "enabled\n" {
-			log.Ctx(ctx).Info().Str("name", name).Msg("already enabled")
+			log.Info().Str("name", name).Msg("already enabled")
 			return nil
 		}
 
@@ -74,7 +74,7 @@ func SystemdEnable(execute backend.Execute) SystemdEnableRunner {
 			Stdout: bufout,
 			Stderr: buferr,
 		}); err != nil {
-			log.Ctx(ctx).Error().
+			log.Error().
 				Str("name", name).
 				Str("stdout", bufout.String()).
 				Str("stderr", buferr.String()).
@@ -82,12 +82,12 @@ func SystemdEnable(execute backend.Execute) SystemdEnableRunner {
 			return xerrors.Errorf("systemd service enable failed: %w", err)
 		}
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Strs("command", []string{"systemctl", "enable", name}).
 			Str("stdout", bufout.String()).
 			Str("stderr", buferr.String()).
 			Msg("command output")
-		log.Ctx(ctx).Info().Str("name", name).Msg("finish systemd service enable")
+		log.Info().Str("name", name).Msg("finish systemd service enable")
 		return nil
 	}
 }
@@ -104,13 +104,13 @@ func SystemdStart(execute backend.Execute) SystemdStartRunner {
 		}); err != nil {
 			return xerrors.Errorf("systemctl is-active %s failed", name)
 		}
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Strs("command", []string{"systemctl", "is-active", name}).
 			Str("stdout", bufout.String()).
 			Str("stderr", buferr.String()).
 			Msg("command output")
 		if bufout.String() == "active\n" {
-			log.Ctx(ctx).Info().Str("name", name).Msg("already active")
+			log.Info().Str("name", name).Msg("already active")
 			return nil
 		}
 
@@ -122,7 +122,7 @@ func SystemdStart(execute backend.Execute) SystemdStartRunner {
 			Stdout: bufout,
 			Stderr: buferr,
 		}); err != nil {
-			log.Ctx(ctx).Error().
+			log.Error().
 				Str("name", name).
 				Str("stdout", bufout.String()).
 				Str("stderr", buferr.String()).
@@ -131,13 +131,13 @@ func SystemdStart(execute backend.Execute) SystemdStartRunner {
 			return xerrors.Errorf("systemd service start failed: %w", err)
 		}
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Strs("command", []string{"systemctl", "start", name}).
 			Str("stdout", bufout.String()).
 			Str("stderr", buferr.String()).
 			Msg("command output")
 
-		log.Ctx(ctx).Info().Str("name", name).Msg("finish systemd service start")
+		log.Info().Str("name", name).Msg("finish systemd service start")
 		return nil
 	}
 }

@@ -36,7 +36,7 @@ func NewCopyFileFunction(runner CopyFileRunner) starlark.Fn {
 
 		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("src", params.Src).
 			Str("dest", params.Dest).
 			Str("permission", params.Permission.String()).
@@ -96,7 +96,7 @@ func CopyFile(fs afero.Fs) CopyFileRunner {
 		if _, err := io.Copy(destFile, srcFile); err != nil {
 			return xerrors.Errorf("Failed to copy src to dest: %w", err)
 		}
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("source", params.Src).
 			Str("destination", params.Dest).
 			Str("permission", fmt.Sprintf("%v", params.Permission)).

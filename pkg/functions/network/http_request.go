@@ -29,11 +29,11 @@ func NewHTTPRequestFunction(runner HTTPRequestRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 
-		log.Ctx(ctx).Debug().Str("url", params.URL).Str("path", params.Path).Msg("params")
+		log.Debug().Str("url", params.URL).Str("path", params.Path).Msg("params")
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("url", params.URL).
 			Str("path", params.Path).
 			Msg("finish HTTP request")

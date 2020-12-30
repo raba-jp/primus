@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 
+	"github.com/rs/zerolog"
+
 	"github.com/spf13/cobra"
 )
 
@@ -34,5 +36,18 @@ func AddLoggingFlag(cmd *cobra.Command) {
 	var logLevel string
 
 	cmd.PersistentFlags().StringVar(&logLevel, "logLevel", "", "Set log level. Allow info, debug, warn, and error")
-	cobra.OnInitialize(func() {})
+	cobra.OnInitialize(func() {
+		switch logLevel {
+		case "debug":
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		case "warn":
+			zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		case "error":
+			zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+		case "info":
+			fallthrough
+		default:
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
+		}
+	})
 }

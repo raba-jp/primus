@@ -18,7 +18,7 @@ func NewPrintContextFunction() starlark.Fn {
 
 		key := ctxlib.PrevilegedAccessKey(ctx)
 
-		log.Ctx(ctx).Debug().Str("key", key).Msg("Print context")
+		log.Debug().Str("key", key).Msg("Print context")
 		return lib.None, nil
 	}
 }
@@ -34,7 +34,7 @@ func NewRequirePrevilegedAccessFunction(reader io.Reader) starlark.Fn {
 		ctx = ctxlib.SetPrevilegedAccessKey(ctx, string(password))
 		starlark.SetContext(ctx, thread)
 
-		log.Ctx(ctx).Debug().Str("key", string(password)).Msg("set previleged access key")
+		log.Debug().Str("key", string(password)).Msg("set previleged access key")
 
 		return lib.None, nil
 	}

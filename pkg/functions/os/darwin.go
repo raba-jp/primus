@@ -65,7 +65,7 @@ func NewDarwinInstallFunction(runner DarwinInstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("name", params.Name).
 			Str("option", params.Option).
 			Bool("cask", params.Cask).

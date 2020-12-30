@@ -31,7 +31,7 @@ func NewCreateDirectoryFunction(runner CreateDirectoryRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
 		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("path", params.Path).
 			Str("permission", params.Permission.String()).
 			Str("cwd", params.Cwd).
@@ -64,7 +64,7 @@ func CreateDirectory(fs afero.Fs) CreateDirectoryRunner {
 		if err := fs.MkdirAll(params.Path, params.Permission); err != nil {
 			return xerrors.Errorf("Create directory fialed: %w", err)
 		}
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("path", params.Path).
 			Str("permission", params.Permission.String()).
 			Str("cwd", params.Cwd).

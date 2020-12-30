@@ -26,10 +26,10 @@ func NewApplyCommand() ApplyCommand {
 			if err != nil {
 				return xerrors.Errorf("Failed to get absolute path: %w", err)
 			}
-			log.Ctx(ctx).Info().Str("filepath", path).Msg("entrypoint")
+			log.Info().Str("filepath", path).Send()
 			execFile := starlark.Initialize()
 			if err := execFile(ctx, path, functions.New()); err != nil {
-				log.Ctx(ctx).Err(err).Msg("Failed to exec")
+				log.Err(err).Msg("Failed to exec")
 				return xerrors.Errorf(": %w", err)
 			}
 

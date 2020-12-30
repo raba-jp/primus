@@ -29,7 +29,7 @@ type Execute func(ctx context.Context, params *ExecuteParams) error
 
 func NewExecutable() Executable {
 	return func(ctx context.Context, name string) bool {
-		e := log.Ctx(ctx).Debug().Str("name", name)
+		e := log.Debug().Str("name", name)
 
 		var executable bool
 		path, err := exec.LookPath(name)
@@ -48,7 +48,7 @@ func NewExecutable() Executable {
 
 func NewExecute() Execute {
 	return func(ctx context.Context, params *ExecuteParams) error {
-		e := log.Ctx(ctx).Info().
+		e := log.Info().
 			Str("cmd", params.Cmd).
 			Strs("args", params.Args).
 			Str("user", params.User).
@@ -62,18 +62,18 @@ func NewExecute() Execute {
 		bufout := new(bytes.Buffer)
 		cmd.Stdout = bufout
 		if params.Stdout != nil {
-			log.Ctx(ctx).Debug().Msg("set stdout")
+			log.Debug().Msg("set stdout")
 			cmd.Stdout = io.MultiWriter(params.Stdout, bufout)
 		}
 		buferr := new(bytes.Buffer)
 		cmd.Stderr = buferr
 		if params.Stderr != nil {
-			log.Ctx(ctx).Debug().Msg("set stderr")
+			log.Debug().Msg("set stderr")
 			cmd.Stderr = io.MultiWriter(params.Stderr, buferr)
 		}
 
 		if params.Cwd != "" {
-			log.Ctx(ctx).Debug().Str("cwd", params.Cwd).Msg("set directory")
+			log.Debug().Str("cwd", params.Cwd).Msg("set directory")
 			cmd.Dir = params.Cwd
 		}
 

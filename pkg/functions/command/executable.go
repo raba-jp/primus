@@ -16,7 +16,7 @@ func NewExecutableFunction(executable backend.Executable) starlark.Fn {
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		log.Ctx(ctx).Debug().Str("name", name).Msg("params")
+		log.Debug().Str("name", name).Msg("params")
 
 		ret := executable(ctx, name)
 		return starlark.ToBool(ret), nil

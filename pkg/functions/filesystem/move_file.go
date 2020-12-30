@@ -30,7 +30,7 @@ func NewMoveFileFunction(runner MoveFileRunner) starlark.Fn {
 		}
 		params.Cwd = filepath.Dir(starlark.GetCurrentFilePath(thread))
 
-		log.Ctx(ctx).Debug().
+		log.Debug().
 			Str("src", params.Src).
 			Str("dest", params.Dest).
 			Msg("params")
@@ -64,7 +64,7 @@ func MoveFile(fs afero.Fs) MoveFileRunner {
 			return xerrors.Errorf("Failed to move file: %s => %s: %w", params.Src, params.Dest, err)
 		}
 
-		log.Ctx(ctx).Info().
+		log.Info().
 			Str("src", params.Src).
 			Str("dest", params.Dest).
 			Msg("moved file")

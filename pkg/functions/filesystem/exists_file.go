@@ -21,7 +21,7 @@ func NewExistsFileFunction(runner ExistsFileRunner) starlark.Fn {
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "path", &path); err != nil {
 			return lib.False, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		log.Ctx(ctx).Debug().Str("path", path).Msg("Params")
+		log.Debug().Str("path", path).Msg("Params")
 
 		ui.Infof("Check existence file. Path: %s\n", path)
 		return starlark.ToBool(runner(ctx, path)), nil
@@ -32,7 +32,7 @@ func ExistsFile(fs afero.Fs) ExistsFileRunner {
 	return func(ctx context.Context, path string) bool {
 		_, err := fs.Stat(path)
 		if err == nil {
-			log.Ctx(ctx).Info().Msg("already exists file")
+			log.Info().Msg("already exists file")
 			return true
 		}
 		return false
