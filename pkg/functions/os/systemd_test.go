@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/raba-jp/primus/pkg/backend"
-	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"

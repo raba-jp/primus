@@ -13,63 +13,30 @@ import (
 // Injectors from wire.go:
 
 func NewArchFunctions() starlark.Value {
-	execute := backend.NewExecute()
-	archInstalledRunner := ArchInstalled(execute)
+	fs := backend.NewFs()
+	archLinuxChecker := backend.NewArchLinuxChecker(fs)
 	executable := backend.NewExecutable()
+	execute := backend.NewExecute()
+	archInstalledRunner := ArchInstalled(executable, execute)
 	archInstallRunner := ArchInstall(executable, execute)
 	archMultipleInstallRunner := ArchMultipleInstall(executable, execute)
-	archUninstallRunner := ArchUninstall(execute)
-	value := newArchFunctions(archInstalledRunner, archInstallRunner, archMultipleInstallRunner, archUninstallRunner)
+	archUninstallRunner := ArchUninstall(executable, execute)
+	value := newArchFunctions(archLinuxChecker, archInstalledRunner, archInstallRunner, archMultipleInstallRunner, archUninstallRunner)
 	return value
 }
 
 func NewDarwinFunctions() starlark.Value {
 	execute := backend.NewExecute()
+	darwinChecker := backend.NewDarwinChecker(execute)
 	fs := backend.NewFs()
 	darwinInstalledRunner := DarwinInstalled(execute, fs)
 	darwinInstallRunner := DarwinInstall(execute, fs)
 	darwinUninstallRunner := DarwinUninstall(execute, fs)
-	value := newDarwinFunctions(darwinInstalledRunner, darwinInstallRunner, darwinUninstallRunner)
+	value := newDarwinFunctions(darwinChecker, darwinInstalledRunner, darwinInstallRunner, darwinUninstallRunner)
 	return value
 }
 
 func NewFilePathFunctions() starlark.Value {
 	value := newFilePathFunctions()
 	return value
-}
-
-// wire.go:
-
-func newArchFunctions(
-	installed ArchInstalledRunner,
-	install ArchInstallRunner,
-	multipleInstall ArchMultipleInstallRunner,
-	uninstall ArchUninstallRunner,
-) starlark.Value {
-	dict := starlark.NewDict(4)
-	dict.SetKey(starlark.String("installed"), starlark.NewBuiltin("installed", NewArchInstalledFunction(installed)))
-	dict.SetKey(starlark.String("install"), starlark.NewBuiltin("install", NewArchInstallFunction(install)))
-	dict.SetKey(starlark.String("multiple_install"), starlark.NewBuiltin("multiple_install", NewArchMultipleInstallFunction(multipleInstall)))
-	dict.SetKey(starlark.String("uninstall"), starlark.NewBuiltin("uninstall", NewArchUninstallFunction(uninstall)))
-	return dict
-}
-
-func newDarwinFunctions(
-	installed DarwinInstalledRunner,
-	install DarwinInstallRunner,
-	uninstall DarwinUninstallRunner,
-) starlark.Value {
-	dict := starlark.NewDict(3)
-	dict.SetKey(starlark.String("installed"), starlark.NewBuiltin("installed", NewDarwinInstalledFunction(installed)))
-	dict.SetKey(starlark.String("install"), starlark.NewBuiltin("install", NewDarwinInstallFunction(install)))
-	dict.SetKey(starlark.String("uninstall"), starlark.NewBuiltin("uninstall", NewDarwinUninstallFunction(uninstall)))
-	return dict
-}
-
-func newFilePathFunctions() starlark.Value {
-	dict := starlark.NewDict(3)
-	dict.SetKey(starlark.String("get_current_path"), starlark.NewBuiltin("get_current_path", GetCurrentPath()))
-	dict.SetKey(starlark.String("get_dir"), starlark.NewBuiltin("get_dir", GetDir()))
-	dict.SetKey(starlark.String("join_path"), starlark.NewBuiltin("join_path", JoinPath()))
-	return dict
 }

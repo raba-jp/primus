@@ -51,8 +51,13 @@ func NewArchInstalledFunction(runner ArchInstalledRunner) starlark.Fn {
 		if err := lib.UnpackArgs(b.Name(), args, kwargs, "name", &name); err != nil {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
-		log.Debug().Str("name", name).Msg("params")
-		return starlark.ToBool(runner(ctx, name)), nil
+		installed := runner(ctx, name)
+		if installed {
+			ui.Infof("Already Installed %s\n", name)
+		} else {
+			ui.Infof("Not installed %s\n", name)
+		}
+		return starlark.ToBool(installed), nil
 	}
 }
 
@@ -67,12 +72,11 @@ func NewArchInstallFunction(runner ArchInstallRunner) starlark.Fn {
 
 		log.Debug().
 			Str("name", params.Name).
-			Str("option", params.Option).
-			Msg("params")
-		ui.Infof("Installing package. Name: %s, Option: %s\n", params.Name, params.Option)
+			Str("option", params.Option)
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		ui.Infof("Installed %s\n", params.Name)
 		return lib.None, nil
 	}
 }
@@ -89,6 +93,11 @@ func NewArchMultipleInstallFunction(runner ArchMultipleInstallRunner) starlark.F
 		if err := runner(ctx, params); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+
+		for _, p := range params {
+			ui.Infof("Installed %s\n", p.Name)
+		}
+
 		return lib.None, nil
 	}
 }
@@ -127,22 +136,26 @@ func NewArchUninstallFunction(runner ArchUninstallRunner) starlark.Fn {
 			return lib.None, xerrors.Errorf("Failed to parse arguments: %w", err)
 		}
 
-		ui.Printf("Uninstalling package. Name: %s\n", name)
 		log.Debug().Str("name", name).Msg("params")
 		if err := runner(ctx, name); err != nil {
 			return lib.None, xerrors.Errorf(": %w", err)
 		}
+		ui.Printf("Uninstalled package %s\n", name)
 		return lib.None, nil
 	}
 }
 
-func ArchInstalled(execRunner backend.Execute) ArchInstalledRunner {
+func ArchInstalled(executable backend.Executable, execute backend.Execute) ArchInstalledRunner {
 	return func(ctx context.Context, name string) bool {
-		err := execRunner(ctx, &backend.ExecuteParams{
-			Cmd:  "pacman",
+		cmd := "pacman"
+		if usableYay(ctx, executable) {
+			cmd = "yay"
+		}
+		err := execute(ctx, &backend.ExecuteParams{
+			Cmd:  cmd,
 			Args: []string{"-Qg", name},
 		})
-		return err == nil
+		return err != nil
 	}
 }
 
@@ -151,7 +164,7 @@ func ArchInstall(executable backend.Executable, execute backend.Execute) ArchIns
 		cmd, options := archCmdArgs(ctx, executable, []string{p.Option, p.Name})
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
 
-		if ArchInstalled(execute)(ctx, p.Name) {
+		if ArchInstalled(executable, execute)(ctx, p.Name) {
 			log.Info().Msg("already installed")
 			return nil
 		}
@@ -204,9 +217,9 @@ func ArchMultipleInstall(executable backend.Executable, execute backend.Execute)
 	}
 }
 
-func ArchUninstall(execute backend.Execute) ArchUninstallRunner {
+func ArchUninstall(executable backend.Executable, execute backend.Execute) ArchUninstallRunner {
 	return func(ctx context.Context, name string) error {
-		if installed := ArchInstalled(execute)(ctx, name); !installed {
+		if installed := ArchInstalled(executable, execute)(ctx, name); !installed {
 			return nil
 		}
 

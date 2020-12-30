@@ -41,7 +41,7 @@ func NewExecutable() Executable {
 			executable = true
 		}
 
-		e.Msg("executable")
+		e.Send()
 		return executable
 	}
 }

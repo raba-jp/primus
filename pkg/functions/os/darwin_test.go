@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/raba-jp/primus/pkg/backend"
-	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/spf13/afero"
@@ -43,10 +42,7 @@ func TestNewIsDarwinFunction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			detector := new(mocks.OSDetector)
-			detector.ApplyDarwinExpectation(tt.mock)
-
-			globals, err := starlark.ExecForTest("test", `v = test()`, os.NewIsDarwinFunction(detector))
+			globals, err := starlark.ExecForTest("test", `v = test()`, os.NewIsDarwinFunction(tt.mock))
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, globals["v"])

@@ -8,7 +8,6 @@ import (
 	"golang.org/x/xerrors"
 
 	"github.com/raba-jp/primus/pkg/backend"
-	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
 
 	"github.com/raba-jp/primus/pkg/starlark"
@@ -21,22 +20,20 @@ func TestNewIsArchFunction(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock
+		mock backend.ArchLinuxChecker
 		want lib.Value
 	}{
 		{
 			name: "success",
-			mock: mocks.OSDetectorArchLinuxExpectation{
-				Args:    mocks.OSDetectorArchLinuxArgs{CtxAnything: true},
-				Returns: mocks.OSDetectorArchLinuxReturns{V: true},
+			mock: func(ctx context.Context) bool {
+				return true
 			},
 			want: lib.True,
 		},
 		{
-			name: "fail: not exists /etc/arch-release",
-			mock: mocks.OSDetectorArchLinuxExpectation{
-				Args:    mocks.OSDetectorArchLinuxArgs{CtxAnything: true},
-				Returns: mocks.OSDetectorArchLinuxReturns{V: false},
+			name: "success: returns false",
+			mock: func(ctx context.Context) bool {
+				return false
 			},
 			want: lib.False,
 		},
@@ -47,10 +44,7 @@ func TestNewIsArchFunction(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			detector := new(mocks.OSDetector)
-			detector.ApplyArchLinuxExpectation(tt.mock)
-
-			globals, err := starlark.ExecForTest("test", `v = test()`, os.NewIsArchFunction(detector))
+			globals, err := starlark.ExecForTest("test", `v = test()`, os.NewIsArchFunction(tt.mock))
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.want, globals["v"])
@@ -256,23 +250,40 @@ func TestArchInstalled(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name string
-		mock backend.Execute
-		want bool
+		name       string
+		executable backend.Executable
+		execute    backend.Execute
+		want       bool
 	}{
 		{
 			name: "success: returns true",
-			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
+			executable: func(ctx context.Context, cmd string) bool {
+				return true
+			},
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			want: true,
 		},
 		{
 			name: "success: returns false",
-			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
+			executable: func(ctx context.Context, cmd string) bool {
+				return true
+			},
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			want: false,
+		},
+		{
+			name: "success: cannot use yay",
+			executable: func(ctx context.Context, cmd string) bool {
+				return false
+			},
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
+				return nil
+			},
+			want: true,
 		},
 	}
 
@@ -281,7 +292,7 @@ func TestArchInstalled(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			checkInstall := os.ArchInstalled(tt.mock)
+			checkInstall := os.ArchInstalled(tt.executable, tt.execute)
 			res := checkInstall(context.Background(), "base-devel")
 			assert.Equal(t, tt.want, res)
 		})
@@ -394,12 +405,16 @@ func TestArchUninstall(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name      string
-		mock      func() backend.Execute
-		errAssert assert.ErrorAssertionFunc
+		name       string
+		executable backend.Executable
+		mock       func() backend.Execute
+		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
+			executable: func(context.Context, string) bool {
+				return true
+			},
 			mock: func() backend.Execute {
 				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
@@ -409,6 +424,9 @@ func TestArchUninstall(t *testing.T) {
 		},
 		{
 			name: "success: already installed",
+			executable: func(context.Context, string) bool {
+				return true
+			},
 			mock: func() backend.Execute {
 				return func(context.Context, *backend.ExecuteParams) error {
 					return xerrors.New("dummy")
@@ -418,6 +436,9 @@ func TestArchUninstall(t *testing.T) {
 		},
 		{
 			name: "failure",
+			executable: func(context.Context, string) bool {
+				return true
+			},
 			mock: func() backend.Execute {
 				called := false
 				return func(context.Context, *backend.ExecuteParams) error {
@@ -438,7 +459,7 @@ func TestArchUninstall(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			uninstall := os.ArchUninstall(tt.mock())
+			uninstall := os.ArchUninstall(tt.executable, tt.mock())
 			err := uninstall(context.Background(), "base-devel")
 			tt.errAssert(t, err)
 		})
