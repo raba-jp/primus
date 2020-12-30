@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/functions/fish"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/stretchr/testify/assert"

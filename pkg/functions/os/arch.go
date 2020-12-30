@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/wesovilabs/koazee"
 
 	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/cli/ui"
@@ -118,9 +117,10 @@ func parseArchMultipleInstallArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.T
 		}
 		values = append(values, str)
 	}
-	params := koazee.StreamOf(values).Map(func(v string) *ArchInstallParams {
-		return &ArchInstallParams{Name: v}
-	}).Out().Val().([]*ArchInstallParams)
+	params := make([]*ArchInstallParams, len(values))
+	for i, v := range values {
+		params[i] = &ArchInstallParams{Name: v}
+	}
 
 	return params, nil
 }
@@ -151,9 +151,9 @@ func ArchInstalled(executable backend.Executable, execute backend.Execute) ArchI
 		}
 		err := execute(ctx, &backend.ExecuteParams{
 			Cmd:  cmd,
-			Args: []string{"-Qg", name},
+			Args: []string{"-Q", name},
 		})
-		return err != nil
+		return err == nil
 	}
 }
 
@@ -192,9 +192,10 @@ func ArchMultipleInstall(executable backend.Executable, execute backend.Execute)
 		ctx, cancel := context.WithTimeout(ctx, multipleInstallTimeout)
 		defer cancel()
 
-		names := koazee.StreamOf(ps).Map(func(p *ArchInstallParams) string {
-			return p.Name
-		}).Do().Out().Val().([]string)
+		names := make([]string, len(ps))
+		for i, p := range ps {
+			names[i] = p.Name
+		}
 		cmd, options := archCmdArgs(ctx, executable, names)
 
 		log.Debug().Str("cmd", cmd).Strs("options", options).Msg("params")

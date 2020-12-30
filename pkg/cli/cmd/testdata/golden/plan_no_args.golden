@@ -1,7 +1,0 @@
-Error: requires a filepath
-Usage:
-   plan [flags]
-
-Flags:
-  -h, --help   help for plan
-
