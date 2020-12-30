@@ -30,3 +30,12 @@ func Load(fs afero.Fs, predeclared lib.StringDict) LoadFn {
 		return lib.ExecFile(child, modulePath, data, predeclared)
 	}
 }
+
+func withTakeOverParent(parent *lib.Thread) ThreadOption {
+	return func(child *lib.Thread) {
+		ctx := ToContext(parent)
+
+		SetContext(ctx, child)
+		child.Load = parent.Load
+	}
+}

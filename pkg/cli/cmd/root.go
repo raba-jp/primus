@@ -4,13 +4,12 @@ import (
 	"context"
 	"os"
 
-	"github.com/raba-jp/primus/pkg/cli/logging"
-	"github.com/raba-jp/primus/pkg/cli/ui"
+	"github.com/rs/zerolog"
+
 	"github.com/spf13/cobra"
 )
 
 func NewCommand(
-	planCmd PlanCommand,
 	applyCmd ApplyCommand,
 	versionCmd VersionCommand,
 	replCmd ReplCommand,
@@ -20,7 +19,7 @@ func NewCommand(
 		Short: "provisioning tool for local machine",
 	}
 
-	cmd.AddCommand(planCmd, applyCmd, versionCmd, replCmd)
+	cmd.AddCommand(applyCmd, versionCmd, replCmd)
 	AddLoggingFlag(cmd)
 
 	return cmd
@@ -38,9 +37,17 @@ func AddLoggingFlag(cmd *cobra.Command) {
 
 	cmd.PersistentFlags().StringVar(&logLevel, "logLevel", "", "Set log level. Allow info, debug, warn, and error")
 	cobra.OnInitialize(func() {
-		if err := logging.EnableLogger(logLevel); err != nil {
-			ui.Errorf("%s", err)
-			os.Exit(1)
+		switch logLevel {
+		case "debug":
+			zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		case "warn":
+			zerolog.SetGlobalLevel(zerolog.WarnLevel)
+		case "error":
+			zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+		case "info":
+			fallthrough
+		default:
+			zerolog.SetGlobalLevel(zerolog.InfoLevel)
 		}
 	})
 }

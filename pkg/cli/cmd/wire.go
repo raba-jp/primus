@@ -10,7 +10,6 @@ import (
 func Initialize() *cobra.Command {
 	wire.Build(
 		NewCommand,
-		NewPlanCommand,
 		NewApplyCommand,
 		NewVersionCommand,
 		NewReplCommand,
