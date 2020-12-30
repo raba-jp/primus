@@ -4,7 +4,7 @@ package filesystem
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	lib "go.starlark.net/starlark"
 )
 
@@ -41,7 +41,7 @@ func newFunctions(
 
 func NewFunctions() lib.Value {
 	wire.Build(
-		modules.NewFs,
+		backend.NewFs,
 		CreateDirectory,
 		CreateSymlink,
 		CopyFile,

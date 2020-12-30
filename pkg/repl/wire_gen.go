@@ -6,7 +6,7 @@
 package repl
 
 import (
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/functions"
 )
 
 // Injectors from wire.go:
@@ -14,7 +14,7 @@ import (
 func Initialize() PromptFunc {
 	state := NewState()
 	thread := newThread()
-	stringDict := builtin.NewBuiltinFunction()
+	stringDict := functions.New()
 	replREPL := NewREPL(state, thread, stringDict)
 	executor := NewExecutor(replREPL)
 	completer := NewCompleter()

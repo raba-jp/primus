@@ -4,23 +4,21 @@ package command
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	lib "go.starlark.net/starlark"
 )
 
-func newFunctions(exc ExecuteRunner, detector modules.OSDetector) lib.Value {
+func newFunctions(execute backend.Execute, executable backend.Executable) lib.Value {
 	dict := lib.NewDict(2)
-	dict.SetKey(lib.String("execute"), lib.NewBuiltin("execute", NewExecuteFunction(exc)))
-	dict.SetKey(lib.String("executable"), lib.NewBuiltin("executable", NewExecutableFunction(detector)))
+	dict.SetKey(lib.String("execute"), lib.NewBuiltin("execute", NewExecuteFunction(execute)))
+	dict.SetKey(lib.String("executable"), lib.NewBuiltin("executable", NewExecutableFunction(executable)))
 	return dict
 }
 
 func NewFunctions() lib.Value {
 	wire.Build(
-		modules.NewExecInterface,
-		modules.NewFs,
-		modules.NewOSDetector,
-		Execute,
+		backend.NewExecutable,
+		backend.NewExecute,
 		newFunctions,
 	)
 	return nil

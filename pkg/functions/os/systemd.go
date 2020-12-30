@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/rs/zerolog/log"
 	lib "go.starlark.net/starlark"
@@ -43,11 +43,11 @@ func NewSystemdStartFunction(runner SystemdStartRunner) starlark.Fn {
 	}
 }
 
-func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
+func SystemdEnable(execute backend.Execute) SystemdEnableRunner {
 	return func(ctx context.Context, name string) error {
 		bufout := new(bytes.Buffer)
 		buferr := new(bytes.Buffer)
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:    "systemctl",
 			Args:   []string{"is-enabled", name},
 			Stdout: bufout,
@@ -68,7 +68,7 @@ func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
 
 		bufout.Reset()
 		buferr.Reset()
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:    "systemctl",
 			Args:   []string{"enable", name},
 			Stdout: bufout,
@@ -87,16 +87,16 @@ func SystemdEnable(execute command.ExecuteRunner) SystemdEnableRunner {
 			Str("stdout", bufout.String()).
 			Str("stderr", buferr.String()).
 			Msg("command output")
-		log.Ctx(ctx).Info().String("name", name).Msg("finish systemd service enable")
+		log.Ctx(ctx).Info().Str("name", name).Msg("finish systemd service enable")
 		return nil
 	}
 }
 
-func SystemdStart(execute command.ExecuteRunner) SystemdStartRunner {
+func SystemdStart(execute backend.Execute) SystemdStartRunner {
 	return func(ctx context.Context, name string) error {
 		bufout := new(bytes.Buffer)
 		buferr := new(bytes.Buffer)
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:    "systemctl",
 			Args:   []string{"is-active", name},
 			Stdout: bufout,
@@ -116,7 +116,7 @@ func SystemdStart(execute command.ExecuteRunner) SystemdStartRunner {
 
 		bufout.Reset()
 		buferr.Reset()
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:    "systemctl",
 			Args:   []string{"start", name},
 			Stdout: bufout,

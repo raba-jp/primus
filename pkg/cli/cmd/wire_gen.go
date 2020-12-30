@@ -12,10 +12,9 @@ import (
 // Injectors from wire.go:
 
 func Initialize() *cobra.Command {
-	planCommand := NewPlanCommand()
 	applyCommand := NewApplyCommand()
 	versionCommand := NewVersionCommand()
 	replCommand := NewReplCommand()
-	command := NewCommand(planCommand, applyCommand, versionCommand, replCommand)
+	command := NewCommand(applyCommand, versionCommand, replCommand)
 	return command
 }

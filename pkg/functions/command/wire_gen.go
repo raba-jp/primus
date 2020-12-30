@@ -6,23 +6,22 @@
 package command
 
 import (
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
 func NewFunctions() starlark.Value {
-	execInterface := modules.NewExecInterface()
-	executeRunner := Execute(execInterface)
-	executableRunner := Executable(execInterface)
-	value := newFunctions(executeRunner, executableRunner)
+	execute := backend.NewExecute()
+	executable := backend.NewExecutable()
+	value := newFunctions(execute, executable)
 	return value
 }
 
 // wire.go:
 
-func newFunctions(execute ExecuteRunner, executable ExecutableRunner) starlark.Value {
+func newFunctions(execute backend.Execute, executable backend.Executable) starlark.Value {
 	dict := starlark.NewDict(2)
 	dict.SetKey(starlark.String("execute"), starlark.NewBuiltin("execute", NewExecuteFunction(execute)))
 	dict.SetKey(starlark.String("executable"), starlark.NewBuiltin("executable", NewExecutableFunction(executable)))

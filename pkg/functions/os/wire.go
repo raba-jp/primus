@@ -4,8 +4,7 @@ package os
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	lib "go.starlark.net/starlark"
 )
 
@@ -45,9 +44,8 @@ func newFilePathFunctions() lib.Value {
 
 func NewArchFunctions() lib.Value {
 	wire.Build(
-		modules.NewExecInterface,
-		command.Executable,
-		command.Execute,
+		backend.NewExecutable,
+		backend.NewExecute,
 		ArchInstalled,
 		ArchInstall,
 		ArchMultipleInstall,
@@ -59,9 +57,8 @@ func NewArchFunctions() lib.Value {
 
 func NewDarwinFunctions() lib.Value {
 	wire.Build(
-		modules.NewFs,
-		modules.NewExecInterface,
-		command.Execute,
+		backend.NewFs,
+		backend.NewExecute,
 		DarwinInstalled,
 		DarwinInstall,
 		DarwinUninstall,

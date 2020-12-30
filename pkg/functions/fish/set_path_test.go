@@ -77,7 +77,7 @@ func TestSetPath(t *testing.T) {
 	tests := []struct {
 		name      string
 		params    *fish.SetPathParams
-		mock      command.ExecuteRunner
+		mock      backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
@@ -85,7 +85,7 @@ func TestSetPath(t *testing.T) {
 			params: &fish.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -95,7 +95,7 @@ func TestSetPath(t *testing.T) {
 			params: &fish.SetPathParams{
 				Values: []string{"$GOPATH/bin", "$HOME/.bin"},
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			errAssert: assert.Error,

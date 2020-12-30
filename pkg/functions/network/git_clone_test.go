@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/functions/network"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/stretchr/testify/assert"
@@ -63,7 +63,7 @@ func TestClone(t *testing.T) {
 	tests := []struct {
 		name      string
 		params    *network.GitCloneParams
-		mock      command.ExecuteRunner
+		mock      backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
@@ -73,7 +73,7 @@ func TestClone(t *testing.T) {
 				Path:   "/tmp/dotfiles",
 				Branch: "master",
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -86,7 +86,7 @@ func TestClone(t *testing.T) {
 				Branch: "master",
 				Cwd:    "/tmp",
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -98,7 +98,7 @@ func TestClone(t *testing.T) {
 				Path:   "dotfiles",
 				Branch: "master",
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			errAssert: assert.Error,

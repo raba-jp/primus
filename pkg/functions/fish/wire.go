@@ -4,8 +4,7 @@ package fish
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	lib "go.starlark.net/starlark"
 )
 
@@ -21,8 +20,7 @@ func newFunctions(
 
 func NewFunctions() lib.Value {
 	wire.Build(
-		modules.NewExecInterface,
-		command.Execute,
+		backend.NewExecute,
 		SetVariable,
 		SetPath,
 		newFunctions,

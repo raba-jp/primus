@@ -95,7 +95,7 @@ func TestSetVariable(t *testing.T) {
 	tests := []struct {
 		name      string
 		params    *fish.SetVariableParams
-		mock      command.ExecuteRunner
+		mock      backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
@@ -106,7 +106,7 @@ func TestSetVariable(t *testing.T) {
 				Scope:  fish.UniversalScope,
 				Export: true,
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -119,7 +119,7 @@ func TestSetVariable(t *testing.T) {
 				Scope:  fish.GlobalScope,
 				Export: true,
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -132,7 +132,7 @@ func TestSetVariable(t *testing.T) {
 				Scope:  fish.LocalScope,
 				Export: true,
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -145,7 +145,7 @@ func TestSetVariable(t *testing.T) {
 				Scope:  fish.LocalScope,
 				Export: false,
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -158,7 +158,7 @@ func TestSetVariable(t *testing.T) {
 				Scope:  fish.UniversalScope,
 				Export: true,
 			},
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			errAssert: assert.Error,

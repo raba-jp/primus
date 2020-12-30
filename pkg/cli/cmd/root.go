@@ -4,12 +4,10 @@ import (
 	"context"
 	"os"
 
-	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/spf13/cobra"
 )
 
 func NewCommand(
-	planCmd PlanCommand,
 	applyCmd ApplyCommand,
 	versionCmd VersionCommand,
 	replCmd ReplCommand,
@@ -19,7 +17,7 @@ func NewCommand(
 		Short: "provisioning tool for local machine",
 	}
 
-	cmd.AddCommand(planCmd, applyCmd, versionCmd, replCmd)
+	cmd.AddCommand(applyCmd, versionCmd, replCmd)
 	AddLoggingFlag(cmd)
 
 	return cmd
@@ -36,7 +34,5 @@ func AddLoggingFlag(cmd *cobra.Command) {
 	var logLevel string
 
 	cmd.PersistentFlags().StringVar(&logLevel, "logLevel", "", "Set log level. Allow info, debug, warn, and error")
-	cobra.OnInitialize(func() {
-		modules.SetGlobalLogger(logLevel)
-	})
+	cobra.OnInitialize(func() {})
 }

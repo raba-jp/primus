@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	lib "go.starlark.net/starlark"
-
-	"github.com/raba-jp/primus/pkg/ctxlib"
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlark"
+	"github.com/rs/zerolog/log"
+	lib "go.starlark.net/starlark"
 	"golang.org/x/xerrors"
 )
 
@@ -67,7 +66,7 @@ func parseSetVariableArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*
 	return a, nil
 }
 
-func SetVariable(execute command.ExecuteRunner) SetVariableRunner {
+func SetVariable(execute backend.Execute) SetVariableRunner {
 	return func(ctx context.Context, p *SetVariableParams) error {
 		var scope string
 		switch p.Scope {
@@ -86,19 +85,19 @@ func SetVariable(execute command.ExecuteRunner) SetVariableRunner {
 
 		arg := fmt.Sprintf("'set %s%s %s %s'", scope, export, p.Name, p.Value)
 
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:  "fish",
 			Args: []string{"--command", arg},
 		}); err != nil {
 			return xerrors.Errorf("failed to set variable: fish --command %s: %w", arg, err)
 		}
-		log.Ctx(ctx)Info().
+		log.Ctx(ctx).Info().
 			Str("name", p.Name).
 			Str("value", p.Value).
 			Str("scope", scope).
 			Bool("export", p.Export).
 			Msg("set fish variable")
-			
+
 		return nil
 	}
 }

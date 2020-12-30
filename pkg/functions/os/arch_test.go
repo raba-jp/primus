@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/xerrors"
 
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
 
@@ -256,19 +257,19 @@ func TestArchInstalled(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock command.ExecuteRunner
+		mock backend.Execute
 		want bool
 	}{
 		{
 			name: "success: returns true",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			want: true,
 		},
 		{
 			name: "success: returns false",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			want: false,
@@ -292,8 +293,8 @@ func TestArchInstall(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		executable command.ExecutableRunner
-		execute    command.ExecuteRunner
+		executable backend.Executable
+		execute    backend.Execute
 		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
@@ -301,7 +302,7 @@ func TestArchInstall(t *testing.T) {
 			executable: func(ctx context.Context, name string) bool {
 				return false
 			},
-			execute: func(ctx context.Context, p *command.Params) error {
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -311,7 +312,7 @@ func TestArchInstall(t *testing.T) {
 			executable: func(ctx context.Context, name string) bool {
 				return true
 			},
-			execute: func(ctx context.Context, p *command.Params) error {
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -321,7 +322,7 @@ func TestArchInstall(t *testing.T) {
 			executable: func(ctx context.Context, name string) bool {
 				return false
 			},
-			execute: func(ctx context.Context, p *command.Params) error {
+			execute: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			errAssert: assert.Error,
@@ -348,8 +349,8 @@ func TestNewMultipleInstall(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		executable command.ExecutableRunner
-		execute    command.ExecuteRunner
+		executable backend.Executable
+		execute    backend.Execute
 		errAssert  assert.ErrorAssertionFunc
 	}{
 		{
@@ -357,7 +358,7 @@ func TestNewMultipleInstall(t *testing.T) {
 			executable: func(ctx context.Context, name string) bool {
 				return false
 			},
-			execute: func(context.Context, *command.Params) error {
+			execute: func(context.Context, *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
@@ -367,7 +368,7 @@ func TestNewMultipleInstall(t *testing.T) {
 			executable: func(context.Context, string) bool {
 				return false
 			},
-			execute: func(context.Context, *command.Params) error {
+			execute: func(context.Context, *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			errAssert: assert.Error,
@@ -394,13 +395,13 @@ func TestArchUninstall(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		mock      func() command.ExecuteRunner
+		mock      func() backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mock: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			mock: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -408,8 +409,8 @@ func TestArchUninstall(t *testing.T) {
 		},
 		{
 			name: "success: already installed",
-			mock: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			mock: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return xerrors.New("dummy")
 				}
 			},
@@ -417,9 +418,9 @@ func TestArchUninstall(t *testing.T) {
 		},
 		{
 			name: "failure",
-			mock: func() command.ExecuteRunner {
+			mock: func() backend.Execute {
 				called := false
-				return func(context.Context, *command.Params) error {
+				return func(context.Context, *backend.ExecuteParams) error {
 					fmt.Println(called)
 					if called {
 						return xerrors.New("dummy")
@@ -450,14 +451,14 @@ func TestArchCmdArgs(t *testing.T) {
 	tests := []struct {
 		name   string
 		params []string
-		mock   func() command.ExecutableRunner
+		mock   func() backend.Executable
 		cmd    string
 		args   []string
 	}{
 		{
 			name:   "install, yay, powerpill",
 			params: []string{"arg1", "arg2"},
-			mock: func() command.ExecutableRunner {
+			mock: func() backend.Executable {
 				return func(context.Context, string) bool {
 					return true
 				}
@@ -468,7 +469,7 @@ func TestArchCmdArgs(t *testing.T) {
 		{
 			name:   "install, yay",
 			params: []string{"arg1", "arg2"},
-			mock: func() command.ExecutableRunner {
+			mock: func() backend.Executable {
 				called := false
 				return func(context.Context, string) bool {
 					if called {
@@ -484,7 +485,7 @@ func TestArchCmdArgs(t *testing.T) {
 		{
 			name:   "install, powerpill",
 			params: []string{"arg1", "arg2"},
-			mock: func() command.ExecutableRunner {
+			mock: func() backend.Executable {
 				called := false
 				return func(context.Context, string) bool {
 					if called {
@@ -500,7 +501,7 @@ func TestArchCmdArgs(t *testing.T) {
 		{
 			name:   "install, invalid args",
 			params: []string{"arg1", "", "arg2"},
-			mock: func() command.ExecutableRunner {
+			mock: func() backend.Executable {
 				return func(context.Context, string) bool {
 					return false
 				}

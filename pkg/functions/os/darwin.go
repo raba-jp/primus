@@ -7,8 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/afero"
 
@@ -30,10 +29,10 @@ type DarwinInstallRunner func(ctx context.Context, p *DarwinInstallParams) error
 
 type DarwinUninstallRunner func(ctx context.Context, name string) error
 
-func NewIsDarwinFunction(detector modules.OSDetector) starlark.Fn {
+func NewIsDarwinFunction(checker backend.DarwinChecker) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		return starlark.ToBool(detector.Darwin(ctx)), nil
+		return starlark.ToBool(checker(ctx)), nil
 	}
 }
 
@@ -97,7 +96,7 @@ func NewDarwinUninstallFunction(runner DarwinUninstallRunner) starlark.Fn {
 	}
 }
 
-func DarwinInstalled(execute command.ExecuteRunner, fs afero.Fs) DarwinInstalledRunner {
+func DarwinInstalled(execute backend.Execute, fs afero.Fs) DarwinInstalledRunner {
 	return func(ctx context.Context, name string) bool {
 		installed := false
 		walkFn := func(path string, info os.FileInfo, err error) error {
@@ -107,7 +106,7 @@ func DarwinInstalled(execute command.ExecuteRunner, fs afero.Fs) DarwinInstalled
 
 		// brew list
 		out := new(bytes.Buffer)
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:    "brew",
 			Args:   []string{"--prefix"},
 			Stdout: out,
@@ -125,7 +124,7 @@ func DarwinInstalled(execute command.ExecuteRunner, fs afero.Fs) DarwinInstalled
 	}
 }
 
-func DarwinInstall(execute command.ExecuteRunner, fs afero.Fs) DarwinInstallRunner {
+func DarwinInstall(execute backend.Execute, fs afero.Fs) DarwinInstallRunner {
 	return func(ctx context.Context, p *DarwinInstallParams) error {
 		if installed := DarwinInstalled(execute, fs)(ctx, p.Name); installed {
 			return nil
@@ -136,20 +135,20 @@ func DarwinInstall(execute command.ExecuteRunner, fs afero.Fs) DarwinInstallRunn
 			args = []string{"cask", "install", p.Option, p.Name}
 		}
 
-		if err := execute(ctx, &command.Params{Cmd: "brew", Args: args}); err != nil {
+		if err := execute(ctx, &backend.ExecuteParams{Cmd: "brew", Args: args}); err != nil {
 			return xerrors.Errorf("Install package failed: %s: %w", p.Name, err)
 		}
 		return nil
 	}
 }
 
-func DarwinUninstall(execute command.ExecuteRunner, fs afero.Fs) DarwinUninstallRunner {
+func DarwinUninstall(execute backend.Execute, fs afero.Fs) DarwinUninstallRunner {
 	return func(ctx context.Context, name string) error {
 		if installed := DarwinInstalled(execute, fs)(ctx, name); !installed {
 			return nil
 		}
 
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:  "brew",
 			Args: []string{"uninstall", name},
 		}); err != nil {

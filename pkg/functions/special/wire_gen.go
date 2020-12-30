@@ -6,16 +6,14 @@
 package special
 
 import (
+	"go.starlark.net/starlark"
 	"io"
 	"os"
-
-	"go.starlark.net/starlark"
-	lib "go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
-func RequirePrevilegedAccess() func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
+func RequirePrevilegedAccess() func(thread *starlark.Thread, b *starlark.Builtin, args starlark.Tuple, kargs []starlark.Tuple) (starlark.Value, error) {
 	ioReader := reader()
 	v := NewRequirePrevilegedAccessFunction(ioReader)
 	return v

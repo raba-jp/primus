@@ -1,6 +1,4 @@
-//go:generate mockery -outpkg=mocks -case=snake -name=OSDetector
-
-package modules
+package backend
 
 import (
 	"bytes"
@@ -10,7 +8,6 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/raba-jp/primus/pkg/exec"
 	"github.com/spf13/afero"
 )
 
@@ -18,23 +15,27 @@ const timeout = 5 * time.Second
 
 type DarwinChecker func(ctx context.Context) bool
 
-func NewDarwinChecker(exc exec.Interface) DarwinChecker {
+func NewDarwinChecker(execute Execute) DarwinChecker {
 	return func(ctx context.Context) bool {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
+		bufout := new(bytes.Buffer)
 		buferr := new(bytes.Buffer)
-		cmd := exc.CommandContext(ctx, "uname", "-a")
-		cmd.SetStderr(buferr)
-		out, err := cmd.Output()
-		if err != nil {
+		if err := execute(ctx, &ExecuteParams{
+			Cmd:    "uname",
+			Args:   []string{"-a"},
+			Stdout: bufout,
+			Stderr: buferr,
+		}); err != nil {
 			log.Ctx(ctx).Error().
+				Str("stdout", bufout.String()).
 				Str("stderr", buferr.String()).
 				Err(err).
 				Msg("failed to detect darwin")
 			return false
 		}
-		return strings.Contains(string(out), "Darwin")
+		return strings.Contains(bufout.String(), "Darwin")
 	}
 }
 

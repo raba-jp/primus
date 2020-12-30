@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
 	"github.com/raba-jp/primus/pkg/starlark"
@@ -109,26 +110,26 @@ func TestEnableService(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		mock      command.ExecuteRunner
+		mock      backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "success: check cmd returns enabled",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "error: enabled fail",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				if p.Args[0] == "is-enabled" {
 					return nil
 				}
@@ -154,26 +155,26 @@ func TestSystemdStart(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		mock      command.ExecuteRunner
+		mock      backend.Execute
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "success: check cmd returns active",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return nil
 			},
 			errAssert: assert.NoError,
 		},
 		{
 			name: "error: enabled fail",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				if p.Args[0] == "is-active" {
 					return nil
 				}

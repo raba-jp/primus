@@ -2,8 +2,7 @@ package repl
 
 import (
 	"github.com/raba-jp/primus/pkg/cli/ui"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
-	"go.starlark.net/starlark"
+	lib "go.starlark.net/starlark"
 	"go.starlark.net/syntax"
 )
 
@@ -13,12 +12,12 @@ type REPL interface {
 }
 
 type repl struct {
-	thread      *starlark.Thread
-	predeclared builtin.Predeclared
+	thread      *lib.Thread
+	predeclared lib.StringDict
 	state       *State
 }
 
-func NewREPL(state *State, thread *starlark.Thread, predeclared builtin.Predeclared) REPL {
+func NewREPL(state *State, thread *lib.Thread, predeclared lib.StringDict) REPL {
 	return &repl{
 		state:       state,
 		thread:      thread,
@@ -39,16 +38,16 @@ func (r *repl) Eval(input string) error {
 	defer r.state.Reset()
 
 	if expr := r.soleExpr(f); expr != nil {
-		v, err := starlark.EvalExpr(r.thread, expr, r.predeclared)
+		v, err := lib.EvalExpr(r.thread, expr, r.predeclared)
 		if err != nil {
 			return err
 		}
-		if v != starlark.None {
+		if v != lib.None {
 			ui.Printf("%v\n", v)
 		}
 		return nil
 	}
-	if err := starlark.ExecREPLChunk(f, r.thread, r.predeclared); err != nil {
+	if err := lib.ExecREPLChunk(f, r.thread, r.predeclared); err != nil {
 		return err
 	}
 
@@ -64,8 +63,8 @@ func (r *repl) soleExpr(f *syntax.File) syntax.Expr {
 	return nil
 }
 
-func newThread() *starlark.Thread {
-	return &starlark.Thread{
+func newThread() *lib.Thread {
+	return &lib.Thread{
 		Name: "REPL",
 	}
 }

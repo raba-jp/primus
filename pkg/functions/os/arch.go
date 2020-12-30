@@ -9,10 +9,9 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/wesovilabs/koazee"
 
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/cli/ui"
 	"github.com/raba-jp/primus/pkg/ctxlib"
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"golang.org/x/xerrors"
 
@@ -37,10 +36,10 @@ type ArchMultipleInstallRunner func(ctx context.Context, ps []*ArchInstallParams
 
 type ArchUninstallRunner func(ctx context.Context, name string) error
 
-func NewIsArchFunction(detector modules.OSDetector) starlark.Fn {
+func NewIsArchFunction(checker backend.ArchLinuxChecker) starlark.Fn {
 	return func(thread *lib.Thread, b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (lib.Value, error) {
 		ctx := starlark.ToContext(thread)
-		return starlark.ToBool(detector.ArchLinux(ctx)), nil
+		return starlark.ToBool(checker(ctx)), nil
 	}
 }
 
@@ -137,9 +136,9 @@ func NewArchUninstallFunction(runner ArchUninstallRunner) starlark.Fn {
 	}
 }
 
-func ArchInstalled(execRunner command.ExecuteRunner) ArchInstalledRunner {
+func ArchInstalled(execRunner backend.Execute) ArchInstalledRunner {
 	return func(ctx context.Context, name string) bool {
-		err := execRunner(ctx, &command.Params{
+		err := execRunner(ctx, &backend.ExecuteParams{
 			Cmd:  "pacman",
 			Args: []string{"-Qg", name},
 		})
@@ -147,7 +146,7 @@ func ArchInstalled(execRunner command.ExecuteRunner) ArchInstalledRunner {
 	}
 }
 
-func ArchInstall(executable command.ExecutableRunner, execute command.ExecuteRunner) ArchInstallRunner {
+func ArchInstall(executable backend.Executable, execute backend.Execute) ArchInstallRunner {
 	return func(ctx context.Context, p *ArchInstallParams) error {
 		cmd, options := archCmdArgs(ctx, executable, []string{p.Option, p.Name})
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
@@ -161,7 +160,7 @@ func ArchInstall(executable command.ExecutableRunner, execute command.ExecuteRun
 		defer cancel()
 
 		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("args", options).Msg("params")
-		params := &command.Params{
+		params := &backend.ExecuteParams{
 			Cmd:  cmd,
 			Args: options,
 		}
@@ -176,7 +175,7 @@ func ArchInstall(executable command.ExecutableRunner, execute command.ExecuteRun
 	}
 }
 
-func ArchMultipleInstall(executable command.ExecutableRunner, execute command.ExecuteRunner) ArchMultipleInstallRunner {
+func ArchMultipleInstall(executable backend.Executable, execute backend.Execute) ArchMultipleInstallRunner {
 	return func(ctx context.Context, ps []*ArchInstallParams) error {
 		previlegedAccess := ctxlib.PrevilegedAccessKey(ctx)
 		ctx, cancel := context.WithTimeout(ctx, multipleInstallTimeout)
@@ -189,7 +188,7 @@ func ArchMultipleInstall(executable command.ExecutableRunner, execute command.Ex
 
 		log.Ctx(ctx).Debug().Str("cmd", cmd).Strs("options", options).Msg("params")
 
-		params := &command.Params{
+		params := &backend.ExecuteParams{
 			Cmd:  cmd,
 			Args: options,
 		}
@@ -205,7 +204,7 @@ func ArchMultipleInstall(executable command.ExecutableRunner, execute command.Ex
 	}
 }
 
-func ArchUninstall(execute command.ExecuteRunner) ArchUninstallRunner {
+func ArchUninstall(execute backend.Execute) ArchUninstallRunner {
 	return func(ctx context.Context, name string) error {
 		if installed := ArchInstalled(execute)(ctx, name); !installed {
 			return nil
@@ -214,7 +213,7 @@ func ArchUninstall(execute command.ExecuteRunner) ArchUninstallRunner {
 		ctx, cancel := context.WithTimeout(ctx, timeout)
 		defer cancel()
 
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:  "pacman",
 			Args: []string{"-R", "--noconfirm", name},
 		}); err != nil {
@@ -224,7 +223,7 @@ func ArchUninstall(execute command.ExecuteRunner) ArchUninstallRunner {
 	}
 }
 
-func archCmdArgs(ctx context.Context, executable command.ExecutableRunner, cmds []string) (string, []string) {
+func archCmdArgs(ctx context.Context, executable backend.Executable, cmds []string) (string, []string) {
 	cmd := "sudo pacman"
 	options := []string{"-S", "--noconfirm"}
 	yay := usableYay(ctx, executable)
@@ -249,10 +248,10 @@ func archCmdArgs(ctx context.Context, executable command.ExecutableRunner, cmds 
 	return cmd, options
 }
 
-func usableYay(ctx context.Context, executable command.ExecutableRunner) bool {
+func usableYay(ctx context.Context, executable backend.Executable) bool {
 	return executable(ctx, "yay")
 }
 
-func usablePowerpill(ctx context.Context, executable command.ExecutableRunner) bool {
+func usablePowerpill(ctx context.Context, executable backend.Executable) bool {
 	return executable(ctx, "powerpill")
 }

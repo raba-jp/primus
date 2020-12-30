@@ -4,8 +4,7 @@ package network
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	lib "go.starlark.net/starlark"
 )
 
@@ -18,10 +17,9 @@ func newFunctions(clone GitCloneRunner, httpRequest HTTPRequestRunner) lib.Value
 
 func NewFunctions() lib.Value {
 	wire.Build(
-		modules.NewExecInterface,
-		modules.NewHTTPClient,
-		modules.NewFs,
-		command.Execute,
+		backend.NewHTTPClient,
+		backend.NewFs,
+		backend.NewExecute,
 		GitClone,
 		HTTPRequest,
 		newFunctions,

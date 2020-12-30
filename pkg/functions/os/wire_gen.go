@@ -6,32 +6,29 @@
 package os
 
 import (
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
 func NewArchFunctions() starlark.Value {
-	execInterface := modules.NewExecInterface()
-	executeRunner := command.Execute(execInterface)
-	archInstalledRunner := ArchInstalled(executeRunner)
-	executableRunner := command.Executable(execInterface)
-	archInstallRunner := ArchInstall(executableRunner, executeRunner)
-	archMultipleInstallRunner := ArchMultipleInstall(executableRunner, executeRunner)
-	archUninstallRunner := ArchUninstall(executeRunner)
+	execute := backend.NewExecute()
+	archInstalledRunner := ArchInstalled(execute)
+	executable := backend.NewExecutable()
+	archInstallRunner := ArchInstall(executable, execute)
+	archMultipleInstallRunner := ArchMultipleInstall(executable, execute)
+	archUninstallRunner := ArchUninstall(execute)
 	value := newArchFunctions(archInstalledRunner, archInstallRunner, archMultipleInstallRunner, archUninstallRunner)
 	return value
 }
 
 func NewDarwinFunctions() starlark.Value {
-	execInterface := modules.NewExecInterface()
-	executeRunner := command.Execute(execInterface)
-	fs := modules.NewFs()
-	darwinInstalledRunner := DarwinInstalled(executeRunner, fs)
-	darwinInstallRunner := DarwinInstall(executeRunner, fs)
-	darwinUninstallRunner := DarwinUninstall(executeRunner, fs)
+	execute := backend.NewExecute()
+	fs := backend.NewFs()
+	darwinInstalledRunner := DarwinInstalled(execute, fs)
+	darwinInstallRunner := DarwinInstall(execute, fs)
+	darwinUninstallRunner := DarwinUninstall(execute, fs)
 	value := newDarwinFunctions(darwinInstalledRunner, darwinInstallRunner, darwinUninstallRunner)
 	return value
 }

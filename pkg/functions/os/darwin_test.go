@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/functions/command"
 	"github.com/raba-jp/primus/pkg/functions/os"
-	"github.com/raba-jp/primus/pkg/modules"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -19,7 +19,7 @@ func TestNewIsDarwinFunction(t *testing.T) {
 
 	tests := []struct {
 		name string
-		mock modules.DarwinChecker
+		mock backend.DarwinChecker
 		want lib.Value
 	}{
 		{
@@ -195,13 +195,13 @@ func TestNewDarwinUninstallFunction(t *testing.T) {
 func TestDarwinInstalled(t *testing.T) {
 	tests := []struct {
 		name string
-		mock command.ExecuteRunner
+		mock backend.Execute
 		fs   func() afero.Fs
 		want bool
 	}{
 		{
 			name: "success: $(brew --prefix)/Celler",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				p.Stdout.Write([]byte("/opt"))
 				return nil
 			},
@@ -214,7 +214,7 @@ func TestDarwinInstalled(t *testing.T) {
 		},
 		{
 			name: "success: /opt/homebrew-cask/Caskroom",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				p.Stdout.Write([]byte("/opt"))
 				return nil
 			},
@@ -227,7 +227,7 @@ func TestDarwinInstalled(t *testing.T) {
 		},
 		{
 			name: "success: /usr/local/Caskroom",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				p.Stdout.Write([]byte("/opt"))
 				return nil
 			},
@@ -240,7 +240,7 @@ func TestDarwinInstalled(t *testing.T) {
 		},
 		{
 			name: "error: not found",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				p.Stdout.Write([]byte("/opt"))
 				return nil
 			},
@@ -252,7 +252,7 @@ func TestDarwinInstalled(t *testing.T) {
 		},
 		{
 			name: "error: command failed",
-			mock: func(ctx context.Context, p *command.Params) error {
+			mock: func(ctx context.Context, p *backend.ExecuteParams) error {
 				return xerrors.New("dummy")
 			},
 			fs: func() afero.Fs {
@@ -277,15 +277,15 @@ func TestDarwinInstall(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		execute   func() command.ExecuteRunner
+		execute   func() backend.Execute
 		fs        func() afero.Fs
 		params    *os.DarwinInstallParams
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -300,8 +300,8 @@ func TestDarwinInstall(t *testing.T) {
 		},
 		{
 			name: "success: cask",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -317,8 +317,8 @@ func TestDarwinInstall(t *testing.T) {
 		},
 		{
 			name: "success: already installed",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -335,8 +335,8 @@ func TestDarwinInstall(t *testing.T) {
 		},
 		{
 			name: "error: install package failed",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return xerrors.New("dummy")
 				}
 			},
@@ -369,14 +369,14 @@ func TestNewUninstall(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		execute   func() command.ExecuteRunner
+		execute   func() backend.Execute
 		fs        func() afero.Fs
 		errAssert assert.ErrorAssertionFunc
 	}{
 		{
 			name: "success",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -389,8 +389,8 @@ func TestNewUninstall(t *testing.T) {
 		},
 		{
 			name: "success: not installed",
-			execute: func() command.ExecuteRunner {
-				return func(context.Context, *command.Params) error {
+			execute: func() backend.Execute {
+				return func(context.Context, *backend.ExecuteParams) error {
 					return nil
 				}
 			},
@@ -401,9 +401,9 @@ func TestNewUninstall(t *testing.T) {
 		},
 		{
 			name: "error: uninstall failed",
-			execute: func() command.ExecuteRunner {
+			execute: func() backend.Execute {
 				called := false
-				return func(context.Context, *command.Params) error {
+				return func(context.Context, *backend.ExecuteParams) error {
 					if called {
 						return xerrors.New("dummy")
 					}

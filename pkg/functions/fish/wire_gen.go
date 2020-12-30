@@ -6,18 +6,16 @@
 package fish
 
 import (
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
 func NewFunctions() starlark.Value {
-	execInterface := modules.NewExecInterface()
-	executeRunner := command.Execute(execInterface)
-	setVariableRunner := SetVariable(executeRunner)
-	setPathRunner := SetPath(executeRunner)
+	execute := backend.NewExecute()
+	setVariableRunner := SetVariable(execute)
+	setPathRunner := SetPath(execute)
 	value := newFunctions(setVariableRunner, setPathRunner)
 	return value
 }

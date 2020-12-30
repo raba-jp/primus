@@ -6,7 +6,7 @@ import (
 
 	lib "go.starlark.net/starlark"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/xerrors"
@@ -42,7 +42,7 @@ func NewGitCloneFunction(runner GitCloneRunner) starlark.Fn {
 	}
 }
 
-func GitClone(execute command.ExecuteRunner) GitCloneRunner {
+func GitClone(execute backend.Execute) GitCloneRunner {
 	return func(ctx context.Context, p *GitCloneParams) error {
 		base := p.Path
 		if !filepath.IsAbs(p.Path) {
@@ -54,7 +54,7 @@ func GitClone(execute command.ExecuteRunner) GitCloneRunner {
 			args = []string{"clone", "-b", p.Branch, p.URL, base}
 		}
 
-		if err := execute(ctx, &command.Params{Cmd: "git", Args: args}); err != nil {
+		if err := execute(ctx, &backend.ExecuteParams{Cmd: "git", Args: args}); err != nil {
 			return xerrors.Errorf("Failed to git clone: %w", err)
 		}
 

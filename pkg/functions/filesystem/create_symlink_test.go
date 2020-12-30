@@ -48,6 +48,7 @@ func TestNewCreateSymlinkFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := starlark.ExecForTest("test", tt.data, filesystem.NewCreateSymlinkFunction(tt.mock))
 			tt.errAssert(t, err)
@@ -84,6 +85,7 @@ func TestCreateSymlink(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			_ = afero.WriteFile(fs, tt.src, []byte("test file"), 0777)
 

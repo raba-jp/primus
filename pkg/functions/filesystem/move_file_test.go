@@ -12,6 +12,8 @@ import (
 )
 
 func TestNewMoveFileFunction(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		name      string
 		data      string
@@ -45,7 +47,9 @@ func TestNewMoveFileFunction(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
 			_, err := starlark.ExecForTest("test", tt.data, filesystem.NewMoveFileFunction(tt.mock))
 			tt.errAssert(t, err)
@@ -159,7 +163,6 @@ func TestMoveFile(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-
 			fs := tt.setup()
 			err := filesystem.MoveFile(fs)(context.Background(), tt.params)
 			tt.errAssert(t, err)

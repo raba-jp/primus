@@ -3,8 +3,10 @@ package cmd
 import (
 	"path/filepath"
 
+	"github.com/raba-jp/primus/pkg/functions"
+
 	"github.com/raba-jp/primus/pkg/cli/args"
-	"github.com/raba-jp/primus/pkg/starlark/exec"
+	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"golang.org/x/xerrors"
@@ -25,8 +27,8 @@ func NewApplyCommand() ApplyCommand {
 				return xerrors.Errorf("Failed to get absolute path: %w", err)
 			}
 			log.Ctx(ctx).Info().Str("filepath", path).Msg("entrypoint")
-			execFile := exec.Initialize()
-			if err := execFile(ctx, false, path); err != nil {
+			execFile := starlark.Initialize()
+			if err := execFile(ctx, path, functions.New()); err != nil {
 				log.Ctx(ctx).Err(err).Msg("Failed to exec")
 				return xerrors.Errorf(": %w", err)
 			}

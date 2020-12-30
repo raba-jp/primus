@@ -14,7 +14,6 @@ require (
 	github.com/rs/zerolog v1.18.0
 	github.com/spf13/afero v1.4.1
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/wesovilabs/koazee v0.0.5
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee

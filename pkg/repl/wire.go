@@ -4,7 +4,7 @@ package repl
 
 import (
 	"github.com/google/wire"
-	"github.com/raba-jp/primus/pkg/starlark/builtin"
+	"github.com/raba-jp/primus/pkg/functions"
 )
 
 func Initialize() PromptFunc {
@@ -15,7 +15,7 @@ func Initialize() PromptFunc {
 		NewREPL,
 		NewExecutor,
 		NewCompleter,
-		builtin.NewBuiltinFunction,
+		functions.New,
 	)
 	return nil
 }

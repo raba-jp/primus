@@ -6,14 +6,14 @@
 package filesystem
 
 import (
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
 func NewFunctions() starlark.Value {
-	fs := modules.NewFs()
+	fs := backend.NewFs()
 	createDirectoryRunner := CreateDirectory(fs)
 	createSymlinkRunner := CreateSymlink(fs)
 	copyFileRunner := CopyFile(fs)

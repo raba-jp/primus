@@ -7,7 +7,7 @@ import (
 
 	lib "go.starlark.net/starlark"
 
-	"github.com/raba-jp/primus/pkg/functions/command"
+	"github.com/raba-jp/primus/pkg/backend"
 	"github.com/raba-jp/primus/pkg/starlark"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/xerrors"
@@ -60,11 +60,11 @@ func parseSetPathArgs(b *lib.Builtin, args lib.Tuple, kwargs []lib.Tuple) (*SetP
 	return a, nil
 }
 
-func SetPath(execute command.ExecuteRunner) SetPathRunner {
+func SetPath(execute backend.Execute) SetPathRunner {
 	return func(ctx context.Context, p *SetPathParams) error {
 		arg := fmt.Sprintf("'set --universal fish_user_paths %s'", strings.Join(p.Values, " "))
 
-		if err := execute(ctx, &command.Params{
+		if err := execute(ctx, &backend.ExecuteParams{
 			Cmd:  "fish",
 			Args: []string{"--command", arg},
 		}); err != nil {

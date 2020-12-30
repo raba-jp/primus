@@ -6,19 +6,17 @@
 package network
 
 import (
-	"github.com/raba-jp/primus/pkg/functions/command"
-	"github.com/raba-jp/primus/pkg/modules"
+	"github.com/raba-jp/primus/pkg/backend"
 	"go.starlark.net/starlark"
 )
 
 // Injectors from wire.go:
 
 func NewFunctions() starlark.Value {
-	execInterface := modules.NewExecInterface()
-	executeRunner := command.Execute(execInterface)
-	gitCloneRunner := GitClone(executeRunner)
-	client := modules.NewHTTPClient()
-	fs := modules.NewFs()
+	execute := backend.NewExecute()
+	gitCloneRunner := GitClone(execute)
+	client := backend.NewHTTPClient()
+	fs := backend.NewFs()
 	httpRequestRunner := HTTPRequest(client, fs)
 	value := newFunctions(gitCloneRunner, httpRequestRunner)
 	return value
