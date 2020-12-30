@@ -7,7 +7,6 @@ import (
 
 	lib "go.starlark.net/starlark"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/raba-jp/primus/pkg/functions/os"
 	"github.com/raba-jp/primus/pkg/starlark"
 )
@@ -119,9 +118,7 @@ func TestJoin(t *testing.T) {
 				t.Errorf("Unexpected error: %v", err)
 			}
 			got, _ := lib.AsString(globals["v"])
-			if diff := cmp.Diff(got, tt.want); diff != "" {
-				t.Error(diff)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
