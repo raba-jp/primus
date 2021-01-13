@@ -13,7 +13,7 @@ require (
 	github.com/rs/zerolog v1.20.0
 	github.com/spf13/afero v1.5.1
 	github.com/spf13/cobra v1.1.1
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
