@@ -12,7 +12,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/spf13/afero v1.5.1
-	github.com/spf13/cobra v1.1.1
+	github.com/spf13/cobra v1.1.2
 	github.com/stretchr/testify v1.7.0
 	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
