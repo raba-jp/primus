@@ -14,7 +14,7 @@ require (
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.1.3
 	github.com/stretchr/testify v1.7.0
-	go.starlark.net v0.0.0-20200901195727-6e684ef5eeee
+	go.starlark.net ee8ed142361c
 	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
